@@ -6,6 +6,9 @@ package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
+
+import static android.R.attr.end;
 
 public class MonitorMotorTask extends RobotTask {
 
@@ -153,7 +156,6 @@ public class MonitorMotorTask extends RobotTask {
     {
         int deltaPosition;
         int deltaTime;
-        int timeForOneRotation;
         double distanceRotated;
         double percentRotated;
         double oneRotationMultiplier;
@@ -168,6 +170,8 @@ public class MonitorMotorTask extends RobotTask {
             return;
         }
 
+        RobotLog.i("RPM - start");
+
         /*
          * Someone should check my math.  The equation could be simplified but I was
          * intentionally verbose in order to attempt to document how we are calculating RPM.
@@ -175,12 +179,22 @@ public class MonitorMotorTask extends RobotTask {
         deltaPosition = position - lastPosition;
         deltaTime = (int)timeSinceLastCall.milliseconds();
 
+        RobotLog.i("RPM - deltaPosition: " + deltaPosition);
+        RobotLog.i("RPM - deltaTime: " + deltaTime);
+
         distanceRotated = (deltaPosition / ticksPerRevolution);
+        RobotLog.i("RPM - distanceRotated: " + distanceRotated);
         oneRotationMultiplier = 1 / distanceRotated;
+
+        RobotLog.i("RPM - oneRotationMultiplier: " + oneRotationMultiplier);
+
         rpm = (int)(MILLIS_IN_MINUTE / (oneRotationMultiplier * deltaTime));
+        RobotLog.i("RPM - rpm: " + rpm);
 
         timeSinceLastCall.reset();
         lastPosition = position;
+
+        RobotLog.i("RPM - end");
     }
 
     @Override
