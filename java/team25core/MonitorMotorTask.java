@@ -182,7 +182,7 @@ public class MonitorMotorTask extends RobotTask {
         RobotLog.i("RPM - deltaPosition: " + deltaPosition);
         RobotLog.i("RPM - deltaTime: " + deltaTime);
 
-        distanceRotated = (deltaPosition / ticksPerRevolution);
+        distanceRotated = (deltaPosition / (double)ticksPerRevolution);
         RobotLog.i("RPM - distanceRotated: " + distanceRotated);
         oneRotationMultiplier = 1 / distanceRotated;
 
