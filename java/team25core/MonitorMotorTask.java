@@ -98,6 +98,7 @@ public class MonitorMotorTask extends RobotTask {
         this.robot = robot;
         this.target = 0;
         this.motorKind = MotorKind.ANDYMARK_40;
+        this.displayProperties = DISPLAY_POSITION;
     }
 
     public MonitorMotorTask(Robot robot, DcMotor motor, int target)
@@ -108,6 +109,7 @@ public class MonitorMotorTask extends RobotTask {
         this.robot = robot;
         this.target = target;
         this.motorKind = MotorKind.ANDYMARK_40;
+        this.displayProperties = DISPLAY_POSITION;
     }
 
     protected void setupMotorProperties()
