@@ -205,7 +205,12 @@ public class MonitorMotorTask extends RobotTask {
         position = motor.getCurrentPosition();
         error = target - position;
 
-        calculateRpm();
+        /*
+         * Make sure the sample rate is not too fast.
+         */
+        if (timeSinceLastCall.time() >= 20) {
+            calculateRpm();
+        }
 
         if ((targetRpm != -1) && (rpm >= targetRpm)) {
             robot.queueEvent(new MonitorMotorEvent(this, EventKind.TARGET_RPM, rpm));
