@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class MonitorMotorTask extends RobotTask {
 
-    public char DISPLAY_POSITION = 0x01;
-    public char DISPLAY_RPM = 0x02;
+    public static final char DISPLAY_POSITION = 0x01;
+    public static final char DISPLAY_RPM = 0x02;
 
     public enum MotorKind {
         ANDYMARK_20,
@@ -47,11 +47,9 @@ public class MonitorMotorTask extends RobotTask {
     protected int ANDYMARK_3_7_2ND_GEN_TPR = 103;
     protected int ANDYMARK_3_7_1ST_GEN_TPR = 44;
 
-    /*
-     * No Events.
-     */
     public enum EventKind {
         ERROR_UPDATE,
+        TARGET_RPM,
     }
 
     public class MonitorMotorEvent extends RobotEvent {
@@ -66,6 +64,7 @@ public class MonitorMotorTask extends RobotTask {
     }
 
     protected int target;
+    protected int targetRpm = -1;
     protected char displayProperties = DISPLAY_POSITION;
     protected int rpm;
     protected int lastPosition;
@@ -110,6 +109,11 @@ public class MonitorMotorTask extends RobotTask {
         this.target = target;
         this.motorKind = MotorKind.ANDYMARK_40;
         this.displayProperties = DISPLAY_POSITION;
+    }
+
+    public void setTargetRpm(int targetRpm)
+    {
+        this.targetRpm = targetRpm;
     }
 
     protected void setupMotorProperties()
@@ -188,6 +192,14 @@ public class MonitorMotorTask extends RobotTask {
         error = target - position;
 
         calculateRpm();
+
+        if ((targetRpm != -1) && (rpm >= targetRpm)) {
+            robot.queueEvent(new MonitorMotorEvent(this, EventKind.TARGET_RPM, rpm));
+            /*
+             * Only send once...
+             */
+            targetRpm = -1;
+        }
 
         robot.queueEvent(new MonitorMotorEvent(this, EventKind.ERROR_UPDATE, error));
 
