@@ -208,7 +208,7 @@ public class MonitorMotorTask extends RobotTask {
         /*
          * Make sure the sample rate is not too fast.
          */
-        if (timeSinceLastCall.time() >= 20) {
+        if ((timeSinceLastCall == null) || (timeSinceLastCall.time() >= 20)) {
             calculateRpm();
         }
 
