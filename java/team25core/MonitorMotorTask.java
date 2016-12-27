@@ -70,7 +70,7 @@ public class MonitorMotorTask extends RobotTask {
     protected int targetRpm = -1;
     protected char displayProperties = DISPLAY_POSITION;
     protected int rpm;
-    protected int lastPosition;
+    protected int lastPosition = -1;
     protected double lastTime;
     protected int position;
     protected ElapsedTime timeSinceLastCall = null;
