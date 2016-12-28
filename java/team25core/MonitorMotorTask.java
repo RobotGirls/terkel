@@ -207,6 +207,7 @@ public class MonitorMotorTask extends RobotTask {
         int error;
 
         data = motor.getCurrentPositionTimestamped();
+        position = data.getValue();
         error = target - data.getValue();
 
         calculateRpm();
