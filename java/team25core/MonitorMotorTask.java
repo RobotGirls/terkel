@@ -7,6 +7,7 @@ package team25core;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.qualcomm.robotcore.util.TimestampedInt;
 
 import static android.R.attr.end;
 
@@ -71,9 +72,10 @@ public class MonitorMotorTask extends RobotTask {
     protected char displayProperties = DISPLAY_POSITION;
     protected int rpm;
     protected int lastPosition = -1;
-    protected double lastTime;
+    protected long lastTime;
+    TimestampedInt data;
     protected int position;
-    protected ElapsedTime timeSinceLastCall = null;
+    protected long timeDelta;
     protected MotorKind motorKind;
     protected int ticksPerRevolution;
     protected static final int MILLIS_IN_MINUTE = 60000;
@@ -155,7 +157,7 @@ public class MonitorMotorTask extends RobotTask {
     protected void calculateRpm()
     {
         int deltaPosition;
-        int deltaTime;
+        long deltaTime;
         double distanceRotated;
         double percentRotated;
         double oneRotationMultiplier;
@@ -165,8 +167,12 @@ public class MonitorMotorTask extends RobotTask {
          */
         if (lastPosition == -1) {
             lastPosition = position;
-            timeSinceLastCall = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-            timeSinceLastCall.reset();
+            lastTime = data.getMilliseconds();
+            return;
+        }
+
+        deltaTime = data.getMilliseconds() - lastTime;
+        if (deltaTime <= 200) {
             return;
         }
 
@@ -177,8 +183,6 @@ public class MonitorMotorTask extends RobotTask {
          * intentionally verbose in order to attempt to document how we are calculating RPM.
          */
         deltaPosition = position - lastPosition;
-        deltaTime = (int)timeSinceLastCall.milliseconds();
-
         RobotLog.i("RPM - deltaPosition: " + deltaPosition);
         RobotLog.i("RPM - deltaTime: " + deltaTime);
 
@@ -191,8 +195,8 @@ public class MonitorMotorTask extends RobotTask {
         rpm = (int)(MILLIS_IN_MINUTE / (oneRotationMultiplier * deltaTime));
         RobotLog.i("RPM - rpm: " + rpm);
 
-        timeSinceLastCall.reset();
         lastPosition = position;
+        lastTime = data.getMilliseconds();
 
         RobotLog.i("RPM - end");
     }
@@ -202,15 +206,10 @@ public class MonitorMotorTask extends RobotTask {
     {
         int error;
 
-        position = motor.getCurrentPosition();
-        error = target - position;
+        data = motor.getCurrentPositionTimestamped();
+        error = target - data.getValue();
 
-        /*
-         * Make sure the sample rate is not too fast.
-         */
-        if ((timeSinceLastCall == null) || (timeSinceLastCall.time() >= 20)) {
-            calculateRpm();
-        }
+        calculateRpm();
 
         if ((targetRpm != -1) && (rpm >= targetRpm)) {
             robot.queueEvent(new MonitorMotorEvent(this, EventKind.TARGET_RPM, rpm));
