@@ -19,13 +19,13 @@ public class LightSensorCriteria implements SensorCriteria {
 
     protected int light;
 
-    protected int min;
-    protected int max;
-    protected int threshold;
+    protected double min;
+    protected double max;
+    protected double threshold;
     protected LightSensor sensor;
     protected LightPolarity polarity;
 
-    public LightSensorCriteria(LightSensor sensor, int min, int max)
+    public LightSensorCriteria(LightSensor sensor, double min, double max)
     {
         this.sensor = sensor;
         this.polarity = LightPolarity.WHITE;
@@ -34,7 +34,7 @@ public class LightSensorCriteria implements SensorCriteria {
         this.threshold = (min + ((max - min)/2));
     }
 
-    public LightSensorCriteria(LightSensor sensor, LightPolarity polarity, int min, int max)
+    public LightSensorCriteria(LightSensor sensor, LightPolarity polarity, double min, double max)
     {
         this.sensor = sensor;
         this.polarity = polarity;
@@ -44,19 +44,19 @@ public class LightSensorCriteria implements SensorCriteria {
     }
 
     public void setThreshold(double percent) {
-        this.threshold = (int)(max - ((max - min) * percent));
+        this.threshold = max - ((max - min) * percent);
     }
 
     @Override
     public boolean satisfied()
     {
-        RobotLog.i("251 Light: %f, Threshold: %d", sensor.getRawLightDetected(), threshold);
+        RobotLog.i("251 Light: %f, Threshold: %f", 100 * sensor.getRawLightDetected(), threshold);
         if (polarity == LightPolarity.WHITE) {
-            if (sensor.getRawLightDetected() < threshold) {
+            if (sensor.getRawLightDetected() > threshold) {
                 return true;
             }
         } else if (polarity == LightPolarity.BLACK) {
-            if (sensor.getRawLightDetected() > threshold) {
+            if (sensor.getRawLightDetected() < threshold) {
                 return true;
             }
         }
