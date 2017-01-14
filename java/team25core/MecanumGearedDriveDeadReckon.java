@@ -2,14 +2,14 @@
 package team25core;
 
 /*
- * FTC Team 25: Created by Katelyn Biesiadecki on 11/12/2016.
+ * FTC Team 25: Created by Katelyn Biesiadecki on 12/11/2016.
  */
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class FourWheelGearedDriveDeadReckon extends DeadReckon {
+public class MecanumGearedDriveDeadReckon extends DeadReckon {
 
     private int targetPosition;
     public int lCurrentPosition;
@@ -23,7 +23,7 @@ public class FourWheelGearedDriveDeadReckon extends DeadReckon {
     /*
      * Assumes that both motors are on the same controller.
      */
-    public FourWheelGearedDriveDeadReckon(Robot robot, int encoderTicksPerInch, GyroSensor gyroSensor, DcMotor motorLeftFront, DcMotor motorRightFront, DcMotor motorLeftRear, DcMotor motorRightRear)
+    public MecanumGearedDriveDeadReckon(Robot robot, int encoderTicksPerInch, GyroSensor gyroSensor, DcMotor motorLeftFront, DcMotor motorRightFront, DcMotor motorLeftRear, DcMotor motorRightRear)
     {
         super(robot, encoderTicksPerInch, gyroSensor, motorLeftFront);
 
@@ -37,7 +37,7 @@ public class FourWheelGearedDriveDeadReckon extends DeadReckon {
         rearRightMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public FourWheelGearedDriveDeadReckon(Robot robot, int encoderTicksPerInch, int encoderTicksPerDegree, DcMotor motorLeftFront, DcMotor motorRightFront, DcMotor motorLeftRear, DcMotor motorRightRear)
+    public MecanumGearedDriveDeadReckon(Robot robot, int encoderTicksPerInch, int encoderTicksPerDegree, DcMotor motorLeftFront, DcMotor motorRightFront, DcMotor motorLeftRear, DcMotor motorRightRear)
     {
         super(robot, encoderTicksPerInch, encoderTicksPerDegree, motorLeftFront);
 
@@ -113,10 +113,20 @@ public class FourWheelGearedDriveDeadReckon extends DeadReckon {
         }
     }
 
+    protected void motorDiagonal(double speed)
+    {
+        // Diagonal left backward.
+        frontLeftMotor.setPower(speed);
+        rearRightMotor.setPower(speed);
+    }
+
     @Override
     protected void motorSideways(double speed)
     {
-        // Unsupported operation.
+        frontLeftMotor.setPower(-speed);
+        rearLeftMotor.setPower(speed);
+        frontRightMotor.setPower(speed);
+        rearRightMotor.setPower(-speed);
     }
 
     @Override
