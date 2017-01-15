@@ -107,6 +107,11 @@ public class FourWheelPivotTurnDeadReckon extends DeadReckon {
     }
 
     @Override
+    protected void motorSideways(double speed) {
+        
+    }
+
+    @Override
     protected void motorStop()
     {
         if (mmt != null) {
