@@ -1,6 +1,7 @@
 package team25core;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -145,6 +146,13 @@ public class Robot_Navigation
         return (closeEnough);
     }
 
+    public boolean onTarget() {
+        if ((relativeBearing <= 1) && (relativeBearing >= -1)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /***
      * Initialize the Target Tracking and navigation interface
@@ -221,9 +229,9 @@ public class Robot_Navigation
          * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
          */
 
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // Camera is ON the robots center line
+        final int CAMERA_FORWARD_DISPLACEMENT  = 178;   // Camera is 110 mm in front of robot center
+        final int CAMERA_VERTICAL_DISPLACEMENT = 400;   // Camera is 200 mm above ground
+        final int CAMERA_LEFT_DISPLACEMENT     = -127;     // Camera is ON the robots center line
 
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
             .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
@@ -298,6 +306,12 @@ public class Robot_Navigation
 
                 // Target relative bearing is the target Heading relative to the direction the robot is pointing.
                 relativeBearing = targetBearing - robotBearing;
+
+                RobotLog.i("141 Bearings: Relative %f, Target %f, Robot %f", relativeBearing, targetBearing, robotBearing);
+                RobotLog.i("141 Robot Position: X %f, Y %f", robotX, robotY);
+                myOpMode.telemetry.addData("Relative bearing", relativeBearing);
+                myOpMode.telemetry.addData("Target bearing", targetBearing);
+                myOpMode.telemetry.addData("Robot bearing", robotBearing);
             }
             targetFound = true;
         }
