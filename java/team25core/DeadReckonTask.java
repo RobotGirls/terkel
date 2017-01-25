@@ -11,12 +11,16 @@ public class DeadReckonTask extends RobotTask {
     public enum EventKind {
         SEGMENT_DONE,
         SENSOR_SATISFIED,
+        RIGHT_SENSOR_SATISFIED,
+        LEFT_SENSOR_SATISFIED,
         PATH_DONE,
     }
 
     protected enum DoneReason {
         ENCODER_REACHED,
         SENSOR_SATISFIED,
+        RIGHT_SENSOR_SATISFIED,
+        LEFT_SENSOR_SATISFIED,
     };
 
     public class DeadReckonEvent extends RobotEvent {
@@ -51,10 +55,18 @@ public class DeadReckonTask extends RobotTask {
         }
     }
 
+    protected enum SensorsInstalled {
+        SENSORS_NONE,
+        SENSORS_ONE,
+        SENSORS_TWO,
+    };
+
+    protected SensorsInstalled sensorsInstalled;
     protected DeadReckon dr;
     protected int num;
     protected boolean waiting;
-    protected SensorCriteria criteria;
+    protected SensorCriteria leftCriteria;
+    protected SensorCriteria rightCriteria;
     protected DoneReason reason;
 
     SingleShotTimerTask sst;
@@ -64,22 +76,39 @@ public class DeadReckonTask extends RobotTask {
     {
         super(robot);
 
+        this.sensorsInstalled = SensorsInstalled.SENSORS_NONE;
         this.num = 0;
         this.dr = dr;
         this.waiting = false;
         this.waitState = 0;
-        this.criteria = null;
+        this.leftCriteria = null;
+        this.rightCriteria = null;
     }
 
     public DeadReckonTask(Robot robot, DeadReckon dr, SensorCriteria criteria)
     {
         super(robot);
 
+        this.sensorsInstalled = SensorsInstalled.SENSORS_ONE;
         this.num = 0;
         this.dr = dr;
         this.waiting = false;
         this.waitState = 0;
-        this.criteria = criteria;
+        this.leftCriteria = criteria;
+        this.rightCriteria = null;
+    }
+
+    public DeadReckonTask(Robot robot, DeadReckon dr, SensorCriteria leftCriteria, SensorCriteria rightCriteria)
+    {
+        super(robot);
+
+        this.sensorsInstalled = SensorsInstalled.SENSORS_TWO;
+        this.num = 0;
+        this.dr = dr;
+        this.waiting = false;
+        this.waitState = 0;
+        this.leftCriteria = leftCriteria;
+        this.rightCriteria = rightCriteria;
     }
 
     @Override
@@ -128,6 +157,12 @@ public class DeadReckonTask extends RobotTask {
             } else if (reason == DoneReason.SENSOR_SATISFIED) {
                 RobotLog.e("251 Dead reckon sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SENSOR_SATISFIED, num));
+            } else if (reason == DoneReason.LEFT_SENSOR_SATISFIED) {
+                RobotLog.e("251 Dead reckon left sensor criteria segment %d satisfied", num);
+                robot.queueEvent(new DeadReckonEvent(this, EventKind.LEFT_SENSOR_SATISFIED, num));
+            } else if (reason == DoneReason.RIGHT_SENSOR_SATISFIED) {
+                RobotLog.e("251 Dead reckon right sensor criteria segment %d satisfied", num);
+                robot.queueEvent(new DeadReckonEvent(this, EventKind.RIGHT_SENSOR_SATISFIED, num));
             }
         }
 
@@ -151,15 +186,27 @@ public class DeadReckonTask extends RobotTask {
         case CONSUME_SEGMENT:
             if (segment.type == DeadReckon.SegmentType.STRAIGHT) {
                 dr.motorStraight(segment.speed);
+            } else if (segment.type == DeadReckon.SegmentType.SIDEWAYS) {
+                dr.motorSideways(segment.speed);
+            } else if (segment.type == DeadReckon.SegmentType.DIAGONAL) {
+                //dr.motorDiagonal(segment.speed);
             } else {
                 dr.motorTurn(segment.speed);
             }
             segment.state = DeadReckon.SegmentState.ENCODER_TARGET;
             break;
         case ENCODER_TARGET:
-            if ((criteria != null) && (criteria.satisfied())) {
+            if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
                 segment.state = DeadReckon.SegmentState.STOP_MOTORS;
                 reason = DoneReason.SENSOR_SATISFIED;
+            } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
+                if (leftCriteria.satisfied()) {
+                    segment.state = DeadReckon.SegmentState.STOP_MOTORS;
+                    reason = DoneReason.LEFT_SENSOR_SATISFIED;
+                } else if (rightCriteria.satisfied()) {
+                    segment.state = DeadReckon.SegmentState.STOP_MOTORS;
+                    reason = DoneReason.RIGHT_SENSOR_SATISFIED;
+                }
             } else if (dr.hitTarget()) {
                 segment.state = DeadReckon.SegmentState.STOP_MOTORS;
                 reason = DoneReason.ENCODER_REACHED;
