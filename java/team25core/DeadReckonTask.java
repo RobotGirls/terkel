@@ -11,6 +11,7 @@ public class DeadReckonTask extends RobotTask {
     public enum EventKind {
         SEGMENT_DONE,
         SENSOR_SATISFIED,
+        BOTH_SENSORS_SATISFIED,
         RIGHT_SENSOR_SATISFIED,
         LEFT_SENSOR_SATISFIED,
         PATH_DONE,
@@ -19,6 +20,7 @@ public class DeadReckonTask extends RobotTask {
     protected enum DoneReason {
         ENCODER_REACHED,
         SENSOR_SATISFIED,
+        BOTH_SENSORS_SATISFIED,
         RIGHT_SENSOR_SATISFIED,
         LEFT_SENSOR_SATISFIED,
     };
@@ -140,6 +142,9 @@ public class DeadReckonTask extends RobotTask {
             } else if (reason == DoneReason.SENSOR_SATISFIED) {
                 RobotLog.e("251 Dead reckon sensor criteria satisfied");
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SENSOR_SATISFIED, num));
+            } else if (reason == DoneReason.BOTH_SENSORS_SATISFIED) {
+                RobotLog.e("251 Dead reckon both sensor criteria satisfied");
+                robot.queueEvent(new DeadReckonEvent(this, EventKind.BOTH_SENSORS_SATISFIED, num));
             } else if (reason == DoneReason.LEFT_SENSOR_SATISFIED) {
                 RobotLog.e("251 Dead reckon left sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.LEFT_SENSOR_SATISFIED, num));
@@ -161,6 +166,9 @@ public class DeadReckonTask extends RobotTask {
                 RobotLog.e("251 Dead reckon segment %d done", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SEGMENT_DONE, num));
             } else if (reason == DoneReason.SENSOR_SATISFIED) {
+                RobotLog.e("251 Dead reckon sensor criteria segment %d satisfied", num);
+                robot.queueEvent(new DeadReckonEvent(this, EventKind.SENSOR_SATISFIED, num));
+            } else if (reason == DoneReason.BOTH_SENSORS_SATISFIED) {
                 RobotLog.e("251 Dead reckon sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SENSOR_SATISFIED, num));
             } else if (reason == DoneReason.LEFT_SENSOR_SATISFIED) {
@@ -207,7 +215,11 @@ public class DeadReckonTask extends RobotTask {
                 segment.state = DeadReckon.SegmentState.STOP_MOTORS;
                 reason = DoneReason.SENSOR_SATISFIED;
             } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
-                if (leftCriteria.satisfied()) {
+                if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
+                    RobotLog.i("251 Left and right criteria satisfied");
+                    segment.state = DeadReckon.SegmentState.STOP_MOTORS;
+                    reason = DoneReason.BOTH_SENSORS_SATISFIED;
+                } else if (leftCriteria.satisfied()) {
                     RobotLog.i("251 Left criteria satisfied");
                     segment.state = DeadReckon.SegmentState.STOP_MOTORS;
                     reason = DoneReason.LEFT_SENSOR_SATISFIED;
