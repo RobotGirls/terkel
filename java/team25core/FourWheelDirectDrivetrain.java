@@ -48,19 +48,19 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void resetEncoders()
     {
-        rearLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        rearRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        frontLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        frontRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        rearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
     public void encodersOn()
     {
-        rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override

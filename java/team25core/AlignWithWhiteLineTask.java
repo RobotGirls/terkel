@@ -59,20 +59,21 @@ public class AlignWithWhiteLineTask extends RobotTask {
     SensorCriteria rightSeeBlack;
     SensorCriteria rightSeeWhite;
 
-    private final static double FAST_SPEED   = 0.2;
-    private final static double MEDIUM_SPEED = 0.06;
-    private final static double SLOW_SPEED   = 0.03;
+    private final static double FAST_SPEED        = 0.7;
+    private final static double MEDIUM_FAST_SPEED = 0.2;
+    private final static double MEDIUM_SPEED      = 0.06;
+    private final static double SLOW_SPEED        = 0.03;
     private int pivotRightCycle = 0;
     private int pivotLeftCycle = 0;
 
     private final static String LOG_TAG = "EdgeFind ";
 
-    public AlignWithWhiteLineTask(Robot robot, Drivetrain drivetrain, SensorCriteria leftSeeBlack, SensorCriteria leftSeeWhite,
+    public AlignWithWhiteLineTask(Robot robot, int noLookInches, Drivetrain drivetrain, SensorCriteria leftSeeBlack, SensorCriteria leftSeeWhite,
                            SensorCriteria rightSeeBlack, SensorCriteria rightSeeWhite)
     {
         super(robot);
 
-        this.state = AlignmentState.LOOK;
+        this.state = AlignmentState.WILD_ABANDON;
         this.drivetrain = drivetrain;
         this.leftSeeBlack = leftSeeBlack;
         this.leftSeeWhite = leftSeeWhite;
