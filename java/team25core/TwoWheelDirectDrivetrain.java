@@ -38,15 +38,15 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void resetEncoders()
     {
-        frontLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        frontRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
     public void encodersOn()
     {
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
@@ -57,21 +57,39 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
-    public void turn(double speed)
+    public void turnLeft(double speed)
     {
         frontRight.setPower(speed);
         frontLeft.setPower(-speed);
     }
 
     @Override
+    public void turnRight(double speed)
+    {
+        frontRight.setPower(-speed);
+        frontLeft.setPower(speed);
+    }
+
+    @Override
     public void pivotTurn(PivotSide side, double speed)
     {
-        if (side == PivotSide.RIGHT) {
-            frontLeft.setPower(speed);
-            frontRight.setPower(-(1/multiplier) * speed);
-        } else if (side == PivotSide.LEFT) {
-            frontLeft.setPower(-(1/multiplier) * speed);
+        switch (side) {
+        case LEFT_OVER_RIGHT:
+            frontLeft.setPower(-speed);
+            frontRight.setPower((1/multiplier) * speed);
+            break;
+        case LEFT_OVER_LEFT:
+            frontLeft.setPower((1/multiplier) * -speed);
             frontRight.setPower(speed);
+            break;
+        case RIGHT_OVER_RIGHT:
+            frontLeft.setPower(speed);
+            frontRight.setPower((1/multiplier) * -speed);
+            break;
+        case RIGHT_OVER_LEFT:
+            frontLeft.setPower((1/multiplier) * speed);
+            frontRight.setPower(-speed);
+            break;
         }
     }
 

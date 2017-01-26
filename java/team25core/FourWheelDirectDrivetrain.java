@@ -73,7 +73,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
-    public void turn(double speed)
+    public void turnLeft(double speed)
     {
         frontRight.setPower(speed);
         rearRight.setPower(speed);
@@ -82,14 +82,23 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public void turnRight(double speed)
+    {
+        frontRight.setPower(-speed);
+        rearRight.setPower(-speed);
+        frontLeft.setPower(speed);
+        rearLeft.setPower(speed);
+    }
+
+    @Override
     public void pivotTurn(PivotSide side, double speed)
     {
-        if (side == PivotSide.RIGHT) {
+        if (side == PivotSide.RIGHT_OVER_RIGHT) {
             frontLeft.setPower(speed);
             rearLeft.setPower(speed);
             frontRight.setPower(-(1/multiplier) * speed);
             rearRight.setPower(-(1/multiplier) * speed);
-        } else if (side == PivotSide.LEFT) {
+        } else if (side == PivotSide.LEFT_OVER_LEFT) {
             frontLeft.setPower(-(1/multiplier) * speed);
             rearLeft.setPower(-(1/multiplier) * speed);
             frontRight.setPower(speed);
