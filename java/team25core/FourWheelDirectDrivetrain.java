@@ -125,6 +125,12 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public double percentComplete()
+    {
+        return (Math.abs(frontLeft.getCurrentPosition()) / encoderTarget);
+    }
+
+    @Override
     public boolean isBusy()
     {
         if (Math.abs(rearLeft.getCurrentPosition()) <= encoderTarget) {

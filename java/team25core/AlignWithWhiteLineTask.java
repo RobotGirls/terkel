@@ -64,9 +64,12 @@ public class AlignWithWhiteLineTask extends RobotTask {
     private final static double MEDIUM_FAST_SPEED = 0.2;
     private final static double MEDIUM_SPEED      = 0.06;
     private final static double SLOW_SPEED        = 0.03;
+    private final static double SLEW_RATE         = 20;
+
     private int pivotRightCycle = 0;
     private int pivotLeftCycle = 0;
     private int noLookInches;
+    private double currentSpeed;
 
     private final static String LOG_TAG = "EdgeFind ";
 
@@ -91,6 +94,8 @@ public class AlignWithWhiteLineTask extends RobotTask {
         drivetrain.resetEncoders();
         drivetrain.encodersOn();
         drivetrain.setTargetInches(noLookInches);
+
+        currentSpeed = 0;
     }
 
     @Override
@@ -140,10 +145,21 @@ public class AlignWithWhiteLineTask extends RobotTask {
 
         switch (state) {
         case WILD_ABANDON:
-            drivetrain.straight(FAST_SPEED);
+            /*
+             * Attempting to ramp up and down to prevent drivetrain jerking.
+             */
+            if (drivetrain.percentComplete() < .10) {
+                currentSpeed += FAST_SPEED / SLEW_RATE;
+            } else if (drivetrain.percentComplete() > .90) {
+                currentSpeed -= FAST_SPEED / SLEW_RATE;
+            }
+            currentSpeed = Math.min(currentSpeed, 1.0);
+            currentSpeed = Math.max(currentSpeed, 0.0);
+            RobotLog.i(LOG_TAG + "Wild abandon speed " + currentSpeed);
+            drivetrain.straight(currentSpeed);
             if (!drivetrain.isBusy()) {
                 drivetrain.stop();
-                setState(AlignmentState.LOOK);
+                setState(AlignmentState.DONE);
             }
             break;
         case LOOK:

@@ -22,5 +22,8 @@ public interface Drivetrain {
     void resetEncoders();
     void encodersOn();
     void setTargetInches(int inches);
+
+    double percentComplete();
+
     boolean isBusy();
 }
