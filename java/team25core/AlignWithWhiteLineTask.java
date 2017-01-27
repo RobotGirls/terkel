@@ -64,7 +64,8 @@ public class AlignWithWhiteLineTask extends RobotTask {
     private final static double MEDIUM_FAST_SPEED = 0.2;
     private final static double MEDIUM_SPEED      = 0.06;
     private final static double SLOW_SPEED        = 0.03;
-    private final static double SLEW_RATE         = 20;
+    private final static double SLEW_UP_RATE      = 40;     // The larger the number the slower ramp up.
+    private final static double SLEW_DOWN_RATE    = 30;
 
     private int pivotRightCycle = 0;
     private int pivotLeftCycle = 0;
@@ -148,18 +149,23 @@ public class AlignWithWhiteLineTask extends RobotTask {
             /*
              * Attempting to ramp up and down to prevent drivetrain jerking.
              */
-            if (drivetrain.percentComplete() < .10) {
-                currentSpeed += FAST_SPEED / SLEW_RATE;
-            } else if (drivetrain.percentComplete() > .90) {
-                currentSpeed -= FAST_SPEED / SLEW_RATE;
+            if (drivetrain.percentComplete() < .20) {
+                currentSpeed += FAST_SPEED / SLEW_UP_RATE;
+                currentSpeed = Math.min(currentSpeed, FAST_SPEED);
+                currentSpeed = Math.max(currentSpeed, 0.0);
+            } else if (drivetrain.percentComplete() > .80) {
+                currentSpeed -= FAST_SPEED / SLEW_DOWN_RATE;
+                currentSpeed = Math.min(currentSpeed, FAST_SPEED);
+                currentSpeed = Math.max(currentSpeed, MEDIUM_FAST_SPEED);
             }
-            currentSpeed = Math.min(currentSpeed, 1.0);
-            currentSpeed = Math.max(currentSpeed, 0.0);
             RobotLog.i(LOG_TAG + "Wild abandon speed " + currentSpeed);
             drivetrain.straight(currentSpeed);
             if (!drivetrain.isBusy()) {
-                drivetrain.stop();
-                setState(AlignmentState.DONE);
+                /*
+                 * Don't need a stop here because the slew rate is tuned to put us where we want to be for the next state.
+                 */
+                // drivetrain.stop();
+                setState(AlignmentState.LOOK);
             }
             break;
         case LOOK:
