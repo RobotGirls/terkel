@@ -11,6 +11,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     DcMotor frontRight;
 
     int encoderTicksPerInch;
+    int encoderTarget;
     double multiplier;
 
     public TwoWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor frontLeft)
@@ -19,6 +20,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
         this.frontRight = frontRight;
 
         this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
         this.multiplier = 1.0;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -30,6 +32,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
         this.frontRight = frontRight;
 
         this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -98,5 +101,21 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     {
         frontLeft.setPower(0.0);
         frontRight.setPower(0.0);
+    }
+
+    @Override
+    public void setTargetInches(int inches)
+    {
+        encoderTarget = inches * encoderTicksPerInch;
+    }
+
+    @Override
+    public boolean isBusy()
+    {
+        if (Math.abs(frontLeft.getCurrentPosition()) <= encoderTarget) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

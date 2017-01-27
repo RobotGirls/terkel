@@ -10,6 +10,7 @@ import java.util.List;
 
 import static team25core.AlignWithWhiteLineTask.AlignmentState.BACK_OFF_RIGHT;
 import static team25core.AlignWithWhiteLineTask.AlignmentState.DONE;
+import static team25core.AlignWithWhiteLineTask.AlignmentState.LOOK;
 
 public class AlignWithWhiteLineTask extends RobotTask {
 
@@ -65,6 +66,7 @@ public class AlignWithWhiteLineTask extends RobotTask {
     private final static double SLOW_SPEED        = 0.03;
     private int pivotRightCycle = 0;
     private int pivotLeftCycle = 0;
+    private int noLookInches;
 
     private final static String LOG_TAG = "EdgeFind ";
 
@@ -79,12 +81,16 @@ public class AlignWithWhiteLineTask extends RobotTask {
         this.leftSeeWhite = leftSeeWhite;
         this.rightSeeBlack = rightSeeBlack;
         this.rightSeeWhite = rightSeeWhite;
+        this.noLookInches = noLookInches;
     }
 
     @Override
     public void start()
     {
         RobotLog.i(LOG_TAG + "================= START EDGE FIND ================== ");
+        drivetrain.resetEncoders();
+        drivetrain.encodersOn();
+        drivetrain.setTargetInches(noLookInches);
     }
 
     @Override
@@ -134,9 +140,14 @@ public class AlignWithWhiteLineTask extends RobotTask {
 
         switch (state) {
         case WILD_ABANDON:
-            // Unimplemented.
-        case LOOK:
             drivetrain.straight(FAST_SPEED);
+            if (!drivetrain.isBusy()) {
+                drivetrain.stop();
+                setState(AlignmentState.LOOK);
+            }
+            break;
+        case LOOK:
+            drivetrain.straight(MEDIUM_FAST_SPEED);
             if (leftSeeWhite.satisfied()) {
                 drivetrain.stop();
                 setState(AlignmentState.BACK_OFF_LEFT);

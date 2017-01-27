@@ -13,11 +13,14 @@ public interface Drivetrain {
         RIGHT_OVER_LEFT,
     }
 
-    void resetEncoders();
-    void encodersOn();
     void straight(double speed);
     void turnLeft(double speed);
     void turnRight(double speed);
     void pivotTurn(PivotSide side, double speed);
     void stop();
+
+    void resetEncoders();
+    void encodersOn();
+    void setTargetInches(int inches);
+    boolean isBusy();
 }

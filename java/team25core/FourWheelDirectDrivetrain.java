@@ -15,6 +15,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     DcMotor frontRight;
 
     int encoderTicksPerInch;
+    int encoderTarget;
     double multiplier;
 
     public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
@@ -25,6 +26,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.frontRight = frontRight;
 
         this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
         this.multiplier = 1.0;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -39,6 +41,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.frontRight = frontRight;
 
         this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -113,5 +116,21 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         frontRight.setPower(0.0);
         rearLeft.setPower(0.0);
         rearRight.setPower(0.0);
+    }
+
+    @Override
+    public void setTargetInches(int inches)
+    {
+        encoderTarget = inches * encoderTicksPerInch;
+    }
+
+    @Override
+    public boolean isBusy()
+    {
+        if (Math.abs(rearLeft.getCurrentPosition()) <= encoderTarget) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
