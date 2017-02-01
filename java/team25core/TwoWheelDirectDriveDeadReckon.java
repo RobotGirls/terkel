@@ -15,13 +15,13 @@ public class TwoWheelDirectDriveDeadReckon extends DeadReckon {
     private int targetPosition;
     public int lCurrentPosition;
 
-    Team25DcMotor rightMotor;
-    Team25DcMotor leftMotor;
+    DcMotor rightMotor;
+    DcMotor leftMotor;
 
     /*
      * For gyro based turns
      */
-    public TwoWheelDirectDriveDeadReckon(Robot robot, int encoderTicksPerInch, GyroSensor gyroSensor, Team25DcMotor motorLeft, Team25DcMotor motorRight)
+    public TwoWheelDirectDriveDeadReckon(Robot robot, int encoderTicksPerInch, GyroSensor gyroSensor, DcMotor motorLeft, DcMotor motorRight)
     {
         super(robot, encoderTicksPerInch, gyroSensor, motorLeft);
 
@@ -34,7 +34,7 @@ public class TwoWheelDirectDriveDeadReckon extends DeadReckon {
     /*
      * For encoder based turns
      */
-    public TwoWheelDirectDriveDeadReckon(Robot robot, int encoderTicksPerInch, int encoderTicksPerDegree, Team25DcMotor motorLeft, Team25DcMotor motorRight)
+    public TwoWheelDirectDriveDeadReckon(Robot robot, int encoderTicksPerInch, int encoderTicksPerDegree, DcMotor motorLeft, DcMotor motorRight)
     {
         super(robot, encoderTicksPerInch, encoderTicksPerDegree, motorLeft);
 
