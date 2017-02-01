@@ -4,6 +4,8 @@ package team25core;
  */
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
+import com.qualcomm.robotcore.util.RobotLog;
 
 public class TwoWheelDirectDrivetrain implements Drivetrain {
 
@@ -11,6 +13,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     DcMotor frontRight;
 
     int encoderTicksPerInch;
+    int encoderTarget;
     double multiplier;
 
     public TwoWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor frontLeft)
@@ -19,6 +22,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
         this.frontRight = frontRight;
 
         this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
         this.multiplier = 1.0;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -30,6 +34,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
         this.frontRight = frontRight;
 
         this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -38,15 +43,15 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void resetEncoders()
     {
-        frontLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        frontRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
     public void encodersOn()
     {
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
@@ -57,21 +62,39 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
-    public void turn(double speed)
+    public void turnLeft(double speed)
     {
         frontRight.setPower(speed);
         frontLeft.setPower(-speed);
     }
 
     @Override
+    public void turnRight(double speed)
+    {
+        frontRight.setPower(-speed);
+        frontLeft.setPower(speed);
+    }
+
+    @Override
     public void pivotTurn(PivotSide side, double speed)
     {
-        if (side == PivotSide.RIGHT) {
-            frontLeft.setPower(speed);
-            frontRight.setPower(-(1/multiplier) * speed);
-        } else if (side == PivotSide.LEFT) {
-            frontLeft.setPower(-(1/multiplier) * speed);
+        switch (side) {
+        case LEFT_OVER_RIGHT:
+            frontLeft.setPower(-speed);
+            frontRight.setPower((1/multiplier) * speed);
+            break;
+        case LEFT_OVER_LEFT:
+            frontLeft.setPower((1/multiplier) * -speed);
             frontRight.setPower(speed);
+            break;
+        case RIGHT_OVER_RIGHT:
+            frontLeft.setPower(speed);
+            frontRight.setPower((1/multiplier) * -speed);
+            break;
+        case RIGHT_OVER_LEFT:
+            frontLeft.setPower((1/multiplier) * speed);
+            frontRight.setPower(-speed);
+            break;
         }
     }
 
@@ -80,5 +103,29 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     {
         frontLeft.setPower(0.0);
         frontRight.setPower(0.0);
+    }
+
+    @Override
+    public void setTargetInches(int inches)
+    {
+        encoderTarget = inches * encoderTicksPerInch;
+    }
+
+    @Override
+    public double percentComplete()
+    {
+        RobotLog.i("Percent complete: %d, %f, %d", frontLeft.getCurrentPosition(),
+                        (Math.abs(frontLeft.getCurrentPosition()) / (double)encoderTarget), encoderTarget);
+        return (Math.abs(frontLeft.getCurrentPosition()) / (double)encoderTarget);
+    }
+
+    @Override
+    public boolean isBusy()
+    {
+        if (Math.abs(frontLeft.getCurrentPosition()) <= encoderTarget) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

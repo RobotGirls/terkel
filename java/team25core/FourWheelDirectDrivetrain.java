@@ -15,6 +15,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     DcMotor frontRight;
 
     int encoderTicksPerInch;
+    int encoderTarget;
     double multiplier;
 
     public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
@@ -25,6 +26,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.frontRight = frontRight;
 
         this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
         this.multiplier = 1.0;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -39,6 +41,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.frontRight = frontRight;
 
         this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -48,19 +51,19 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void resetEncoders()
     {
-        rearLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        rearRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        frontLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        frontRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        rearLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
     public void encodersOn()
     {
-        rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
@@ -73,7 +76,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
-    public void turn(double speed)
+    public void turnLeft(double speed)
     {
         frontRight.setPower(speed);
         rearRight.setPower(speed);
@@ -82,14 +85,23 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public void turnRight(double speed)
+    {
+        frontRight.setPower(-speed);
+        rearRight.setPower(-speed);
+        frontLeft.setPower(speed);
+        rearLeft.setPower(speed);
+    }
+
+    @Override
     public void pivotTurn(PivotSide side, double speed)
     {
-        if (side == PivotSide.RIGHT) {
+        if (side == PivotSide.RIGHT_OVER_RIGHT) {
             frontLeft.setPower(speed);
             rearLeft.setPower(speed);
             frontRight.setPower(-(1/multiplier) * speed);
             rearRight.setPower(-(1/multiplier) * speed);
-        } else if (side == PivotSide.LEFT) {
+        } else if (side == PivotSide.LEFT_OVER_LEFT) {
             frontLeft.setPower(-(1/multiplier) * speed);
             rearLeft.setPower(-(1/multiplier) * speed);
             frontRight.setPower(speed);
@@ -104,5 +116,27 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         frontRight.setPower(0.0);
         rearLeft.setPower(0.0);
         rearRight.setPower(0.0);
+    }
+
+    @Override
+    public void setTargetInches(int inches)
+    {
+        encoderTarget = inches * encoderTicksPerInch;
+    }
+
+    @Override
+    public double percentComplete()
+    {
+        return (Math.abs(frontLeft.getCurrentPosition()) / encoderTarget);
+    }
+
+    @Override
+    public boolean isBusy()
+    {
+        if (Math.abs(rearLeft.getCurrentPosition()) <= encoderTarget) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
