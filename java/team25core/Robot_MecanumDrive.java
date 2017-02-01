@@ -1,7 +1,9 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.RobotLog;
 
 /**
  * This is NOT an opmode.
@@ -56,9 +58,9 @@ public class Robot_MecanumDrive implements Robot_Drivetrain
 
         // Define and Initialize Motors
         leftFront.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
-        rightFront.setDirection(DcMotor.Direction.FORWARD);// Positive input rotates counter clockwise
+        rightFront.setDirection(DcMotor.Direction.REVERSE);// Positive input rotates counter clockwise
         leftRear.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
-        rightRear.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
+        rightRear.setDirection(DcMotor.Direction.REVERSE); // Positive input rotates counter clockwise
 
         //use RUN_USING_ENCODERS because encoders are installed.
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -107,10 +109,10 @@ public class Robot_MecanumDrive implements Robot_Drivetrain
      */
     public void moveRobot() {
         // calculate required motor speeds to acheive axis motions
-        double backLeft = driveYaw + driveLateral;
-        double backRight = driveYaw + driveLateral;
-        double left = driveYaw - driveAxial - (driveLateral * 0.5);
-        double right = driveYaw + driveAxial - (driveLateral * 0.5);
+        double backLeft = driveAxial - driveLateral - driveYaw;
+        double backRight = driveAxial + driveLateral + driveYaw;
+        double left = driveAxial + driveLateral - driveYaw;
+        double right = driveAxial - driveLateral + driveYaw;
 
         // normalize all motor speeds so no values exceeds 100%.
         double max = Math.max(Math.abs(backLeft), Math.abs(right));
@@ -130,8 +132,8 @@ public class Robot_MecanumDrive implements Robot_Drivetrain
         rightFront.setPower(right);
 
         // Display Telemetry
-        myOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
-        myOpMode.telemetry.addData("Wheels", "L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backLeft, backRight);
+        RobotLog.i("141 Axes A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
+        RobotLog.i("141 Wheels L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backLeft, backRight);
     }
 
 
@@ -153,10 +155,23 @@ public class Robot_MecanumDrive implements Robot_Drivetrain
 
     public void rotateRobot(double speed)
     {
-        leftRear.setPower(speed);
-        leftFront.setPower(speed);
-        rightRear.setPower(-speed);
-        rightFront.setPower(-speed);
+        if (driveYaw < 0) {
+            leftRear.setPower(-speed);
+            leftFront.setPower(-speed);
+            rightRear.setPower(speed);
+            rightFront.setPower(speed);
+
+        } else {
+            leftRear.setPower(speed);
+            leftFront.setPower(speed);
+            rightRear.setPower(-speed);
+            rightFront.setPower(-speed);
+        }
+    }
+
+    public void stopRobot()
+    {
+        rotateRobot(0);
     }
 
 }

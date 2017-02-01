@@ -5,6 +5,7 @@ package team25core;
  */
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -53,16 +54,19 @@ public class NavigateToTargetTask extends RobotTask {
     Robot_MecanumDrive drivetrain;
     ElapsedTime timer;
     int timeout;
+    Gamepad gamepad;
+    boolean pressed;
 
     float mmPerInch        = 25.4f;
     float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
     float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
 
-    public NavigateToTargetTask(Robot robot, int timeout)
+    public NavigateToTargetTask(Robot robot, int timeout, Gamepad gamepad)
     {
         super(robot);
 
         this.timeout = timeout;
+        this.gamepad = gamepad;
     }
 
     protected void placeTargets()
@@ -81,6 +85,7 @@ public class NavigateToTargetTask extends RobotTask {
     {
         nav = new Robot_Navigation();
         drivetrain = new Robot_MecanumDrive(leftFront, rightFront, leftRear, rightRear);
+        drivetrain.initDrive(this.robot);
 
         nav.initVuforia(this.robot, drivetrain);
         nav.activateTracking();
@@ -107,16 +112,23 @@ public class NavigateToTargetTask extends RobotTask {
             return true;
         }
 
-        if (nav.targetsAreVisible()) {
+        if (nav.targetsAreVisible() && gamepad.b) {
             if (nav.cruiseControl(400)) {
                 robot.queueEvent(new NavigateToTargetEvent(this, EventKind.FOUND_TARGET));
                 return true;
             }
             drivetrain.moveRobot();
+        } else if (gamepad.a) {
+            if (nav.onTarget()) {
+                drivetrain.stopRobot();
+            } else {
+                drivetrain.rotateRobot(0.3);
+            }
         } else {
-            drivetrain.rotateRobot(0.5);
+            drivetrain.stopRobot();
         }
         nav.addNavTelemetry();
         return false;
+
     }
 }
