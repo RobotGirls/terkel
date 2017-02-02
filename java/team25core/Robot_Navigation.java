@@ -41,15 +41,15 @@ public class Robot_Navigation
 {
     // Constants
     private static final int     MAX_TARGETS    =   4;
-    private static final double  ON_AXIS        =  10;      // Within 1.0 cm of target center-line
+    private static final double  ON_AXIS        =  200;      // Within 1.0 cm of target center-line
     private static final double  CLOSE_ENOUGH   =  20;      // Within 2.0 cm of final target standoff
 
     // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.  Alt. is BACK
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = VuforiaLocalizer.CameraDirection.FRONT;
 
-    public  static final double  YAW_GAIN       =  0.018;   // Rate at which we respond to heading error
-    public  static final double  LATERAL_GAIN   =  0.0027;  // Rate at which we respond to off-axis error
-    public  static final double  AXIAL_GAIN     =  0.0017;  // Rate at which we respond to target distance errors
+    public  static final double  YAW_GAIN       =  0.002;   // Rate at which we respond to heading error
+    public  static final double  LATERAL_GAIN   =  0.0015;  // Rate at which we respond to off-axis error
+    public  static final double  AXIAL_GAIN     =  0.0006;  // Rate at which we respond to target distance errors
 
     /* Private class members. */
     private Robot               myOpMode;       // Access to the OpMode object
@@ -97,6 +97,9 @@ public class Robot_Navigation
             myOpMode.telemetry.addData("- Turn    ", "%s %4.0f°",  relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
             myOpMode.telemetry.addData("- Strafe  ", "%s %5.0fmm", robotY < 0 ? "LEFT" : "RIGHT", Math.abs(robotY));
             myOpMode.telemetry.addData("- Distance", "%5.0fmm", Math.abs(robotX));
+            myOpMode.telemetry.addData("- Relative bearing", relativeBearing);
+            myOpMode.telemetry.addData("- Target bearing", targetBearing);
+            myOpMode.telemetry.addData("- Robot bearing", robotBearing);
         }
         else
         {
@@ -114,6 +117,13 @@ public class Robot_Navigation
             targets.activate();
     }
 
+    public double getRelativeBearing() {
+        return relativeBearing;
+    }
+
+    public double getRobotBearing() {
+        return robotBearing;
+    }
 
     /***
      * use target position to determine the best way to approach it.
@@ -171,8 +181,8 @@ public class Robot_Navigation
          * We also indicate which camera on the RC that we wish to use.
          */
 
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);  // Use this line to see camera display
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();                             // OR... Use this line to improve performance
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);  // Use this line to see camera display
+        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();                             // OR... Use this line to improve performance
 
         // Get your own Vuforia key at  https://developer.vuforia.com/license-manager
         // and paste it here...
@@ -229,9 +239,9 @@ public class Robot_Navigation
          * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
          */
 
-        final int CAMERA_FORWARD_DISPLACEMENT  = 160;   // Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 295;   // Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 200;     // Camera is ON the robots center line
+        final int CAMERA_FORWARD_DISPLACEMENT  = 146;   // Camera is 110 mm in front of robot center
+        final int CAMERA_VERTICAL_DISPLACEMENT = 190;   // Camera is 200 mm above ground
+        final int CAMERA_LEFT_DISPLACEMENT     = 1;     // Camera is ON the robots center line
 
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
             .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
@@ -307,11 +317,8 @@ public class Robot_Navigation
                 // Target relative bearing is the target Heading relative to the direction the robot is pointing.
                 relativeBearing = targetBearing - robotBearing;
 
-                RobotLog.i("141 Bearings: Relative %f, Target %f, Robot %f", relativeBearing, targetBearing, robotBearing);
-                RobotLog.i("141 Robot Position: X %f, Y %f", robotX, robotY);
-                myOpMode.telemetry.addData("Relative bearing", relativeBearing);
-                myOpMode.telemetry.addData("Target bearing", targetBearing);
-                myOpMode.telemetry.addData("Robot bearing", robotBearing);
+                RobotLog.v("141 Bearings: Relative %f, Target %f, Robot %f", relativeBearing, targetBearing, robotBearing);
+                RobotLog.v("141 Robot Position: X %f, Y %f", robotX, robotY);
             }
             targetFound = true;
         }

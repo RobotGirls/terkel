@@ -2,6 +2,7 @@ package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.RobotLog;
 
 /**
  * This is NOT an opmode.
@@ -38,8 +39,10 @@ public class Robot_TwoWheelDrive implements Robot_Drivetrain
     private double  driveYaw        = 0 ;   // Positive is CCW
 
     /* Constructor */
-    public Robot_TwoWheelDrive(){
-
+    public Robot_TwoWheelDrive(DcMotor right, DcMotor left) {
+        // Define and Initialize Motors
+        rightDrive       = right;
+        leftDrive        = left;
     }
 
 
@@ -49,12 +52,8 @@ public class Robot_TwoWheelDrive implements Robot_Drivetrain
         // Save reference to Hardware map
         myOpMode = opMode;
 
-        // Define and Initialize Motors
-        leftDrive        = myOpMode.hardwareMap.get(DcMotor.class, "left drive");
-        rightDrive       = myOpMode.hardwareMap.get(DcMotor.class, "right drive");
-
-        leftDrive.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);// Positive input rotates counter clockwise
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
         //use RUN_USING_ENCODERS because encoders are installed.
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -102,17 +101,13 @@ public class Robot_TwoWheelDrive implements Robot_Drivetrain
      * This convention should NOT be changed.  Any new drive system should be configured to react accordingly.
      */
     public void moveRobot() {
-        // calculate required motor speeds to acheive axis motions
-        double back = driveYaw + driveLateral;
-        double left = driveYaw - driveAxial - (driveLateral * 0.5);
-        double right = driveYaw + driveAxial - (driveLateral * 0.5);
+        // calculate required motor speeds to achieve axis motions
+        double left = -driveYaw + driveAxial + driveLateral;
+        double right = driveYaw + driveAxial;
 
         // normalize all motor speeds so no values exceeds 100%.
-        double max = Math.max(Math.abs(back), Math.abs(right));
-        max = Math.max(max, Math.abs(left));
-        if (max > 1.0)
-        {
-            back /= max;
+        double max = Math.max(Math.abs(left), Math.abs(right));
+        if (max > 1.0) {
             right /= max;
             left /= max;
         }
@@ -122,8 +117,8 @@ public class Robot_TwoWheelDrive implements Robot_Drivetrain
         rightDrive.setPower(right);
 
         // Display Telemetry
-        myOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
-        myOpMode.telemetry.addData("Wheels", "L[%+5.2f], R[%+5.2f], B[%+5.2f]", left, right, back);
+        RobotLog.i("Axes   A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
+        RobotLog.i("Wheels L[%+5.2f], R[%+5.2f]", left, right);
     }
 
 
@@ -131,6 +126,10 @@ public class Robot_TwoWheelDrive implements Robot_Drivetrain
     public void setLateral(double lateral)  {driveLateral = Range.clip(lateral, -1, 1); }
     public void setYaw(double yaw)          {driveYaw = Range.clip(yaw, -1, 1); }
 
+    public void rotateRobot(double speed) {
+        leftDrive.setPower(speed);
+        rightDrive.setPower(-speed);
+    }
 
     /***
      * void setMode(DcMotor.RunMode mode ) Set all drive motors to same mode.
