@@ -19,11 +19,25 @@ public interface Drivetrain {
     void pivotTurn(PivotSide side, double speed);
     void stop();
 
+    /*
+     * Move the robot according to axial, lateral, and yaw speeds.
+     *
+     * Note that this works best with Mecanum or Omni drivetrains.
+     * YMMW when calling this on drivetrains that use regular wheels.
+     */
+    void move(double axial, double lateral, double yaw);
+
+    /*
+     * Move the robot sideways in either direction.  This will not
+     * work correctly on drivetrains without Mecanum or Omni wheels.
+     */
+    void strafeLeft(double speed);
+    void strafeRight(double speed);
+
     void resetEncoders();
     void encodersOn();
+
     void setTargetInches(int inches);
-
     double percentComplete();
-
     boolean isBusy();
 }

@@ -119,6 +119,24 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public void move(double axial, double lateral, double yaw)
+    {
+
+    }
+
+    @Override
+    public void strafeLeft(double speed)
+    {
+
+    }
+
+    @Override
+    public void strafeRight(double speed)
+    {
+
+    }
+
+    @Override
     public void setTargetInches(int inches)
     {
         encoderTarget = inches * encoderTicksPerInch;

@@ -1,6 +1,5 @@
 package team25core;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -14,14 +13,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.teamcode.R;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.attr.angle;
-import static android.R.attr.targetName;
-import static android.view.View.X;
 
 /**
  * This is NOT an opmode.
@@ -37,23 +31,20 @@ import static android.view.View.X;
  *
  */
 
-public class Robot_Navigation
+public class RobotNavigation
 {
     // Constants
     private static final int     MAX_TARGETS    =   4;
     private static final double  ON_AXIS        =  200;      // Within 1.0 cm of target center-line
     private static final double  CLOSE_ENOUGH   =  20;      // Within 2.0 cm of final target standoff
 
-    // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.  Alt. is BACK
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = VuforiaLocalizer.CameraDirection.FRONT;
-
-    public  static final double  YAW_GAIN       =  0.002;   // Rate at which we respond to heading error
-    public  static final double  LATERAL_GAIN   =  0.0015;  // Rate at which we respond to off-axis error
-    public  static final double  AXIAL_GAIN     =  0.0006;  // Rate at which we respond to target distance errors
+    private  double yawGain     =  0.002;   // Rate at which we respond to heading error
+    private  double lateralGain =  0.0015;  // Rate at which we respond to off-axis error
+    private  double axialGain   =  0.0006;  // Rate at which we respond to target distance errors
 
     /* Private class members. */
     private Robot               myOpMode;       // Access to the OpMode object
-    private Robot_Drivetrain     myRobot;        // Access to the Robot hardware
+    private Drivetrain          drivetrain;
     private VuforiaTrackables   targets;        // List of active targets
 
     // Navigation data is only valid if targetFound == true;
@@ -67,8 +58,11 @@ public class Robot_Navigation
     private double              relativeBearing;// Heading to the target from the robot's current bearing.
                                                 //   eg: a Positive RelativeBearing means the robot must turn CCW to point at the target image.
 
-    /* Constructor */
-    public Robot_Navigation(){
+    public RobotNavigation(Robot robot, Drivetrain drivetrain) {
+
+        // Save reference to OpMode and Hardware map
+        this.myOpMode = robot;
+        this.drivetrain = drivetrain;
 
         targetFound = false;
         targetName = null;
@@ -125,6 +119,20 @@ public class Robot_Navigation
         return robotBearing;
     }
 
+    public double getDistance() {
+        return Math.abs(robotX);
+    }
+
+    public double getStrafe() {
+        return robotY;
+    }
+
+    public void setGainParams(double yaw, double axial, double lateral) {
+        yawGain = yaw;
+        axialGain = axial;
+        lateralGain = lateral;
+    }
+
     /***
      * use target position to determine the best way to approach it.
      * Set the Axial, Lateral and Yaw axis motion values to get us there.
@@ -136,23 +144,23 @@ public class Robot_Navigation
         boolean closeEnough;
 
         // Priority #1 Rotate to always be pointing at the target (for best target retention).
-        double Y  = (relativeBearing * YAW_GAIN);
+        double Y  = (relativeBearing * yawGain);
 
         // Priority #2  Drive laterally based on distance from X axis (same as y value)
-        double L  =(robotY * LATERAL_GAIN);
+        double L  =(robotY * lateralGain);
 
         // Priority #3 Drive forward based on the desiredHeading target standoff distance
-        double A  = (-(robotX + standOffDistance) * AXIAL_GAIN);
-
-        // Send the desired axis motions to the robot hardware.
-        myRobot.setYaw(Y);
-        myRobot.setAxial(A);
-        myRobot.setLateral(L);
+        double A  = (-(robotX + standOffDistance) * axialGain);
 
         // Determine if we are close enough to the target for action.
         closeEnough = ( (Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) &&
                         (Math.abs(robotY) < ON_AXIS));
 
+        if (!closeEnough) {
+            drivetrain.move(A, L, Y);
+        } else {
+            drivetrain.stop();
+        }
         return (closeEnough);
     }
 
@@ -166,42 +174,11 @@ public class Robot_Navigation
 
     /***
      * Initialize the Target Tracking and navigation interface
-     * @param opMode    pointer to OpMode
-     * @param robot     pointer to Robot hardware class
      */
-    public void initVuforia(Robot opMode, Robot_Drivetrain robot) {
+    public void initVuforia(VuforiaTrackables targets, VuforiaLocalizer.Parameters parameters, OpenGLMatrix phoneLocationOnRobot) {
 
-        // Save reference to OpMode and Hardware map
-        myOpMode = opMode;
-        myRobot = robot;
 
-        /**
-         * Start up Vuforia, telling it the id of the view that we wish to use as the parent for
-         * the camera monitor.
-         * We also indicate which camera on the RC that we wish to use.
-         */
-
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);  // Use this line to see camera display
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();                             // OR... Use this line to improve performance
-
-        // Get your own Vuforia key at  https://developer.vuforia.com/license-manager
-        // and paste it here...
-        parameters.vuforiaLicenseKey = "Afbu2Uv/////AAAAGVouNdSAD0P8la+sq37vCdQ6uLVH8NWrBLnfZ1R5rObJQpVVHJzqvIgMZO5gTqXG6DYJZcgwtSVZXU2g20FAJobxCog9Wc5vtqgJJmrsJ0NOABRbi9vy4Y9IzBVfaDoRsQTmjxxFf62Z9slttsb44KopGpVGTQ83iHnTo/wDvnZBWRhmckG6IKuqkbRYCFD+w1hHvVLuDoIYLgfpa1Rw1Pc7rszP/CDzUfeO9KwodFpEsfZHIZI8KHIYzfRIOhg1Tg0T4eRsLCO8s9vfZd6vfTuUA/sZkID3N7BsrlLaL6vUqheGPvsbPuQQsMqgPNYTqbhvv3KI/SR5WxUaccuVHnpVMhAjkdpruWVliCCZqp1t";
-
-        parameters.cameraDirection = CAMERA_CHOICE;
-        parameters.useExtendedTracking = false;
-        VuforiaLocalizer vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-
-        /**
-         * Load the data sets that for the trackable objects we wish to track.
-         * These particular data sets are stored in the 'assets' part of our application
-         * They represent the four image targets used in the 2016-17 FTC game.
-         */
-        targets = vuforia.loadTrackablesFromAsset("FTC_2016-17");
-        targets.get(0).setName("Blue Near");
-        targets.get(1).setName("Red Far");
-        targets.get(2).setName("Blue Far");
-        targets.get(3).setName("Red Near");
+        this.targets = targets;
 
         /** For convenience, gather together all the trackable objects in one easily-iterable collection */
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
@@ -215,39 +192,6 @@ public class Robot_Navigation
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.XYZ,
                         AngleUnit.DEGREES, 90, 0, -90));
-
-        /**
-         * Create a transformation matrix describing where the phone is on the robot.
-         *
-         * The coordinate frame for the robot looks the same as the field.
-         * The robot's "forward" direction is facing out along X axis, with the LEFT side facing out along the Y axis.
-         * Z is UP on the robot.  This equates to a bearing angle of Zero degrees.
-         *
-         * The phone starts out lying flat, with the screen facing Up and with the physical top of the phone
-         * pointing to the LEFT side of the Robot.  If we consider that the camera and screen will be
-         * in "Landscape Mode" the upper portion of the screen is closest to the front of the robot.
-         *
-         * If using the rear (High Res) camera:
-         * We need to rotate the camera around it's long axis to bring the rear camera forward.
-         * This requires a negative 90 degree rotation on the Y axis
-         *
-         * If using the Front (Low Res) camera
-         * We need to rotate the camera around it's long axis to bring the FRONT camera forward.
-         * This requires a Positive 90 degree rotation on the Y axis
-         *
-         * Next, translate the camera lens to where it is on the robot.
-         * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
-         */
-
-        final int CAMERA_FORWARD_DISPLACEMENT  = 146;   // Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 190;   // Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 1;     // Camera is ON the robots center line
-
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-            .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-            .multiplied(Orientation.getRotationMatrix(
-                    AxesReference.EXTRINSIC, AxesOrder.YZX,
-                    AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.FRONT ? 90 : -90, 0, 0));
 
         // Set the all the targets to have the same location and camera orientation
         for (VuforiaTrackable trackable : allTrackables)

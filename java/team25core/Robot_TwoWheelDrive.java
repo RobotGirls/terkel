@@ -38,6 +38,8 @@ public class Robot_TwoWheelDrive implements Robot_Drivetrain
     private double  driveLateral    = 0 ;   // Positive is right
     private double  driveYaw        = 0 ;   // Positive is CCW
 
+    private final static double PIVOT_MULTIPLIER = 1.5;
+
     /* Constructor */
     public Robot_TwoWheelDrive(DcMotor right, DcMotor left) {
         // Define and Initialize Motors
@@ -102,9 +104,16 @@ public class Robot_TwoWheelDrive implements Robot_Drivetrain
      */
     public void moveRobot() {
         // calculate required motor speeds to achieve axis motions
-        double left = -driveYaw + driveAxial + driveLateral;
-        double right = driveYaw + driveAxial;
+        double left;
+        double right;
 
+        if (driveLateral < 0) {
+            left = -driveYaw + driveAxial;
+            right = driveYaw + driveAxial + Math.abs(driveLateral);
+        } else {
+            left = -driveYaw + driveAxial + driveLateral;
+            right = driveYaw + driveAxial;
+        }
         // normalize all motor speeds so no values exceeds 100%.
         double max = Math.max(Math.abs(left), Math.abs(right));
         if (max > 1.0) {
@@ -127,8 +136,14 @@ public class Robot_TwoWheelDrive implements Robot_Drivetrain
     public void setYaw(double yaw)          {driveYaw = Range.clip(yaw, -1, 1); }
 
     public void rotateRobot(double speed) {
-        leftDrive.setPower(speed);
-        rightDrive.setPower(-speed);
+
+        if (speed < 0) {
+            leftDrive.setPower((1 / PIVOT_MULTIPLIER) * speed);
+            rightDrive.setPower(-speed);
+        } else {
+            leftDrive.setPower(speed);
+            rightDrive.setPower((1 / PIVOT_MULTIPLIER) * -speed);
+        }
     }
 
     /***
