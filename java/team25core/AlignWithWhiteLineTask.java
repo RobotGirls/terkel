@@ -161,7 +161,7 @@ public class AlignWithWhiteLineTask extends RobotTask {
                 currentSpeed = Math.min(currentSpeed, FAST_SPEED);
                 currentSpeed = Math.max(currentSpeed, MEDIUM_FAST_SPEED);
             }
-            RobotLog.i(LOG_TAG + "Wild abandon speed " + currentSpeed);
+            RobotLog.v(LOG_TAG + "Wild abandon speed " + currentSpeed);
             drivetrain.straight(currentSpeed);
             if (!drivetrain.isBusy()) {
                 /*

@@ -50,7 +50,6 @@ public class LightSensorCriteria implements SensorCriteria {
     @Override
     public boolean satisfied()
     {
-        RobotLog.i("251 Light: %f, Threshold: %f", sensor.getRawLightDetected(), threshold);
         if (polarity == LightPolarity.WHITE) {
             if (sensor.getRawLightDetected() > threshold) {
                 return true;
