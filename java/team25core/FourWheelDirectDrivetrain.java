@@ -5,6 +5,7 @@ package team25core;
  */
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 
 public class FourWheelDirectDrivetrain implements Drivetrain {
@@ -18,8 +19,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     int encoderTarget;
     double multiplier;
 
-    public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
-    {
+    public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -33,8 +33,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         rearRight.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public FourWheelDirectDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
-    {
+    public FourWheelDirectDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -44,6 +43,13 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
 
+        setCanonicalMotorDirection();
+    }
+
+    public void setCanonicalMotorDirection()
+    {
+        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         rearRight.setDirection(DcMotor.Direction.REVERSE);
     }
@@ -96,16 +102,31 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void pivotTurn(PivotSide side, double speed)
     {
-        if (side == PivotSide.RIGHT_OVER_RIGHT) {
-            frontLeft.setPower(speed);
-            rearLeft.setPower(speed);
-            frontRight.setPower(-(1/multiplier) * speed);
-            rearRight.setPower(-(1/multiplier) * speed);
-        } else if (side == PivotSide.LEFT_OVER_LEFT) {
-            frontLeft.setPower(-(1/multiplier) * speed);
-            rearLeft.setPower(-(1/multiplier) * speed);
-            frontRight.setPower(speed);
-            rearRight.setPower(speed);
+        switch (side) {
+            case RIGHT_OVER_RIGHT:
+                frontRight.setPower((1 / multiplier) * -speed);
+                rearRight.setPower((1 / multiplier) * -speed);
+                frontLeft.setPower(speed);
+                rearLeft.setPower(speed);
+                break;
+            case RIGHT_OVER_LEFT:
+                frontLeft.setPower( (1 / multiplier) * speed);
+                rearLeft.setPower((1 / multiplier) * speed);
+                frontRight.setPower(-speed);
+                rearRight.setPower(-speed);
+                break;
+            case LEFT_OVER_RIGHT:
+                frontRight.setPower((1 / multiplier) * speed);
+                rearRight.setPower((1 / multiplier) * speed);
+                frontLeft.setPower(-speed);
+                rearLeft.setPower(-speed);
+                break;
+            case LEFT_OVER_LEFT:
+                frontLeft.setPower((1 / multiplier) * -speed);
+                rearLeft.setPower((1 / multiplier) * -speed);
+                frontRight.setPower(speed);
+                rearRight.setPower(speed);
+                break;
         }
     }
 
@@ -127,7 +148,11 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public double percentComplete()
     {
-        return (Math.abs(frontLeft.getCurrentPosition()) / encoderTarget);
+        if (encoderTarget != 0) {
+            return (Math.abs(frontLeft.getCurrentPosition()) / encoderTarget);
+        } else {
+            return 1;
+        }
     }
 
     @Override

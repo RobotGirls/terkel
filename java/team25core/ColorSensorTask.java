@@ -3,6 +3,7 @@ package team25core;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.util.RobotLog;
 
 /**
  * FTC Team 25: Created by Katelyn Biesiadecki on 12/14/15.
@@ -77,6 +78,9 @@ public class ColorSensorTask extends RobotTask
     {
         int blue = colorSensor.blue();
         int red = colorSensor.red();
+
+        RobotLog.i("251 Blue: " + blue);
+        RobotLog.i("251 Red: " + red);
 
         if (color) {
             robot.telemetry.addData("B:", blue);
