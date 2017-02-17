@@ -22,6 +22,12 @@ public class MecanumWheelDriveTask extends RobotTask {
     public double rr;
     public double rl;
     public double slowMultiplier = 1;
+    public double leftX;
+    public double rightX;
+    public double leftY;
+    public double rightY;
+
+    public boolean yForward = true;
 
     public MecanumWheelDriveTask(Robot robot, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
     {
@@ -38,19 +44,31 @@ public class MecanumWheelDriveTask extends RobotTask {
         Gamepad gamepad;
         gamepad = robot.gamepad1;
 
+        if (yForward) {
+            leftX = gamepad.left_stick_x;
+            rightX = gamepad.right_stick_x;
+            leftY = gamepad.left_stick_y;
+            rightY = gamepad.right_stick_y;
+        } else {
+            leftX = -gamepad.left_stick_y;
+            rightX = -gamepad.right_stick_y;
+            leftY = -gamepad.left_stick_x;
+            rightY = -gamepad.right_stick_x;
+        }
+
         // If joysticks are pointed left (negative joystick values), counter rotate wheels.
         // Threshold for joystick values in the x may vary.
 
-        if (gamepad.left_stick_x > 0.5 && gamepad.right_stick_x > 0.5) {
-            fl = -gamepad.left_stick_x;
-            rl = gamepad.left_stick_x;
-            fr = -gamepad.right_stick_x;
-            rr = gamepad.right_stick_x;
-        } else if (gamepad.left_stick_x < -0.5 && gamepad.right_stick_x < -0.5) {
-            fl = -gamepad.left_stick_x;
-            rl = gamepad.left_stick_x;
-            fr = -gamepad.right_stick_x;
-            rr = gamepad.right_stick_x;
+        if (leftX > 0.5 && rightX > 0.5) {
+            fl = -leftX;
+            rl = leftX;
+            fr = -rightX;
+            rr = rightX;
+        } else if (leftX < -0.5 && rightX < -0.5) {
+            fl = -leftX;
+            rl = leftX;
+            fr = -rightX;
+            rr = rightX;
         } else if (gamepad.right_trigger > 0.5) {
             fr = -1.0;
             rl = 1.0;
@@ -64,11 +82,20 @@ public class MecanumWheelDriveTask extends RobotTask {
             rr = 1.0;
             fl = -1.0;
         } else {
-            fl = gamepad.left_stick_y;
-            rl = gamepad.left_stick_y;
-            fr = -gamepad.right_stick_y;
-            rr = -gamepad.right_stick_y;
+            fl = leftY;
+            rl = leftY;
+            fr = -rightY;
+            rr = -rightY;
         }
+    }
+
+    public void changeDirection()
+    {
+       if (yForward) {
+           yForward = false;
+       } else {
+           yForward = true;
+       }
     }
 
     @Override

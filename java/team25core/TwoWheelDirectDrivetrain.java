@@ -15,6 +15,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     int encoderTicksPerInch;
     int encoderTarget;
     double multiplier;
+    boolean alternate;
 
     public TwoWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor frontLeft)
     {
@@ -24,6 +25,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
         this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = 1.0;
+        this.alternate = true;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
     }
@@ -36,6 +38,7 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
         this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
+        this.alternate = true;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
     }
@@ -57,8 +60,18 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void straight(double speed)
     {
-        frontRight.setPower(speed);
-        frontLeft.setPower(speed);
+        /*
+         * Alternate which motor gets power first in an attempt to reduce startup jerk.
+         */
+        if (alternate) {
+            alternate = false;
+            frontRight.setPower(speed);
+            frontLeft.setPower(speed);
+        } else {
+            alternate = true;
+            frontLeft.setPower(speed);
+            frontRight.setPower(speed);
+        }
     }
 
     @Override
@@ -103,6 +116,24 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     {
         frontLeft.setPower(0.0);
         frontRight.setPower(0.0);
+    }
+
+    @Override
+    public void move(double axial, double lateral, double yaw)
+    {
+
+    }
+
+    @Override
+    public void strafeLeft(double speed)
+    {
+
+    }
+
+    @Override
+    public void strafeRight(double speed)
+    {
+
     }
 
     @Override
