@@ -180,6 +180,19 @@ public class NavigateToTargetTask extends RobotTask {
             nav.targetsAreVisible();
             nav.addNavTelemetry();
             return false;
+        } else if (gamepad.dpad_up && nav.targetsAreVisible()) {
+            // Theoretically, this should calculate the robot's Y, L, and A, but only use A, and
+            // so on. In the future, this will happen sequentially (rather than by button press).
+            nav.cruiseControl(400);
+            nav.setGainParams(0, 0.0006, 0);
+        } else if (gamepad.dpad_left && nav.targetsAreVisible()) {
+            nav.cruiseControl(400);
+            nav.setGainParams(0, 0, 0.0015);
+        } else if (gamepad.x && nav.targetsAreVisible()) {
+            nav.cruiseControl(400);
+            nav.setGainParams(0.002, 0, 0);
+        } else {
+            drivetrain.stop();
         }
 
         if ((timer != null) && (timer.time() > timeout)) {

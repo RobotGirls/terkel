@@ -94,6 +94,27 @@ public class Robot_MecanumDrive implements Robot_Drivetrain
         moveRobot();
     }
 
+    public void moveAxially()
+    {
+        setLateral(0);
+        setYaw(0);
+        moveRobot();
+    }
+
+    public void moveLaterally()
+    {
+        setAxial(0);
+        setYaw(0);
+        moveRobot();
+    }
+
+    public void moveRotationally()
+    {
+        setLateral(0);
+        setAxial(0);
+        moveRobot();
+    }
+
     /***
      * void moveRobot()
      * This method will calculate the motor speeds required to move the robot according to the
