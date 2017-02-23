@@ -35,7 +35,7 @@ public class RobotNavigation
 {
     // Constants
     private static final int     MAX_TARGETS    =   4;
-    private static final double  ON_AXIS        =  200;      // Within 1.0 cm of target center-line
+    private static final double  ON_AXIS        =   2;      // Within 1.0 cm of target center-line
     private static final double  CLOSE_ENOUGH   =  20;      // Within 2.0 cm of final target standoff
 
     private  double yawGain     =  0.002;   // Rate at which we respond to heading error
@@ -104,30 +104,36 @@ public class RobotNavigation
     /***
      * Start tracking Vuforia images
      */
-    public void activateTracking() {
+    public void activateTracking()
+    {
 
         // Start tracking any of the defined targets
         if (targets != null)
             targets.activate();
     }
 
-    public double getRelativeBearing() {
+    public double getRelativeBearing()
+    {
         return relativeBearing;
     }
 
-    public double getRobotBearing() {
+    public double getRobotBearing()
+    {
         return robotBearing;
     }
 
-    public double getDistance() {
+    public double getDistance()
+    {
         return Math.abs(robotX);
     }
 
-    public double getStrafe() {
+    public double getStrafe()
+    {
         return robotY;
     }
 
-    public void setGainParams(double yaw, double axial, double lateral) {
+    public void setGainParams(double yaw, double axial, double lateral)
+    {
         yawGain = yaw;
         axialGain = axial;
         lateralGain = lateral;
@@ -140,23 +146,27 @@ public class RobotNavigation
      * @return true if we are close to target
      * @param standOffDistance how close do we get the center of the robot to target (in mm)
      */
-    public boolean cruiseControl(double standOffDistance) {
+    public boolean cruiseControl(double standOffDistance)
+    {
         boolean closeEnough;
 
         // Priority #1 Rotate to always be pointing at the target (for best target retention).
         double Y  = (relativeBearing * yawGain);
 
         // Priority #2  Drive laterally based on distance from X axis (same as y value)
-        double L  =(robotY * lateralGain);
+        double L  = (robotY * lateralGain);
 
         // Priority #3 Drive forward based on the desiredHeading target standoff distance
         double A  = (-(robotX + standOffDistance) * axialGain);
 
         // Determine if we are close enough to the target for action.
-        closeEnough = ( (Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) &&
-                        (Math.abs(robotY) < ON_AXIS));
+        closeEnough = ((Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) &&
+                       (Math.abs(robotY) < ON_AXIS));
 
         if (!closeEnough) {
+            RobotLog.i("141 Axial power %f", A);
+            RobotLog.i("141 Lateral power %f", L);
+            RobotLog.i("141 Yaw power %f", Y);
             drivetrain.move(A, L, Y);
         } else {
             drivetrain.stop();
@@ -164,7 +174,8 @@ public class RobotNavigation
         return (closeEnough);
     }
 
-    public boolean onTarget() {
+    public boolean onTarget()
+    {
         if ((relativeBearing <= 1) && (relativeBearing >= -1)) {
             return true;
         } else {
@@ -175,9 +186,8 @@ public class RobotNavigation
     /***
      * Initialize the Target Tracking and navigation interface
      */
-    public void initVuforia(VuforiaTrackables targets, VuforiaLocalizer.Parameters parameters, OpenGLMatrix phoneLocationOnRobot) {
-
-
+    public void initVuforia(VuforiaTrackables targets, VuforiaLocalizer.Parameters parameters, OpenGLMatrix phoneLocationOnRobot)
+    {
         this.targets = targets;
 
         /** For convenience, gather together all the trackable objects in one easily-iterable collection */
@@ -207,8 +217,8 @@ public class RobotNavigation
      *
      * @return true if any target is found
      */
-    public boolean targetsAreVisible()  {
-
+    public boolean targetsAreVisible()
+    {
         int targetTestID = 0;
 
         // Check each target in turn, but stop looking when the first target is found.
@@ -226,8 +236,8 @@ public class RobotNavigation
      * @param   targetId
      * @return  true if the specified target is found
      */
-    public boolean targetIsVisible(int targetId) {
-
+    public boolean targetIsVisible(int targetId)
+    {
         VuforiaTrackable target = targets.get(targetId);
         VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener)target.getListener();
         OpenGLMatrix location  = null;

@@ -152,13 +152,19 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void strafeLeft(double speed)
     {
-
+        frontRight.setPower(speed);
+        rearRight.setPower(-speed);
+        frontLeft.setPower(-speed);
+        rearLeft.setPower(speed);
     }
 
     @Override
     public void strafeRight(double speed)
     {
-
+        frontRight.setPower(-speed);
+        rearRight.setPower(speed);
+        frontLeft.setPower(speed);
+        rearLeft.setPower(-speed);
     }
 
     @Override

@@ -19,7 +19,9 @@ public class NavigateToTargetTask extends RobotTask {
         WAITING,
         FIND_TARGET,
         LOST_TARGET,
-        INITIAL_APPROACH,
+        INITIAL_APPROACH_AXIAL,
+        INITIAL_APPROACH_LATERAL,
+        INITIAL_APPROACH_ROTATIONAL,
         FINAL_APPROACH,
         AT_TARGET,
         ALIGNED,
@@ -190,7 +192,7 @@ public class NavigateToTargetTask extends RobotTask {
             nav.setGainParams(0, 0, 0.0015);
         } else if (gamepad.x && nav.targetsAreVisible()) {
             nav.cruiseControl(400);
-            nav.setGainParams(0.002, 0, 0);
+            nav.setGainParams(0.023, 0, 0);
         } else {
             drivetrain.stop();
         }
@@ -210,63 +212,95 @@ public class NavigateToTargetTask extends RobotTask {
             strafeDistanceFromTarget = nav.getStrafe();
         }
 
+        // Begin with ROTATIONAL motion in initial approach to prevent losing target.
+        // Then, go to LATERAL motion, and finally, AXIAL motion.
+        // NOTE: Change the values of how much the robot is off depending on personal preference.
+
+        //TODO: CAP MOTOR POWERS AT 0.7!!!
         switch (state) {
-        case WAITING:
-            if (visible) {
-                drivetrain.stop();
-                nav.addNavTelemetry();
-            } else {
-                robot.telemetry.addLine("Can't see the target");
-            }
-            break;
-        case FIND_TARGET:
-            if (visible) {
-                drivetrain.stop();
-                nav.addNavTelemetry();
-                setState(TargetState.INITIAL_APPROACH);
-            } else {
-                doFindMethod();
-            }
-            break;
-        case LOST_TARGET:
-            if (visible) {
-                setState(TargetState.INITIAL_APPROACH);
-            } else if (relativeBearing > 0){
-                drivetrain.turnRight(0.06);
-            } else {
-                drivetrain.turnLeft(0.06);
-            }
-            break;
-        case INITIAL_APPROACH:
-            if (!visible) {
-                state = TargetState.LOST_TARGET;
-            } else if (nav.cruiseControl(200)) {
-                setState(TargetState.FINAL_APPROACH);
-            }
-            break;
-        case FINAL_APPROACH:
-            if (visible) {
-                if (nav.cruiseControl(200)) {
-                    setState(TargetState.AT_TARGET);
+            case WAITING:
+                RobotLog.i("141 Case: Waiting");
+                if (visible) {
+                    drivetrain.stop();
+                    nav.addNavTelemetry();
+                } else {
+                    robot.telemetry.addLine("Can't see the target");
                 }
-            } else {
-                RobotLog.i("Lost target %f", nav.getRelativeBearing());
-                setState(TargetState.LOST_TARGET);
-            }
-            break;
-        case AT_TARGET:
-            if ((robotBearing < 1.5) && (robotBearing > -1.5)) {
-                setState(TargetState.ALIGNED);
-            } else if (nav.getRobotBearing() > 0) {
-                drivetrain.turnLeft(0.10);
-            } else {
-                drivetrain.turnRight(0.10);
-            }
-            break;
-        case ALIGNED:
-            nav.addNavTelemetry();
-            drivetrain.stop();
-            break;
+                break;
+            case FIND_TARGET:
+                RobotLog.i("141 Case: Find Target");
+                if (visible) {
+                    drivetrain.stop();
+                    nav.addNavTelemetry();
+                    setState(TargetState.INITIAL_APPROACH_LATERAL);
+                } else {
+                    doFindMethod();
+                }
+                break;
+            case LOST_TARGET:
+                RobotLog.i("141 Case: Lost Target");
+                if (visible) {
+                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
+                } else if (relativeBearing > 0){
+                    drivetrain.turnRight(0.06);
+                } else {
+                    drivetrain.turnLeft(0.06);
+                }
+                break;
+            case INITIAL_APPROACH_ROTATIONAL:
+                RobotLog.i("141 Case: Initial Approach ROTATIONAL");
+                RobotLog.i("141 Relative Bearing %f", nav.getRelativeBearing());
+                RobotLog.i("141 Robot Bearing %f", nav.getRobotBearing());
+                nav.setGainParams(0.04, 0, 0);
+                if (!visible) {
+                    state = TargetState.LOST_TARGET;
+                } else if (nav.cruiseControl(300) && Math.abs(nav.getRobotBearing()) <= 0.5) {
+                    setState(TargetState.INITIAL_APPROACH_AXIAL);
+                }
+                break;
+            case INITIAL_APPROACH_LATERAL:
+                RobotLog.i("141 Case: Initial Approach LATERAL");
+                nav.setGainParams(0, 0, 0.75);
+                RobotLog.i("141 Robot Strafe %f", nav.getStrafe());
+
+                if (!visible) {
+                    state = TargetState.LOST_TARGET;
+                } else if (nav.cruiseControl(300) && nav.getStrafe() <= 10) {
+                    //setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
+                }
+                break;
+            case INITIAL_APPROACH_AXIAL:
+                RobotLog.i("141 Case: Initial Approach AXIAL");
+                nav.setGainParams(0, 0.05, 0);
+                if (!visible) {
+                    state = TargetState.LOST_TARGET;
+                } else if (nav.cruiseControl(300) && nav.getDistance() <= 75) {
+                    setState(TargetState.FINAL_APPROACH);
+                }
+                break;
+            case FINAL_APPROACH:
+                if (visible) {
+                    if (nav.cruiseControl(200)) {
+                        setState(TargetState.AT_TARGET);
+                    }
+                } else {
+                    RobotLog.i("Lost target %f", nav.getRelativeBearing());
+                    setState(TargetState.LOST_TARGET);
+                }
+                break;
+            case AT_TARGET:
+                if ((robotBearing < 1.5) && (robotBearing > -1.5)) {
+                    setState(TargetState.ALIGNED);
+                } else if (nav.getRobotBearing() > 0) {
+                    drivetrain.turnLeft(0.10);
+                } else {
+                    drivetrain.turnRight(0.10);
+                }
+                break;
+            case ALIGNED:
+                nav.addNavTelemetry();
+                drivetrain.stop();
+                break;
         }
         return false;
     }
