@@ -30,8 +30,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.encoderTarget = 0;
         this.multiplier = 1.0;
 
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        rearRight.setDirection(DcMotor.Direction.REVERSE);
+        setCanonicalMotorDirection();
     }
 
     public FourWheelDirectDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
@@ -55,6 +54,14 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         rearRight.setDirection(DcMotor.Direction.REVERSE);
     }
 
+    public void setNoncanonicalMotorDirection()
+    {
+        // This reverses the direction of the drivetrain.
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        rearRight.setDirection(DcMotor.Direction.FORWARD);
+    }
     @Override
     public void resetEncoders()
     {
@@ -144,10 +151,10 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     public void move(double axial, double lateral, double yaw)
     {
         // calculate required motor speeds to achieve axis motions
-        double backLeft = axial - lateral - yaw;
-        double backRight = axial + lateral + yaw;
-        double left = axial + lateral - yaw;
-        double right = axial - lateral + yaw;
+        double backLeft = axial - lateral + yaw;
+        double backRight = axial + lateral - yaw;
+        double left = axial + lateral + yaw;
+        double right = axial - lateral - yaw;
 
         // normalize all motor speeds so no values exceeds 100%.
         double max = Math.max(Math.abs(backLeft), Math.abs(right));
