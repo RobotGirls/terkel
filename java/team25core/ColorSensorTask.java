@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -118,6 +119,14 @@ public class ColorSensorTask extends RobotTask
     {
         float hsvValues[] = {0F,0F,0F};
         final float values[] = hsvValues;
+
+        RobotLog.i("251 Blue: " + blue);
+        RobotLog.i("251 Red: " + red);
+
+        if (color) {
+            robot.telemetry.addData("B:", blue);
+            robot.telemetry.addData("R:", red);
+        }
 
         Color.RGBToHSV(red * 8, green * 8, blue * 8, hsvValues);
 

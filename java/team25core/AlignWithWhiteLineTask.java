@@ -62,7 +62,7 @@ public class AlignWithWhiteLineTask extends RobotTask {
 
     private final static double FAST_SPEED        = 0.7;
     private final static double MEDIUM_FAST_SPEED = 0.2;
-    private final static double MEDIUM_SPEED      = 0.06;
+    private final static double MEDIUM_SPEED      = 0.152;
     private final static double SLOW_SPEED        = 0.03;
     private final static double SLEW_UP_RATE      = 40;     // The larger the number the slower ramp up.
     private final static double SLEW_DOWN_RATE    = 30;
@@ -127,7 +127,10 @@ public class AlignWithWhiteLineTask extends RobotTask {
             pivotLeftCycle++;
             break;
         case PIVOT_RIGHT_OVER_LEFT:
+            pivotRightCycle++;
+            break;
         case PIVOT_LEFT_OVER_RIGHT:
+            pivotLeftCycle++;
         case DONE:
             break;
         }
@@ -138,7 +141,7 @@ public class AlignWithWhiteLineTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
-        if ((pivotRightCycle > 8) || (pivotLeftCycle > 8)) {
+        if ((pivotRightCycle > 6) || (pivotLeftCycle > 6)) {
             RobotLog.i(LOG_TAG + "Calling it good enough");
             robot.queueEvent(new AlignWithWhiteLineEvent(this, EventKind.GOOD_ENOUGH));
             return true;
@@ -158,7 +161,7 @@ public class AlignWithWhiteLineTask extends RobotTask {
                 currentSpeed = Math.min(currentSpeed, FAST_SPEED);
                 currentSpeed = Math.max(currentSpeed, MEDIUM_FAST_SPEED);
             }
-            RobotLog.i(LOG_TAG + "Wild abandon speed " + currentSpeed);
+            RobotLog.v(LOG_TAG + "Wild abandon speed " + currentSpeed);
             drivetrain.straight(currentSpeed);
             if (!drivetrain.isBusy()) {
                 /*
