@@ -7,6 +7,7 @@ package team25core;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 public class FourWheelDirectDrivetrain implements Drivetrain {
 
@@ -137,6 +138,48 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         frontRight.setPower(0.0);
         rearLeft.setPower(0.0);
         rearRight.setPower(0.0);
+    }
+
+    @Override
+    public void move(double axial, double lateral, double yaw)
+    {
+        // calculate required motor speeds to achieve axis motions
+        double backLeft = axial - lateral - yaw;
+        double backRight = axial + lateral + yaw;
+        double left = axial + lateral - yaw;
+        double right = axial - lateral + yaw;
+
+        // normalize all motor speeds so no values exceeds 100%.
+        double max = Math.max(Math.abs(backLeft), Math.abs(right));
+        max = Math.max(max, Math.abs(backRight));
+        max = Math.max(max, Math.abs(left));
+        if (max > 1.0)
+        {
+            backLeft /= max;
+            backRight /= max;
+            right /= max;
+            left /= max;
+        }
+
+        rearLeft.setPower(backLeft);
+        rearRight.setPower(backRight);
+        frontLeft.setPower(left);
+        frontRight.setPower(right);
+
+        RobotLog.i("141 Axes A[%+5.2f], L[%+5.2f], Y[%+5.2f]", axial, lateral, yaw);
+        RobotLog.i("141 Wheels L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backLeft, backRight);
+    }
+
+    @Override
+    public void strafeLeft(double speed)
+    {
+
+    }
+
+    @Override
+    public void strafeRight(double speed)
+    {
+
     }
 
     @Override

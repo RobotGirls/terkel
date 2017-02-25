@@ -13,10 +13,13 @@ public abstract class Robot extends OpMode {
     ConcurrentLinkedQueue<RobotTask> tasks;
     ConcurrentLinkedQueue<RobotEvent> events;
 
+    boolean started;
+
     public Robot()
     {
         tasks = new ConcurrentLinkedQueue<RobotTask>();
         events = new ConcurrentLinkedQueue<RobotEvent>();
+        started = false;
     }
 
     public abstract void handleEvent(RobotEvent e);
@@ -59,7 +62,7 @@ public abstract class Robot extends OpMode {
             return;
         }
 
-        loop();
+        // loop();
     }
 
     @Override

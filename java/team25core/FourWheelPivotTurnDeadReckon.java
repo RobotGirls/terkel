@@ -107,8 +107,10 @@ public class FourWheelPivotTurnDeadReckon extends DeadReckon {
     }
 
     @Override
-    protected void motorSideways(double speed) {
-        
+
+    protected void motorSideways(double speed)
+    {
+        // Only supported on a Mecanum drive.
     }
 
     @Override

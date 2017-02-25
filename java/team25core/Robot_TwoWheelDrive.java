@@ -1,14 +1,13 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
 /**
  * This is NOT an opmode.
  *
- * This class defines all the specific hardware for a three wheel omni-bot.
+ * This class defines all the specific hardware for a two wheel bot.
  *
  * This hardware class assumes the following device names have been configured on the robot:
  * Note:  All names are lower case and some have single spaces between words.
@@ -27,26 +26,25 @@ import com.qualcomm.robotcore.util.RobotLog;
  */
 
 
-public class Robot_MecanumDrive implements Robot_Drivetrain
+public class Robot_TwoWheelDrive implements Robot_Drivetrain
 {
     // Private Members
     private Robot myOpMode;
 
-    private DcMotor  leftFront      = null;
-    private DcMotor  rightFront     = null;
-    private DcMotor  leftRear       = null;
-    private DcMotor  rightRear      = null;
+    private DcMotor  leftDrive      = null;
+    private DcMotor  rightDrive     = null;
 
     private double  driveAxial      = 0 ;   // Positive is forward
     private double  driveLateral    = 0 ;   // Positive is right
     private double  driveYaw        = 0 ;   // Positive is CCW
 
+    private final static double PIVOT_MULTIPLIER = 1.5;
+
     /* Constructor */
-    public Robot_MecanumDrive(DcMotor leftFront, DcMotor rightFront, DcMotor leftRear, DcMotor rightRear){
-        this.leftFront = leftFront;
-        this.rightFront = rightFront;
-        this.leftRear = leftRear;
-        this.rightRear = rightRear;
+    public Robot_TwoWheelDrive(DcMotor right, DcMotor left) {
+        // Define and Initialize Motors
+        rightDrive       = right;
+        leftDrive        = left;
     }
 
 
@@ -56,11 +54,8 @@ public class Robot_MecanumDrive implements Robot_Drivetrain
         // Save reference to Hardware map
         myOpMode = opMode;
 
-        // Define and Initialize Motors
-        leftFront.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
-        rightFront.setDirection(DcMotor.Direction.REVERSE);// Positive input rotates counter clockwise
-        leftRear.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
-        rightRear.setDirection(DcMotor.Direction.REVERSE); // Positive input rotates counter clockwise
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
         //use RUN_USING_ENCODERS because encoders are installed.
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -108,32 +103,31 @@ public class Robot_MecanumDrive implements Robot_Drivetrain
      * This convention should NOT be changed.  Any new drive system should be configured to react accordingly.
      */
     public void moveRobot() {
-        // calculate required motor speeds to acheive axis motions
-        double backLeft = driveAxial - driveLateral - driveYaw;
-        double backRight = driveAxial + driveLateral + driveYaw;
-        double left = driveAxial + driveLateral - driveYaw;
-        double right = driveAxial - driveLateral + driveYaw;
+        // calculate required motor speeds to achieve axis motions
+        double left;
+        double right;
 
+        if (driveLateral < 0) {
+            left = -driveYaw + driveAxial;
+            right = driveYaw + driveAxial + Math.abs(driveLateral);
+        } else {
+            left = -driveYaw + driveAxial + driveLateral;
+            right = driveYaw + driveAxial;
+        }
         // normalize all motor speeds so no values exceeds 100%.
-        double max = Math.max(Math.abs(backLeft), Math.abs(right));
-        max = Math.max(max, Math.abs(backRight));
-        max = Math.max(max, Math.abs(left));
-        if (max > 1.0)
-        {
-            backLeft /= max;
-            backRight /= max;
+        double max = Math.max(Math.abs(left), Math.abs(right));
+        if (max > 1.0) {
             right /= max;
             left /= max;
         }
+
         // Set drive motor power levels.
-        leftRear.setPower(backLeft);
-        rightRear.setPower(backRight);
-        leftFront.setPower(left);
-        rightFront.setPower(right);
+        leftDrive.setPower(left);
+        rightDrive.setPower(right);
 
         // Display Telemetry
-        RobotLog.i("141 Axes A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
-        RobotLog.i("141 Wheels L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backLeft, backRight);
+        RobotLog.i("Axes   A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
+        RobotLog.i("Wheels L[%+5.2f], R[%+5.2f]", left, right);
     }
 
 
@@ -141,38 +135,24 @@ public class Robot_MecanumDrive implements Robot_Drivetrain
     public void setLateral(double lateral)  {driveLateral = Range.clip(lateral, -1, 1); }
     public void setYaw(double yaw)          {driveYaw = Range.clip(yaw, -1, 1); }
 
+    public void rotateRobot(double speed) {
+
+        if (speed < 0) {
+            leftDrive.setPower((1 / PIVOT_MULTIPLIER) * speed);
+            rightDrive.setPower(-speed);
+        } else {
+            leftDrive.setPower(speed);
+            rightDrive.setPower((1 / PIVOT_MULTIPLIER) * -speed);
+        }
+    }
 
     /***
      * void setMode(DcMotor.RunMode mode ) Set all drive motors to same mode.
      * @param mode    Desired Motor mode.
      */
     public void setMode(DcMotor.RunMode mode ) {
-        leftFront.setMode(mode);
-        rightFront.setMode(mode);
-        leftRear.setMode(mode);
-        rightRear.setMode(mode);
+        leftDrive.setMode(mode);
+        rightDrive.setMode(mode);
     }
-
-    public void rotateRobot(double speed)
-    {
-        if (driveYaw < 0) {
-            leftRear.setPower(-speed);
-            leftFront.setPower(-speed);
-            rightRear.setPower(speed);
-            rightFront.setPower(speed);
-
-        } else {
-            leftRear.setPower(speed);
-            leftFront.setPower(speed);
-            rightRear.setPower(-speed);
-            rightFront.setPower(-speed);
-        }
-    }
-
-    public void stopRobot()
-    {
-        rotateRobot(0);
-    }
-
 }
 
