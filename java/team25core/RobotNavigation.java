@@ -35,8 +35,9 @@ public class RobotNavigation
 {
     // Constants
     private static final int     MAX_TARGETS    =   4;
-    private static final double  ON_AXIS        =   2;      // Within 1.0 cm of target center-line
-    private static final double  CLOSE_ENOUGH   =  20;      // Within 2.0 cm of final target standoff
+    private static final double  ON_AXIS        =   4;      // Within 1.0 cm of target center-line
+    private static final double  CLOSE_ENOUGH   =  5;      // Within 2.0 cm of final target standoff
+    private static final double  HEAD_ON   =  3;      // Within 2.0 cm of final target standoff
 
     private  double yawGain     =  0.002;   // Rate at which we respond to heading error
     private  double lateralGain =  0.0015;  // Rate at which we respond to off-axis error
@@ -159,9 +160,22 @@ public class RobotNavigation
         // Priority #3 Drive forward based on the desiredHeading target standoff distance
         double A  = (-(robotX + standOffDistance) * axialGain);
 
+        /*
         // Determine if we are close enough to the target for action.
         closeEnough = ((Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) &&
                        (Math.abs(robotY) < ON_AXIS));
+        */
+
+        if (L != 0) {
+            closeEnough = Math.abs(robotY) < ON_AXIS;
+            RobotLog.i("141 L!= 0 Lateral");
+        } else if (A != 0) {
+           closeEnough = Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH;
+            RobotLog.i("141 A!= 0 Axial");
+        } else {
+            closeEnough = Math.abs(relativeBearing) < HEAD_ON;
+            RobotLog.i("141 Y!= 0 Rotational");
+        }
 
         if (!closeEnough) {
             RobotLog.i("141 Axial power %f", A);
@@ -169,6 +183,7 @@ public class RobotNavigation
             RobotLog.i("141 Yaw power %f", Y);
             drivetrain.move(A, L, Y);
         } else {
+            RobotLog.i("141 Close Enough");
             drivetrain.stop();
         }
         return (closeEnough);
