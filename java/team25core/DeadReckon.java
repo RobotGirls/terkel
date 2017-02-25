@@ -114,6 +114,11 @@ public abstract class DeadReckon {
         robot.addTask(ptt);
     }
 
+    public int numSegments()
+    {
+        return segments.size();
+    }
+
     public void addSegment(SegmentType type, double distance, double speed)
     {
         segments.add(new Segment(type, distance, speed));
