@@ -35,7 +35,7 @@ public class RobotNavigation
 {
     // Constants
     private static final int     MAX_TARGETS    =   4;
-    private static final double  ON_AXIS        =   4;      // Within 1.0 cm of target center-line
+    private static double        ON_AXIS        =   4;      // Within 1.0 cm of target center-line
     private static final double  CLOSE_ENOUGH   =   7;      // Within 2.0 cm of final target standoff
     private static final double  HEAD_ON   =  3;      // Within 2.0 cm of final target standoff
 
@@ -138,6 +138,11 @@ public class RobotNavigation
         yawGain = yaw;
         axialGain = axial;
         lateralGain = lateral;
+    }
+
+    public void setMaxLateralOffset(int offset)
+    {
+        ON_AXIS = offset;
     }
 
     /***

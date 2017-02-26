@@ -85,6 +85,8 @@ public class NavigateToTargetTask extends RobotTask {
     protected double strafeDistanceFromTarget;
     protected boolean firstRotation;
 
+    private Alliance alliance;
+
     boolean visible;
 
     protected float mmPerInch        = 25.4f;
@@ -93,7 +95,12 @@ public class NavigateToTargetTask extends RobotTask {
 
     protected final static String ROBOT_TAG = "Nav: ";
 
-    public NavigateToTargetTask(Robot robot, Drivetrain drivetrain, Targets target, int timeout, Gamepad gamepad)
+    public enum Alliance {
+        RED,
+        BLUE,
+    }
+
+    public NavigateToTargetTask(Robot robot, Drivetrain drivetrain, Targets target, int timeout, Gamepad gamepad, Alliance alliance)
     {
         super(robot);
 
@@ -103,7 +110,8 @@ public class NavigateToTargetTask extends RobotTask {
         this.target = target;
         this.findMethod = FindMethod.APPROACH_STRAIGHT;
         this.firstRotation = true;
-        
+        this.alliance = alliance;
+
         robotBearing = 0;
         linearDistanceFromTarget = 0;
         strafeDistanceFromTarget = 0;
@@ -132,6 +140,11 @@ public class NavigateToTargetTask extends RobotTask {
     public void setTarget(Targets target)
     {
         this.target = target;
+    }
+
+    public void setAlliance(Alliance alliance)
+    {
+        this.alliance = alliance;
     }
 
     @Override
@@ -182,26 +195,6 @@ public class NavigateToTargetTask extends RobotTask {
     public boolean timeslice()
     {
         visible = nav.targetIsVisible(target.targetId);
-        /*
-        if (gamepad.a) {
-            drivetrain.stop();
-            nav.targetsAreVisible();
-            nav.addNavTelemetry();
-            return false;
-        } else if (gamepad.dpad_up && nav.targetsAreVisible()) {
-            // Theoretically, this should calculate the robot's Y, L, and A, but only use A, and
-            // so on. In the future, this will happen sequentially (rather than by button press).
-            nav.cruiseControl(400);
-            nav.setGainParams(0, 0.0006, 0);
-        } else if (gamepad.dpad_left && nav.targetsAreVisible()) {
-            nav.cruiseControl(400);
-            nav.setGainParams(0, 0, 0.0015);
-        } else if (gamepad.x && nav.targetsAreVisible()) {
-            nav.cruiseControl(400);
-            nav.setGainParams(0.023, 0, 0);
-        } else {
-            drivetrain.stop();
-        }*/
 
         if ((timer != null) && (timer.time() > timeout)) {
             robot.queueEvent(new NavigateToTargetEvent(this, EventKind.TIMEOUT));
@@ -218,8 +211,8 @@ public class NavigateToTargetTask extends RobotTask {
             strafeDistanceFromTarget = nav.getStrafe();
         }
 
-        // Begin with ROTATIONAL motion in initial approach to prevent losing target.
-        // Then, go to LATERAL motion, and finally, AXIAL motion.
+        // Begin with LATERAL motion in initial approach to prevent losing target.
+        // Then, go to ROTATIONAL motion, and finally, AXIAL motion.
         // NOTE: Change the values of how much the robot is off depending on personal preference.
 
         //TODO: CAP MOTOR POWERS AT 0.7!!!
@@ -260,7 +253,9 @@ public class NavigateToTargetTask extends RobotTask {
 
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
-                } else if (nav.cruiseControl(300) && nav.getStrafe() <= 5) {
+                } else if (nav.cruiseControl(300) && nav.getStrafe() <= 5 && alliance == Alliance.RED) {
+                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
+                } else if (nav.cruiseControl(300) || nav.getStrafe() <= 2 && alliance == Alliance.BLUE) {
                     setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
                 }
                 break;

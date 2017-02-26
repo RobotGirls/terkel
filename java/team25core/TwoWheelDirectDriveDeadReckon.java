@@ -80,6 +80,16 @@ public class TwoWheelDirectDriveDeadReckon extends DeadReckon {
     }
 
     @Override
+    protected void motorBackLeftDiagonal(double speed) {
+
+    }
+
+    @Override
+    protected void motorBackRightDiagonal(double speed) {
+
+    }
+
+    @Override
     protected void motorStop()
     {
         leftMotor.setPower(0.0);
