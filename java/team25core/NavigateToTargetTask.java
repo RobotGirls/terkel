@@ -83,6 +83,7 @@ public class NavigateToTargetTask extends RobotTask {
     protected double robotBearing;
     protected double linearDistanceFromTarget;
     protected double strafeDistanceFromTarget;
+    protected boolean firstRotation;
 
     boolean visible;
 
@@ -101,7 +102,8 @@ public class NavigateToTargetTask extends RobotTask {
         this.drivetrain = drivetrain;
         this.target = target;
         this.findMethod = FindMethod.APPROACH_STRAIGHT;
-
+        this.firstRotation = true;
+        
         robotBearing = 0;
         linearDistanceFromTarget = 0;
         strafeDistanceFromTarget = 0;
@@ -253,7 +255,7 @@ public class NavigateToTargetTask extends RobotTask {
                 break;
             case INITIAL_APPROACH_LATERAL:
                 RobotLog.i("141 Case: Initial Approach LATERAL");
-                nav.setGainParams(0, 0, 0.002);
+                nav.setGainParams(0, 0, 0.003);
                 RobotLog.i("141 Robot Strafe %f", nav.getStrafe());
 
                 if (!visible) {
@@ -270,8 +272,15 @@ public class NavigateToTargetTask extends RobotTask {
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
                 } else if (nav.cruiseControl(300)) {
-                    robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_AXIAL));
-                    setState(TargetState.INITIAL_APPROACH_AXIAL);
+                    if (firstRotation) {
+                        robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_AXIAL));
+                        setState(TargetState.INITIAL_APPROACH_AXIAL);
+                        firstRotation = false;
+                    } else {
+                        robot.queueEvent(new NavigateToTargetEvent(this, EventKind.AT_TARGET));
+                        RobotLog.i("141 Queueing AT_TARGET event");
+                        return true;
+                    }
                 }
                 break;
             case INITIAL_APPROACH_AXIAL:
@@ -280,10 +289,8 @@ public class NavigateToTargetTask extends RobotTask {
                 nav.setGainParams(0, 0.0014, 0);
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
-                } else if (nav.cruiseControl(200) && nav.getDistance() <= 200) {  // 75?
-                    robot.queueEvent(new NavigateToTargetEvent(this, EventKind.AT_TARGET));
-                    RobotLog.i("141 Queueing AT_TARGET event");
-                    //setState(TargetState.FINAL_APPROACH);
+                } else if (nav.cruiseControl(300) || nav.getDistance() <= 300) {  // 75?
+                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
                 }
                 break;
             case FINAL_APPROACH:

@@ -9,6 +9,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import opmodes.BeaconHelper;
+import opmodes.DaisyBeaconAutonomous;
+
 public class FourWheelDirectDrivetrain implements Drivetrain {
 
     DcMotor rearLeft;
@@ -19,6 +22,8 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     int encoderTicksPerInch;
     int encoderTarget;
     double multiplier;
+
+    DaisyBeaconAutonomous.Alliance alliance;
 
     public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
@@ -44,6 +49,11 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.multiplier = pivotMultiplier;
 
         setCanonicalMotorDirection();
+    }
+
+    public void setAlliance(DaisyBeaconAutonomous.Alliance alliance)
+    {
+        this.alliance = alliance;
     }
 
     public void setCanonicalMotorDirection()
@@ -151,10 +161,15 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     public void move(double axial, double lateral, double yaw)
     {
         // calculate required motor speeds to achieve axis motions
-        double backLeft = axial - lateral + yaw;
-        double backRight = axial + lateral - yaw;
-        double left = axial + lateral + yaw;
-        double right = axial - lateral - yaw;
+        double backLeft;
+        double backRight;
+        double left;
+        double right;
+
+        backLeft = axial - lateral + yaw;
+        backRight = axial + lateral - yaw;
+        left = axial + lateral + yaw;
+        right = axial - lateral - yaw;
 
         // normalize all motor speeds so no values exceeds 100%.
         double max = Math.max(Math.abs(backLeft), Math.abs(right));
