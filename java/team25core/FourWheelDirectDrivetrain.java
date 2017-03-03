@@ -5,8 +5,12 @@ package team25core;
  */
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.RobotLog;
+
+import opmodes.BeaconHelper;
+import opmodes.DaisyBeaconAutonomous;
 
 public class FourWheelDirectDrivetrain implements Drivetrain {
 
@@ -19,8 +23,9 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     int encoderTarget;
     double multiplier;
 
-    public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
-    {
+    DaisyBeaconAutonomous.Alliance alliance;
+
+    public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -30,12 +35,10 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.encoderTarget = 0;
         this.multiplier = 1.0;
 
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        rearRight.setDirection(DcMotor.Direction.REVERSE);
+        setCanonicalMotorDirection();
     }
 
-    public FourWheelDirectDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
-    {
+    public FourWheelDirectDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -45,10 +48,30 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
 
+        setCanonicalMotorDirection();
+    }
+
+    public void setAlliance(DaisyBeaconAutonomous.Alliance alliance)
+    {
+        this.alliance = alliance;
+    }
+
+    public void setCanonicalMotorDirection()
+    {
+        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         rearRight.setDirection(DcMotor.Direction.REVERSE);
     }
 
+    public void setNoncanonicalMotorDirection()
+    {
+        // This reverses the direction of the drivetrain.
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        rearRight.setDirection(DcMotor.Direction.FORWARD);
+    }
     @Override
     public void resetEncoders()
     {
@@ -97,16 +120,31 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void pivotTurn(PivotSide side, double speed)
     {
-        if (side == PivotSide.RIGHT_OVER_RIGHT) {
-            frontLeft.setPower(speed);
-            rearLeft.setPower(speed);
-            frontRight.setPower(-(1/multiplier) * speed);
-            rearRight.setPower(-(1/multiplier) * speed);
-        } else if (side == PivotSide.LEFT_OVER_LEFT) {
-            frontLeft.setPower(-(1/multiplier) * speed);
-            rearLeft.setPower(-(1/multiplier) * speed);
-            frontRight.setPower(speed);
-            rearRight.setPower(speed);
+        switch (side) {
+            case RIGHT_OVER_RIGHT:
+                frontRight.setPower((1 / multiplier) * -speed);
+                rearRight.setPower((1 / multiplier) * -speed);
+                frontLeft.setPower(speed);
+                rearLeft.setPower(speed);
+                break;
+            case RIGHT_OVER_LEFT:
+                frontLeft.setPower( (1 / multiplier) * speed);
+                rearLeft.setPower((1 / multiplier) * speed);
+                frontRight.setPower(-speed);
+                rearRight.setPower(-speed);
+                break;
+            case LEFT_OVER_RIGHT:
+                frontRight.setPower((1 / multiplier) * speed);
+                rearRight.setPower((1 / multiplier) * speed);
+                frontLeft.setPower(-speed);
+                rearLeft.setPower(-speed);
+                break;
+            case LEFT_OVER_LEFT:
+                frontLeft.setPower((1 / multiplier) * -speed);
+                rearLeft.setPower((1 / multiplier) * -speed);
+                frontRight.setPower(speed);
+                rearRight.setPower(speed);
+                break;
         }
     }
 
@@ -123,10 +161,15 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     public void move(double axial, double lateral, double yaw)
     {
         // calculate required motor speeds to achieve axis motions
-        double backLeft = axial - lateral - yaw;
-        double backRight = axial + lateral + yaw;
-        double left = axial + lateral - yaw;
-        double right = axial - lateral + yaw;
+        double backLeft;
+        double backRight;
+        double left;
+        double right;
+
+        backLeft = axial - lateral + yaw;
+        backRight = axial + lateral - yaw;
+        left = axial + lateral + yaw;
+        right = axial - lateral - yaw;
 
         // normalize all motor speeds so no values exceeds 100%.
         double max = Math.max(Math.abs(backLeft), Math.abs(right));
@@ -152,13 +195,19 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void strafeLeft(double speed)
     {
-
+        frontRight.setPower(speed);
+        rearRight.setPower(-speed);
+        frontLeft.setPower(-speed);
+        rearLeft.setPower(speed);
     }
 
     @Override
     public void strafeRight(double speed)
     {
-
+        frontRight.setPower(-speed);
+        rearRight.setPower(speed);
+        frontLeft.setPower(speed);
+        rearLeft.setPower(-speed);
     }
 
     @Override
@@ -170,7 +219,11 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public double percentComplete()
     {
-        return (Math.abs(frontLeft.getCurrentPosition()) / encoderTarget);
+        if (encoderTarget != 0) {
+            return (Math.abs(frontLeft.getCurrentPosition()) / encoderTarget);
+        } else {
+            return 1;
+        }
     }
 
     @Override

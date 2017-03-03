@@ -202,8 +202,10 @@ public class DeadReckonTask extends RobotTask {
                 dr.motorStraight(segment.speed);
             } else if (segment.type == DeadReckon.SegmentType.SIDEWAYS) {
                 dr.motorSideways(segment.speed);
-            } else if (segment.type == DeadReckon.SegmentType.DIAGONAL) {
-                //dr.motorDiagonal(segment.speed);
+            } else if (segment.type == DeadReckon.SegmentType.BACK_LEFT_DIAGONAL) {
+                dr.motorBackLeftDiagonal(segment.speed);
+            } else if (segment.type == DeadReckon.SegmentType.BACK_RIGHT_DIAGONAL) {
+                dr.motorBackRightDiagonal(segment.speed);
             } else {
                 dr.motorTurn(segment.speed);
             }

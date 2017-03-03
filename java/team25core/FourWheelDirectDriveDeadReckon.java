@@ -85,6 +85,16 @@ public class FourWheelDirectDriveDeadReckon extends DeadReckon {
     }
 
     @Override
+    protected void motorBackLeftDiagonal(double speed) {
+
+    }
+
+    @Override
+    protected void motorBackRightDiagonal(double speed) {
+
+    }
+
+    @Override
     protected void motorStop()
     {
         frontLeft.setPower(0.0);

@@ -19,7 +19,8 @@ public abstract class DeadReckon {
         STRAIGHT,
         TURN,
         SIDEWAYS,
-        DIAGONAL
+        BACK_LEFT_DIAGONAL,
+        BACK_RIGHT_DIAGONAL,
     }
 
     public enum SegmentState {
@@ -76,6 +77,8 @@ public abstract class DeadReckon {
     protected abstract void motorStraight(double speed);
     protected abstract void motorTurn(double speed);
     protected abstract void motorSideways(double speed);
+    protected abstract void motorBackLeftDiagonal(double speed);
+    protected abstract void motorBackRightDiagonal(double speed);
     protected abstract void motorStop();
 
     protected abstract boolean isBusy();
@@ -114,6 +117,11 @@ public abstract class DeadReckon {
         robot.addTask(ptt);
     }
 
+    public int numSegments()
+    {
+        return segments.size();
+    }
+
     public void addSegment(SegmentType type, double distance, double speed)
     {
         segments.add(new Segment(type, distance, speed));
@@ -124,6 +132,12 @@ public abstract class DeadReckon {
         if (getCurrentSegment().type == SegmentType.STRAIGHT) {
             this.target = Math.abs((int)(getCurrentSegment().distance * encoderTicksPerInch));
         } else if (getCurrentSegment().type == SegmentType.SIDEWAYS) {
+            // Eventually, we may have a encoder ticks per (sideways) inch... but for now, this:
+            this.target = Math.abs((int)(getCurrentSegment().distance * encoderTicksPerInch));
+        } else if (getCurrentSegment().type == SegmentType.BACK_LEFT_DIAGONAL) {
+            // Eventually, we may have a encoder ticks per (sideways) inch... but for now, this:
+            this.target = Math.abs((int)(getCurrentSegment().distance * encoderTicksPerInch));
+        } else if (getCurrentSegment().type == SegmentType.BACK_RIGHT_DIAGONAL) {
             // Eventually, we may have a encoder ticks per (sideways) inch... but for now, this:
             this.target = Math.abs((int)(getCurrentSegment().distance * encoderTicksPerInch));
         } else {

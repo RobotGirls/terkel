@@ -7,12 +7,14 @@ import android.view.View;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.R;
 
+import static team25core.ColorSensorTask.OperatingMode.SINGLE;
 import static team25core.ColorSensorTask.OperatingMode.UNDEFINED;
 
 /**
@@ -83,6 +85,7 @@ public class ColorSensorTask extends RobotTask
 
     public void setModeSingle(TargetColor color, int threshold)
     {
+        this.mode = OperatingMode.SINGLE;
         this.targetColor = color;
         this.threshold = threshold;
     }
@@ -118,6 +121,9 @@ public class ColorSensorTask extends RobotTask
     {
         float hsvValues[] = {0F,0F,0F};
         final float values[] = hsvValues;
+
+        RobotLog.i("251 Blue: " + blue);
+        RobotLog.i("251 Red: " + red);
 
         Color.RGBToHSV(red * 8, green * 8, blue * 8, hsvValues);
 
