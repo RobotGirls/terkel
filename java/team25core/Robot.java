@@ -17,6 +17,12 @@ public abstract class Robot extends OpMode {
 
     public Robot()
     {
+        msStuckDetectInit     = 100000;
+        msStuckDetectInitLoop = 1500000;
+        msStuckDetectStart    = 5000000;
+        msStuckDetectLoop     = 500000;
+        msStuckDetectStop     = 1000000;
+
         tasks = new ConcurrentLinkedQueue<RobotTask>();
         events = new ConcurrentLinkedQueue<RobotEvent>();
         started = false;
@@ -62,7 +68,7 @@ public abstract class Robot extends OpMode {
             return;
         }
 
-        // loop();
+        loop();
     }
 
     @Override

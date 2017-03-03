@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.R;
 
+import static team25core.ColorSensorTask.OperatingMode.SINGLE;
 import static team25core.ColorSensorTask.OperatingMode.UNDEFINED;
 
 /**
@@ -84,6 +85,7 @@ public class ColorSensorTask extends RobotTask
 
     public void setModeSingle(TargetColor color, int threshold)
     {
+        this.mode = OperatingMode.SINGLE;
         this.targetColor = color;
         this.threshold = threshold;
     }
@@ -122,11 +124,6 @@ public class ColorSensorTask extends RobotTask
 
         RobotLog.i("251 Blue: " + blue);
         RobotLog.i("251 Red: " + red);
-
-        if (color) {
-            robot.telemetry.addData("B:", blue);
-            robot.telemetry.addData("R:", red);
-        }
 
         Color.RGBToHSV(red * 8, green * 8, blue * 8, hsvValues);
 

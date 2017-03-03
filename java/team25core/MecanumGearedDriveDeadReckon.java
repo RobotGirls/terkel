@@ -113,13 +113,19 @@ public class MecanumGearedDriveDeadReckon extends DeadReckon {
         }
     }
 
-    protected void motorDiagonal(double speed)
+    protected void motorBackRightDiagonal(double speed)
     {
         // Diagonal left backward.
-        frontLeftMotor.setPower(speed);
-        rearRightMotor.setPower(speed);
+        frontRightMotor.setPower(-speed);
+        rearLeftMotor.setPower(-speed);
     }
 
+    protected void motorBackLeftDiagonal(double speed)
+    {
+        // Diagonal left backward.
+        frontLeftMotor.setPower(-speed);
+        rearRightMotor.setPower(-speed);
+    }
     @Override
     protected void motorSideways(double speed)
     {
