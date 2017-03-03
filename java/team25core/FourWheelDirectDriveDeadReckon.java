@@ -7,6 +7,7 @@ package team25core;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 public class FourWheelDirectDriveDeadReckon extends DeadReckon {
 
@@ -101,6 +102,15 @@ public class FourWheelDirectDriveDeadReckon extends DeadReckon {
         frontRight.setPower(0.0);
         rearLeft.setPower(0.0);
         rearRight.setPower(0.0);
+    }
+
+    @Override
+    protected void logEncoderPosition()
+    {
+        RobotLog.i("Front Left Position: %f", frontLeft.getCurrentPosition());
+        RobotLog.i("Rear Left Position: %f", rearLeft.getCurrentPosition());
+        RobotLog.i("Front Right Position: %f", frontRight.getCurrentPosition());
+        RobotLog.i("Rear Right Position: %f", rearRight.getCurrentPosition());
     }
 
     @Override

@@ -20,6 +20,8 @@ public class MecanumGearedDriveDeadReckon extends DeadReckon {
     DcMotor rearLeftMotor;
     MonitorMotorTask mmt;
 
+    String LOG_TAG = "ENCODER";
+
     /*
      * Assumes that both motors are on the same controller.
      */
@@ -143,6 +145,16 @@ public class MecanumGearedDriveDeadReckon extends DeadReckon {
         }
         RobotLog.i("251 Stopping motors");
         motorStraight(0.0);
+    }
+
+    @Override
+    protected void logEncoderPosition()
+    {
+        RobotLog.i(LOG_TAG + "Front Left Position: %f", frontLeftMotor.getCurrentPosition());
+        RobotLog.i(LOG_TAG + "Rear Left Position: %f", rearLeftMotor.getCurrentPosition());
+        RobotLog.i(LOG_TAG + "Front Right Position: %f", frontRightMotor.getCurrentPosition());
+        RobotLog.i(LOG_TAG + "Rear Right Position: %f", rearRightMotor.getCurrentPosition());
+        RobotLog.i("==================================================");
     }
 
     @Override

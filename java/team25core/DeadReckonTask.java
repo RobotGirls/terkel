@@ -137,6 +137,7 @@ public class DeadReckonTask extends RobotTask {
 
         if (segment == null) {
             if (reason == DoneReason.ENCODER_REACHED) {
+                dr.logEncoderPosition();
                 RobotLog.e("251 Dead reckon path done");
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.PATH_DONE, num));
             } else if (reason == DoneReason.SENSOR_SATISFIED) {
