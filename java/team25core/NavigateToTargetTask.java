@@ -231,7 +231,7 @@ public class NavigateToTargetTask extends RobotTask {
                 if (visible) {
                     drivetrain.stop();
                     nav.addNavTelemetry();
-                    setState(TargetState.INITIAL_APPROACH_LATERAL);
+                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
                 } else {
                     doFindMethod();
                 }
@@ -254,22 +254,22 @@ public class NavigateToTargetTask extends RobotTask {
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
                 } else if (nav.cruiseControl(300) && nav.getStrafe() <= 5 && alliance == Alliance.RED) {
-                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
+                    setState(TargetState.INITIAL_APPROACH_AXIAL);
                 } else if (nav.cruiseControl(300) || nav.getStrafe() <= 2 && alliance == Alliance.BLUE) {
-                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
+                    setState(TargetState.INITIAL_APPROACH_AXIAL);
                 }
                 break;
             case INITIAL_APPROACH_ROTATIONAL:
                 RobotLog.i("141 Case: Initial Approach ROTATIONAL");
                 RobotLog.i("141 Relative Bearing %f", nav.getRelativeBearing());
                 RobotLog.i("141 Robot Bearing %f", nav.getRobotBearing());
-                nav.setGainParams(0.017, 0, 0);
+                nav.setGainParams(0.01, 0, 0);
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
                 } else if (nav.cruiseControl(300)) {
                     if (firstRotation) {
-                        robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_AXIAL));
-                        setState(TargetState.INITIAL_APPROACH_AXIAL);
+                        //robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_AXIAL));
+                        setState(TargetState.INITIAL_APPROACH_LATERAL);
                         firstRotation = false;
                     } else {
                         robot.queueEvent(new NavigateToTargetEvent(this, EventKind.AT_TARGET));
