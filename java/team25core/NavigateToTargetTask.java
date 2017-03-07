@@ -48,6 +48,7 @@ public class NavigateToTargetTask extends RobotTask {
     public enum EventKind {
         FOUND_TARGET,
         INITIAL_APPROACH_AXIAL,
+        INITIAL_APPROACH_ROTATIONAL,
         AT_TARGET,
         TIMEOUT,
     }
@@ -134,7 +135,8 @@ public class NavigateToTargetTask extends RobotTask {
     protected void setState(TargetState state)
     {
         this.state = state;
-        RobotLog.i(ROBOT_TAG + "Entering state: " + state.toString());
+        RobotLog.i("POS Entering state: " + state.toString());
+        drivetrain.logEncoderCounts();
     }
 
     public void setTarget(Targets target)
@@ -183,10 +185,10 @@ public class NavigateToTargetTask extends RobotTask {
             drivetrain.straight(0.3);
             break;
         case ROTATE_RIGHT:
-            drivetrain.turnRight(0.06);
+            drivetrain.turnRight(0.2);
             break;
         case ROTATE_LEFT:
-            drivetrain.turnLeft(0.06);
+            drivetrain.turnLeft(0.2);
             break;
         }
     }
@@ -254,21 +256,21 @@ public class NavigateToTargetTask extends RobotTask {
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
                 } else if (nav.cruiseControl(300) && nav.getStrafe() <= 5 && alliance == Alliance.RED) {
-                    setState(TargetState.INITIAL_APPROACH_AXIAL);
+                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
                 } else if (nav.cruiseControl(300) || nav.getStrafe() <= 2 && alliance == Alliance.BLUE) {
-                    setState(TargetState.INITIAL_APPROACH_AXIAL);
+                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
                 }
                 break;
             case INITIAL_APPROACH_ROTATIONAL:
                 RobotLog.i("141 Case: Initial Approach ROTATIONAL");
                 RobotLog.i("141 Relative Bearing %f", nav.getRelativeBearing());
                 RobotLog.i("141 Robot Bearing %f", nav.getRobotBearing());
-                nav.setGainParams(0.01, 0, 0);
+                nav.setGainParams(0.02, 0, 0);
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
                 } else if (nav.cruiseControl(300)) {
                     if (firstRotation) {
-                        //robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_AXIAL));
+                        robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_ROTATIONAL));
                         setState(TargetState.INITIAL_APPROACH_LATERAL);
                         firstRotation = false;
                     } else {

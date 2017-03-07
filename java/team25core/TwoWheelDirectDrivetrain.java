@@ -58,6 +58,11 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public void logEncoderCounts() {
+
+    }
+
+    @Override
     public void straight(double speed)
     {
         /*
