@@ -136,11 +136,11 @@ public class ColorSensorTask extends RobotTask
 
     protected boolean doCompare(int red, int blue)
     {
-        if ((blue > red) && (blue > threshold)) {
+        if (blue > red) {
             ColorSensorEvent blueEvent = new ColorSensorEvent(this, EventKind.BLUE);
             robot.queueEvent(blueEvent);
             return true;
-        } else if ((red > blue) && (red > threshold)) {
+        } else if (red > blue) {
             ColorSensorEvent redEvent = new ColorSensorEvent(this, EventKind.RED);
             robot.queueEvent(redEvent);
             return true;
