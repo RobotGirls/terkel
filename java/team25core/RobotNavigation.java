@@ -35,9 +35,9 @@ public class RobotNavigation
 {
     // Constants
     private static final int     MAX_TARGETS    =   4;
-    private static double        ON_AXIS        =   4;      // Within 1.0 cm of target center-line
-    private static final double  CLOSE_ENOUGH   =   7;      // Within 2.0 cm of final target standoff
-    private static final double  HEAD_ON   =  3;      // Within 2.0 cm of final target standoff
+    private static double        ON_AXIS        =   1;      // Within 4.0 cm of target center-line
+    private static final double  CLOSE_ENOUGH   =   7;      // Within 7.0 cm of final target standoff
+    private static final double  HEAD_ON   =  3;            // Within 3.0 cm of final target standoff
 
     private  double yawGain     =  0.002;   // Rate at which we respond to heading error
     private  double lateralGain =  0.0015;  // Rate at which we respond to off-axis error

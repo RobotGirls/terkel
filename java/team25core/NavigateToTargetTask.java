@@ -48,6 +48,7 @@ public class NavigateToTargetTask extends RobotTask {
     public enum EventKind {
         FOUND_TARGET,
         INITIAL_APPROACH_AXIAL,
+        INITIAL_APPROACH_ROTATIONAL,
         AT_TARGET,
         TIMEOUT,
     }
@@ -134,7 +135,17 @@ public class NavigateToTargetTask extends RobotTask {
     protected void setState(TargetState state)
     {
         this.state = state;
-        RobotLog.i(ROBOT_TAG + "Entering state: " + state.toString());
+        RobotLog.i("POS Entering state: " + state.toString());
+        drivetrain.logEncoderCounts();
+    }
+
+    public void reset()
+    {
+        this.state = TargetState.FIND_TARGET;
+        firstRotation = true;
+        robotBearing = 0;
+        linearDistanceFromTarget = 0;
+        strafeDistanceFromTarget = 0;
     }
 
     public void setTarget(Targets target)
@@ -183,10 +194,10 @@ public class NavigateToTargetTask extends RobotTask {
             drivetrain.straight(0.3);
             break;
         case ROTATE_RIGHT:
-            drivetrain.turnRight(0.06);
+            drivetrain.turnRight(0.2);
             break;
         case ROTATE_LEFT:
-            drivetrain.turnLeft(0.06);
+            drivetrain.turnLeft(0.2);
             break;
         }
     }
@@ -231,7 +242,7 @@ public class NavigateToTargetTask extends RobotTask {
                 if (visible) {
                     drivetrain.stop();
                     nav.addNavTelemetry();
-                    setState(TargetState.INITIAL_APPROACH_LATERAL);
+                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
                 } else {
                     doFindMethod();
                 }
@@ -248,14 +259,14 @@ public class NavigateToTargetTask extends RobotTask {
                 break;
             case INITIAL_APPROACH_LATERAL:
                 RobotLog.i("141 Case: Initial Approach LATERAL");
-                nav.setGainParams(0, 0, 0.003);
+                nav.setGainParams(0, 0, 0.004);
                 RobotLog.i("141 Robot Strafe %f", nav.getStrafe());
 
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
-                } else if (nav.cruiseControl(300) && nav.getStrafe() <= 5 && alliance == Alliance.RED) {
+                } else if (nav.cruiseControl(300) && alliance == Alliance.RED) {
                     setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
-                } else if (nav.cruiseControl(300) || nav.getStrafe() <= 2 && alliance == Alliance.BLUE) {
+                } else if (nav.cruiseControl(300) && alliance == Alliance.BLUE) {
                     setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
                 }
                 break;
@@ -263,29 +274,30 @@ public class NavigateToTargetTask extends RobotTask {
                 RobotLog.i("141 Case: Initial Approach ROTATIONAL");
                 RobotLog.i("141 Relative Bearing %f", nav.getRelativeBearing());
                 RobotLog.i("141 Robot Bearing %f", nav.getRobotBearing());
-                nav.setGainParams(0.017, 0, 0);
+                nav.setGainParams(0.027, 0, 0);
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
                 } else if (nav.cruiseControl(300)) {
                     if (firstRotation) {
-                        robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_AXIAL));
-                        setState(TargetState.INITIAL_APPROACH_AXIAL);
+                        robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_ROTATIONAL));
+                        setState(TargetState.INITIAL_APPROACH_LATERAL);
                         firstRotation = false;
                     } else {
-                        robot.queueEvent(new NavigateToTargetEvent(this, EventKind.AT_TARGET));
-                        RobotLog.i("141 Queueing AT_TARGET event");
-                        return true;
+                        robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_AXIAL));
+                        setState(TargetState.INITIAL_APPROACH_AXIAL);
                     }
                 }
                 break;
             case INITIAL_APPROACH_AXIAL:
                 RobotLog.i("141 Case: Initial Approach AXIAL");
                 RobotLog.i("141 Robot Distance %f", nav.getDistance());
-                nav.setGainParams(0, 0.0014, 0);
+                nav.setGainParams(0, 0.003, 0);
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
-                } else if (nav.cruiseControl(300) || nav.getDistance() <= 300) {  // 75?
-                    setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
+                } else if (nav.cruiseControl(250) || nav.getDistance() <= 250) {  // 75?
+                    robot.queueEvent(new NavigateToTargetEvent(this, EventKind.AT_TARGET));
+                    RobotLog.i("141 Queueing AT_TARGET event");
+                    return true;
                 }
                 break;
             case FINAL_APPROACH:

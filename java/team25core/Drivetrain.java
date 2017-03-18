@@ -36,6 +36,7 @@ public interface Drivetrain {
 
     void resetEncoders();
     void encodersOn();
+    void logEncoderCounts();
 
     void setTargetInches(int inches);
     double percentComplete();
