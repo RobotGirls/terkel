@@ -84,7 +84,7 @@ public class NavigateToTargetTask extends RobotTask {
     protected double robotBearing;
     protected double linearDistanceFromTarget;
     protected double strafeDistanceFromTarget;
-    protected boolean firstRotation;
+    protected int firstRotation;
 
     private Alliance alliance;
 
@@ -110,7 +110,24 @@ public class NavigateToTargetTask extends RobotTask {
         this.drivetrain = drivetrain;
         this.target = target;
         this.findMethod = FindMethod.APPROACH_STRAIGHT;
-        this.firstRotation = true;
+        this.firstRotation = 0;
+        this.alliance = alliance;
+
+        robotBearing = 0;
+        linearDistanceFromTarget = 0;
+        strafeDistanceFromTarget = 0;
+    }
+
+    public NavigateToTargetTask(Robot robot, Drivetrain drivetrain, int timeout, Gamepad gamepad, Alliance alliance)
+    {
+        super(robot);
+
+        this.timeout = timeout;
+        this.gamepad = gamepad;
+        this.drivetrain = drivetrain;
+        this.target = null;
+        this.findMethod = FindMethod.APPROACH_STRAIGHT;
+        this.firstRotation = 0;
         this.alliance = alliance;
 
         robotBearing = 0;
@@ -142,7 +159,7 @@ public class NavigateToTargetTask extends RobotTask {
     public void reset()
     {
         this.state = TargetState.FIND_TARGET;
-        firstRotation = true;
+        firstRotation = 0;
         robotBearing = 0;
         linearDistanceFromTarget = 0;
         strafeDistanceFromTarget = 0;
@@ -205,7 +222,11 @@ public class NavigateToTargetTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
-        visible = nav.targetIsVisible(target.targetId);
+        if (target == null) {
+            visible = nav.targetsAreVisible();
+        } else {
+            visible = nav.targetIsVisible(target.targetId);
+        }
 
         if ((timer != null) && (timer.time() > timeout)) {
             robot.queueEvent(new NavigateToTargetEvent(this, EventKind.TIMEOUT));
@@ -278,10 +299,10 @@ public class NavigateToTargetTask extends RobotTask {
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
                 } else if (nav.cruiseControl(300)) {
-                    if (firstRotation) {
+                    if (firstRotation < 2) {
                         robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_ROTATIONAL));
                         setState(TargetState.INITIAL_APPROACH_LATERAL);
-                        firstRotation = false;
+                        firstRotation++;
                     } else {
                         robot.queueEvent(new NavigateToTargetEvent(this, EventKind.INITIAL_APPROACH_AXIAL));
                         setState(TargetState.INITIAL_APPROACH_AXIAL);
@@ -294,7 +315,7 @@ public class NavigateToTargetTask extends RobotTask {
                 nav.setGainParams(0, 0.003, 0);
                 if (!visible) {
                     state = TargetState.LOST_TARGET;
-                } else if (nav.cruiseControl(250) || nav.getDistance() <= 250) {  // 75?
+                } else if (nav.cruiseControl(235) || nav.getDistance() <= 235) {  // 75?
                     robot.queueEvent(new NavigateToTargetEvent(this, EventKind.AT_TARGET));
                     RobotLog.i("141 Queueing AT_TARGET event");
                     return true;
