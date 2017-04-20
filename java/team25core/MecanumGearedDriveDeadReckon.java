@@ -150,10 +150,10 @@ public class MecanumGearedDriveDeadReckon extends DeadReckon {
     @Override
     protected void logEncoderPosition()
     {
-        RobotLog.i(LOG_TAG + "Front Left Position: %f", frontLeftMotor.getCurrentPosition());
-        RobotLog.i(LOG_TAG + "Rear Left Position: %f", rearLeftMotor.getCurrentPosition());
-        RobotLog.i(LOG_TAG + "Front Right Position: %f", frontRightMotor.getCurrentPosition());
-        RobotLog.i(LOG_TAG + "Rear Right Position: %f", rearRightMotor.getCurrentPosition());
+        RobotLog.i(LOG_TAG + "Front Left Position: %d", frontLeftMotor.getCurrentPosition());
+        RobotLog.i(LOG_TAG + "Rear Left Position: %d", rearLeftMotor.getCurrentPosition());
+        RobotLog.i(LOG_TAG + "Front Right Position: %d", frontRightMotor.getCurrentPosition());
+        RobotLog.i(LOG_TAG + "Rear Right Position: %d", rearRightMotor.getCurrentPosition());
         RobotLog.i("==================================================");
     }
 

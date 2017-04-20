@@ -2,7 +2,7 @@
 package team25core;
 
 /*
- * created by katie on 10/29/2016.
+ * FTC Team 25: Created by Katelyn Biesiadecki on 10/29/2016.
  */
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -28,6 +28,7 @@ public class MecanumWheelDriveTask extends RobotTask {
     public double rightY;
 
     public boolean yForward = true;
+    public boolean isSuspended = false;
 
     public MecanumWheelDriveTask(Robot robot, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
     {
@@ -38,6 +39,12 @@ public class MecanumWheelDriveTask extends RobotTask {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.robot = robot;
+        this.isSuspended = false;
+
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        rearRight.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     private void getJoystick() {
@@ -89,6 +96,11 @@ public class MecanumWheelDriveTask extends RobotTask {
         }
     }
 
+    public void suspendTask(boolean isSuspended)
+    {
+        this.isSuspended = isSuspended;
+    }
+
     public void changeDirection()
     {
        if (yForward) {
@@ -127,12 +139,19 @@ public class MecanumWheelDriveTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
+        if (isSuspended) {
+            RobotLog.i("teleop timeslice suspended");
+            return false;
+        }
+
+        RobotLog.i("teleop timeslice not suspended");
         getJoystick();
 
         frontLeft.setPower(fl * slowMultiplier);
         rearLeft.setPower(rl * slowMultiplier);
         frontRight.setPower(fr * slowMultiplier);
         rearRight.setPower(rr * slowMultiplier);
+
         return false;
     }
 
