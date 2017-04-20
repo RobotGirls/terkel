@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.R;
 
-import static team25core.ColorSensorTask.OperatingMode.SINGLE;
 import static team25core.ColorSensorTask.OperatingMode.UNDEFINED;
 
 /**

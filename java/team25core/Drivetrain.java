@@ -23,7 +23,7 @@ public interface Drivetrain {
      * Move the robot according to axial, lateral, and yaw speeds.
      *
      * Note that this works best with Mecanum or Omni drivetrains.
-     * YMMW when calling this on drivetrains that use regular wheels.
+     * YMMV when calling this on drivetrains that use regular wheels.
      */
     void move(double axial, double lateral, double yaw);
 

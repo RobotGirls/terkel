@@ -134,6 +134,11 @@ public class FourWheelPivotTurnDeadReckon extends DeadReckon {
     }
 
     @Override
+    protected void logEncoderPosition() {
+
+    }
+
+    @Override
     protected boolean isBusy()
     {
         boolean busy = frontLeftMotor.isBusy();

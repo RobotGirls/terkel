@@ -224,7 +224,7 @@ public class NavigateToTargetTask extends RobotTask {
 
         // Begin with LATERAL motion in initial approach to prevent losing target.
         // Then, go to ROTATIONAL motion, and finally, AXIAL motion.
-        // NOTE: Change the values of how much the robot is off depending on personal preference.
+        // NOTE: Change the values of how much the robot is off depending on personal/robot preference.
 
         //TODO: CAP MOTOR POWERS AT 0.7!!!
         switch (state) {
