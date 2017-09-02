@@ -91,6 +91,12 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public void logEncoderCounts()
+    {
+        RobotLog.i("POS Counts FL %d, FR %d, RL %d, RR %d", frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(), rearLeft.getCurrentPosition(), rearRight.getCurrentPosition());
+    }
+
+    @Override
     public void straight(double speed)
     {
         frontRight.setPower(speed);

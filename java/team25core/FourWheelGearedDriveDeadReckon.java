@@ -140,6 +140,11 @@ public class FourWheelGearedDriveDeadReckon extends DeadReckon {
     }
 
     @Override
+    protected void logEncoderPosition() {
+
+    }
+
+    @Override
     protected boolean isBusy()
     {
         boolean busy = frontLeftMotor.isBusy();

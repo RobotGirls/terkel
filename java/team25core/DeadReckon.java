@@ -80,6 +80,7 @@ public abstract class DeadReckon {
     protected abstract void motorBackLeftDiagonal(double speed);
     protected abstract void motorBackRightDiagonal(double speed);
     protected abstract void motorStop();
+    protected abstract void logEncoderPosition();
 
     protected abstract boolean isBusy();
 
@@ -104,7 +105,6 @@ public abstract class DeadReckon {
     {
         this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTicksPerDegree = encoderTicksPerDegree;
-        this.gyro = gyro;
         this.masterMotor = masterMotor;
         this.robot = robot;
         this.currSegment = null;
@@ -127,6 +127,7 @@ public abstract class DeadReckon {
         segments.add(new Segment(type, distance, speed));
     }
 
+    // Temporary hack for competition. Will change setMasterMotor() later.
     public void setTarget()
     {
         if (getCurrentSegment().type == SegmentType.STRAIGHT) {
@@ -145,6 +146,7 @@ public abstract class DeadReckon {
         }
         ptt.addData("Target: ", this.target);
     }
+
 
     public boolean areEncodersReset()
     {

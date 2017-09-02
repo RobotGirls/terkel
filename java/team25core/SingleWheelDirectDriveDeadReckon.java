@@ -84,6 +84,11 @@ public class SingleWheelDirectDriveDeadReckon extends DeadReckon {
     }
 
     @Override
+    protected void logEncoderPosition() {
+
+    }
+
+    @Override
     protected boolean isBusy()
     {
         boolean busy = leftMotor.isBusy();
