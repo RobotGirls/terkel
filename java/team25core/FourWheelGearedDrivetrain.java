@@ -6,10 +6,9 @@ package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class FourWheelDirectDrivetrain implements Drivetrain {
+public class FourWheelGearedDrivetrain implements Drivetrain {
 
     DcMotor rearLeft;
     DcMotor rearRight;
@@ -20,7 +19,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     int encoderTarget;
     double multiplier;
 
-    public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
+    public FourWheelGearedDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -33,7 +32,7 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         setCanonicalMotorDirection();
     }
 
-    public FourWheelDirectDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
+    public FourWheelGearedDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -48,19 +47,19 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
 
     public void setCanonicalMotorDirection()
     {
-        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        rearRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        rearRight.setDirection(DcMotor.Direction.FORWARD);
     }
 
     public void setNoncanonicalMotorDirection()
     {
         // This reverses the direction of the drivetrain.
-        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        rearRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        rearRight.setDirection(DcMotor.Direction.REVERSE);
     }
     @Override
     public void resetEncoders()
@@ -113,13 +112,13 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     @Override
     public void leftDiagonal(double speed)
     {
-        // Not supported
+        // Not implemented
     }
 
     @Override
     public void rightDiagonal(double speed)
     {
-        // Not supported
+        // Not implemented
     }
 
     @Override
