@@ -63,6 +63,12 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public int getCurrentPosition()
+    {
+        return 0;
+    }
+
+    @Override
     public void straight(double speed)
     {
         /*
@@ -80,14 +86,25 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
-    public void turnLeft(double speed)
+    public void strafe(double speed)
     {
-        frontRight.setPower(speed);
-        frontLeft.setPower(-speed);
+
     }
 
     @Override
-    public void turnRight(double speed)
+    public void leftDiagonal(double speed)
+    {
+
+    }
+
+    @Override
+    public void rightDiagonal(double speed)
+    {
+
+    }
+
+    @Override
+    public void turn(double speed)
     {
         frontRight.setPower(-speed);
         frontLeft.setPower(speed);
@@ -117,6 +134,24 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public void setPivotMultiplier(double pivotMultiplier)
+    {
+
+    }
+
+    @Override
+    public void setPowerLeft(double speed)
+    {
+
+    }
+
+    @Override
+    public void setPowerRight(double speed)
+    {
+
+    }
+
+    @Override
     public void stop()
     {
         frontLeft.setPower(0.0);
@@ -124,19 +159,19 @@ public class TwoWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
+    public void setMasterMotor(DcMotor motor)
+    {
+
+    }
+
+    @Override
+    public DcMotor getMasterMotor()
+    {
+        return null;
+    }
+
+    @Override
     public void move(double axial, double lateral, double yaw)
-    {
-
-    }
-
-    @Override
-    public void strafeLeft(double speed)
-    {
-
-    }
-
-    @Override
-    public void strafeRight(double speed)
     {
 
     }

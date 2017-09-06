@@ -5,29 +5,24 @@ package team25core;
  * FTC Team 25: izzielau, September 27, 2015
  */
 
-import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-public class FourWheelDriveTask extends RobotTask {
+public class TankDriveTask extends RobotTask {
+
     protected Robot robot;
-    protected DcMotor frontLeft;
-    protected DcMotor frontRight;
-    protected DcMotor rearLeft;
-    protected DcMotor rearRight;
+    protected Drivetrain drivetrain;
 
     public double right;
     public double left;
     public double slowMultiplier = 1;
 
-    public FourWheelDriveTask(Robot robot, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
+    public TankDriveTask(Robot robot, Drivetrain drivetrain)
     {
         super(robot);
 
-        this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-        this.rearLeft = rearLeft;
-        this.rearRight = rearRight;
         this.robot = robot;
+        this.drivetrain = drivetrain;
     }
 
     private void getJoystick()
@@ -70,10 +65,8 @@ public class FourWheelDriveTask extends RobotTask {
     {
         getJoystick();
 
-        frontLeft.setPower(left);
-        rearLeft.setPower(left);
-        frontRight.setPower(right);
-        rearRight.setPower(right);
+        drivetrain.setPowerLeft(left);
+        drivetrain.setPowerRight(right);
         return false;
     }
 

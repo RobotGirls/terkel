@@ -96,11 +96,6 @@ public class NavigateToTargetTask extends RobotTask {
 
     protected final static String ROBOT_TAG = "Nav: ";
 
-    public enum Alliance {
-        RED,
-        BLUE,
-    }
-
     public NavigateToTargetTask(Robot robot, Drivetrain drivetrain, Targets target, int timeout, Gamepad gamepad, Alliance alliance)
     {
         super(robot);
@@ -211,10 +206,10 @@ public class NavigateToTargetTask extends RobotTask {
             drivetrain.straight(0.3);
             break;
         case ROTATE_RIGHT:
-            drivetrain.turnRight(0.2);
+            drivetrain.turn(0.2);
             break;
         case ROTATE_LEFT:
-            drivetrain.turnLeft(0.2);
+            drivetrain.turn(-0.2);
             break;
         }
     }
@@ -273,9 +268,9 @@ public class NavigateToTargetTask extends RobotTask {
                 if (visible) {
                     setState(TargetState.INITIAL_APPROACH_ROTATIONAL);
                 } else if (relativeBearing > 0){
-                    drivetrain.turnRight(0.06);
+                    drivetrain.turn(0.06);
                 } else {
-                    drivetrain.turnLeft(0.06);
+                    drivetrain.turn(-0.06);
                 }
                 break;
             case INITIAL_APPROACH_LATERAL:
@@ -335,9 +330,9 @@ public class NavigateToTargetTask extends RobotTask {
                 if ((robotBearing < 1.5) && (robotBearing > -1.5)) {
                     setState(TargetState.ALIGNED);
                 } else if (nav.getRobotBearing() > 0) {
-                    drivetrain.turnLeft(0.10);
+                    drivetrain.turn(-0.10);
                 } else {
-                    drivetrain.turnRight(0.10);
+                    drivetrain.turn(0.10);
                 }
                 break;
             case ALIGNED:
