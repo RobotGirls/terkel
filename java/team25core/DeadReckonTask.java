@@ -6,6 +6,12 @@ package team25core;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
+import static team25core.DeadReckonPath.SegmentType.BACK_LEFT_DIAGONAL;
+import static team25core.DeadReckonPath.SegmentType.BACK_RIGHT_DIAGONAL;
+import static team25core.DeadReckonPath.SegmentType.SIDEWAYS;
+import static team25core.DeadReckonPath.SegmentType.STRAIGHT;
+import static team25core.DeadReckonPath.SegmentType.TURN;
+
 public class DeadReckonTask extends RobotTask {
 
     public enum EventKind {
@@ -129,15 +135,27 @@ public class DeadReckonTask extends RobotTask {
         robot.removeTask(this);
     }
 
+    public void setTarget(DeadReckonPath.Segment segment)
+    {
+        switch (segment.type) {
+        case STRAIGHT:
+        case BACK_RIGHT_DIAGONAL:
+        case BACK_LEFT_DIAGONAL:
+        case SIDEWAYS:
+            drivetrain.setTargetInches(segment.distance);
+            break;
+        case TURN:
+            drivetrain.setTargetRotation(segment.distance);
+            break;
+        }
+    }
+
     public boolean hitTarget()
     {
-        int position;
-
-        position = Math.abs(drivetrain.getCurrentPosition());
-        if (position >= dr.getTarget()) {
-            return true;
-        } else {
+        if (drivetrain.isBusy()) {
             return false;
+        } else {
+            return true;
         }
     }
 
@@ -208,17 +226,17 @@ public class DeadReckonTask extends RobotTask {
             break;
         case SET_TARGET:
             drivetrain.encodersOn();
-            dr.setTarget();
+            setTarget(segment);
             segment.state = DeadReckonPath.SegmentState.CONSUME_SEGMENT;
             break;
         case CONSUME_SEGMENT:
-            if (segment.type == DeadReckonPath.SegmentType.STRAIGHT) {
+            if (segment.type == STRAIGHT) {
                 drivetrain.straight(segment.speed);
-            } else if (segment.type == DeadReckonPath.SegmentType.SIDEWAYS) {
+            } else if (segment.type == SIDEWAYS) {
                 drivetrain.strafe(segment.speed);
-            } else if (segment.type == DeadReckonPath.SegmentType.BACK_LEFT_DIAGONAL) {
+            } else if (segment.type == BACK_LEFT_DIAGONAL) {
                 drivetrain.leftDiagonal(segment.speed);
-            } else if (segment.type == DeadReckonPath.SegmentType.BACK_RIGHT_DIAGONAL) {
+            } else if (segment.type == BACK_RIGHT_DIAGONAL) {
                 drivetrain.rightDiagonal(segment.speed);
             } else {
                 drivetrain.turn(segment.speed);

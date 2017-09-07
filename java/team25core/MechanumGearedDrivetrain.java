@@ -4,15 +4,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class MechanumGearedDrivetrain implements Drivetrain {
+public class MechanumGearedDrivetrain extends DrivetrainBase implements Drivetrain {
 
     DcMotor rearLeft;
     DcMotor rearRight;
     DcMotor frontLeft;
     DcMotor frontRight;
 
-    int encoderTicksPerInch;
-    int encoderTarget;
     double multiplier;
 
     public MechanumGearedDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
@@ -225,12 +223,6 @@ public class MechanumGearedDrivetrain implements Drivetrain {
     }
 
     @Override
-    public void setTargetInches(int inches)
-    {
-        encoderTarget = inches * encoderTicksPerInch;
-    }
-
-    @Override
     public double percentComplete()
     {
         if (encoderTarget != 0) {
@@ -238,6 +230,18 @@ public class MechanumGearedDrivetrain implements Drivetrain {
         } else {
             return 1;
         }
+    }
+
+    @Override
+    public void setTargetInches(double inches)
+    {
+        encoderTarget = (int)(inches * encoderTicksPerInch);
+    }
+
+    @Override
+    public void setTargetRotation(double degrees)
+    {
+        encoderTarget = (int)(degrees * encoderTicksPerDegree);
     }
 
     @Override

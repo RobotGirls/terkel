@@ -71,7 +71,8 @@ public interface Drivetrain {
      */
     int getCurrentPosition();
 
-    void setTargetInches(int inches);
+    void setTargetInches(double inches);
+    void setTargetRotation(double degrees);
     double percentComplete();
     boolean isBusy();
 }

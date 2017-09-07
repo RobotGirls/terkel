@@ -8,18 +8,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class FourWheelGearedDrivetrain implements Drivetrain {
+public class FourWheelGearedDrivetrain extends DrivetrainBase implements Drivetrain {
 
     DcMotor rearLeft;
     DcMotor rearRight;
     DcMotor frontLeft;
     DcMotor frontRight;
 
-    int encoderTicksPerInch;
-    int encoderTarget;
     double multiplier;
 
-    public FourWheelGearedDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
+    public FourWheelGearedDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -32,7 +30,7 @@ public class FourWheelGearedDrivetrain implements Drivetrain {
         setCanonicalMotorDirection();
     }
 
-    public FourWheelGearedDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
+    public FourWheelGearedDrivetrain(double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -238,12 +236,6 @@ public class FourWheelGearedDrivetrain implements Drivetrain {
     }
 
     @Override
-    public void setTargetInches(int inches)
-    {
-        encoderTarget = inches * encoderTicksPerInch;
-    }
-
-    @Override
     public double percentComplete()
     {
         if (encoderTarget != 0) {
@@ -251,6 +243,18 @@ public class FourWheelGearedDrivetrain implements Drivetrain {
         } else {
             return 1;
         }
+    }
+
+    @Override
+    public void setTargetInches(double inches)
+    {
+        encoderTarget = (int)(inches * encoderTicksPerInch);
+    }
+
+    @Override
+    public void setTargetRotation(double degrees)
+    {
+        encoderTarget = (int)(degrees * encoderTicksPerDegree);
     }
 
     @Override
