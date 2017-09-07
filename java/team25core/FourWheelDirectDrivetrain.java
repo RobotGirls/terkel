@@ -9,18 +9,16 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class FourWheelDirectDrivetrain implements Drivetrain {
+public class FourWheelDirectDrivetrain extends DrivetrainBase implements Drivetrain {
 
     DcMotor rearLeft;
     DcMotor rearRight;
     DcMotor frontLeft;
     DcMotor frontRight;
 
-    int encoderTicksPerInch;
-    int encoderTarget;
     double multiplier;
 
-    public FourWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
+    public FourWheelDirectDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -29,19 +27,6 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
         this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = 1.0;
-
-        setCanonicalMotorDirection();
-    }
-
-    public FourWheelDirectDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
-        this.rearLeft = rearLeft;
-        this.rearRight = rearRight;
-        this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-
-        this.encoderTicksPerInch = encoderTicksPerInch;
-        this.encoderTarget = 0;
-        this.multiplier = pivotMultiplier;
 
         setCanonicalMotorDirection();
     }
@@ -239,9 +224,15 @@ public class FourWheelDirectDrivetrain implements Drivetrain {
     }
 
     @Override
-    public void setTargetInches(int inches)
+    public void setTargetInches(double inches)
     {
-        encoderTarget = inches * encoderTicksPerInch;
+        encoderTarget = (int)(inches * encoderTicksPerInch);
+    }
+
+    @Override
+    public void setTargetRotation(double degrees)
+    {
+        encoderTarget = (int)(degrees * encoderTicksPerDegree);
     }
 
     @Override

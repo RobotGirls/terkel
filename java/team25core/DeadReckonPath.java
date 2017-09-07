@@ -4,11 +4,6 @@ package team25core;
  * FTC Team 25: cmacfarl, August 21, 2015
  */
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.util.RobotLog;
-
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -42,17 +37,9 @@ public class DeadReckonPath {
     }
 
     public Queue<Segment> segments;
-    protected int encoderTicksPerInch;
-    protected double encoderTicksPerDegree;
-    protected GyroSensor gyro;
-    protected DcMotor masterMotor;
     protected Segment currSegment;
-    protected Robot robot;
-    protected boolean turning;
     protected boolean setup;
-    protected int lastHeading;
     protected int target;
-    protected TurnKind turnKind;
     protected PersistentTelemetryTask ptt;
 
     public class Segment {
@@ -85,27 +72,6 @@ public class DeadReckonPath {
     public void addSegment(SegmentType type, double distance, double speed)
     {
         segments.add(new Segment(type, distance, speed));
-    }
-
-    public void setTarget()
-    {
-        switch (getCurrentSegment().type) {
-        case STRAIGHT:
-        case BACK_RIGHT_DIAGONAL:
-        case BACK_LEFT_DIAGONAL:
-        case SIDEWAYS:
-            this.target = Math.abs((int)(getCurrentSegment().distance * encoderTicksPerInch));
-            break;
-        case TURN:
-            this.target = Math.abs((int)(getCurrentSegment().distance * encoderTicksPerDegree));
-            break;
-        }
-        ptt.addData("Target: ", this.target);
-    }
-
-    public int getTarget()
-    {
-        return target;
     }
 
     public void nextSegment()
