@@ -45,12 +45,11 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBase implements Drivetra
     double multiplier;
     boolean alternate;
 
-    public TwoWheelDirectDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor frontLeft)
+    public TwoWheelDirectDrivetrain(DcMotor frontRight, DcMotor frontLeft)
     {
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
 
-        this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = 1.0;
         this.alternate = true;
@@ -58,12 +57,11 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBase implements Drivetra
         frontRight.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public TwoWheelDirectDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor frontRight, DcMotor frontLeft)
+    public TwoWheelDirectDrivetrain(double pivotMultiplier, DcMotor frontRight, DcMotor frontLeft)
     {
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
 
-        this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
         this.alternate = true;
