@@ -1,15 +1,3 @@
-package examples;
-
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.RobotLog;
-
-import team25core.DeadReckonPath;
-import team25core.Robot;
-import team25core.DeadReckonTask;
-import team25core.FourWheelDirectDrivetrain;
-import team25core.RobotEvent;
-import team25core.TankDriveTask;
-
 /*
 Copyright (c) September 2017 FTC Teams 25/5218
 
@@ -42,6 +30,18 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+package examples;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
+
+import team25core.DeadReckonPath;
+import team25core.Robot;
+import team25core.DeadReckonTask;
+import team25core.FourWheelDirectDrivetrain;
+import team25core.RobotEvent;
+import team25core.TankDriveTask;
 
 public class DeadReckonExample extends Robot {
 
