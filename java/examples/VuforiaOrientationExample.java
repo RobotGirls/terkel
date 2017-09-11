@@ -47,7 +47,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-import opmodes.Daisy;
 import team25core.FourWheelDirectDrivetrain;
 import team25core.NavigateToTargetTask;
 import team25core.Robot;
@@ -74,7 +73,14 @@ public class VuforiaOrientationExample extends Robot
     TargetState state;
     double bearing;
 
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = Daisy.CAMERA_CHOICE;
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = VuforiaLocalizer.CameraDirection.FRONT;
+
+    public final static int CAMERA_FORWARD_DISPLACEMENT  = 0;       // Camera is 0 mm in front of robot center
+    public final static int CAMERA_VERTICAL_DISPLACEMENT = 127;     // Camera is 127 mm above ground
+    public final static int CAMERA_LEFT_DISPLACEMENT     = 64;      // Camera is 64 mm off the robots center line
+    public final static OpenGLMatrix PHONE_LOCATION_ON_ROBOT = OpenGLMatrix
+            .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+            .multiplied(Orientation.getRotationMatrix(AxesReference.EXTRINSIC, AxesOrder.YZX, AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.FRONT ? 90 : -90, 0, 0));
 
     @Override
     public void init()
@@ -83,18 +89,11 @@ public class VuforiaOrientationExample extends Robot
         frontRight  = hardwareMap.dcMotor.get("right");
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        twoWheelDrive = new TwoWheelDirectDrivetrain(Daisy.TICKS_PER_INCH, frontRight, frontLeft);
-
-        // *rap break*
-        // yo yo yo
-        // cappuccino
-        // lizzie plays the piano
-        // hellooooooooo!!!!
-        // chipotle from zzzzeeee
+        twoWheelDrive = new TwoWheelDirectDrivetrain(frontRight, frontLeft);
 
         nav = new RobotNavigation(this, twoWheelDrive);
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-        parameters.vuforiaLicenseKey = Daisy.KEY;
+        parameters.vuforiaLicenseKey = "GoGetALicenseFromVuforia";
         parameters.cameraDirection = CAMERA_CHOICE;
         parameters.useExtendedTracking = false;
 
@@ -106,7 +105,7 @@ public class VuforiaOrientationExample extends Robot
         targets.get(2).setName("Blue Far");
         targets.get(3).setName("Red Near");
 
-        OpenGLMatrix phoneLocationOnRobot = Daisy.PHONE_LOCATION_ON_ROBOT;
+        OpenGLMatrix phoneLocationOnRobot = PHONE_LOCATION_ON_ROBOT;
         nav.initVuforia(targets, parameters, phoneLocationOnRobot);
 
         nav.activateTracking();
