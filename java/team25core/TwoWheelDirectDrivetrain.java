@@ -34,10 +34,9 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class TwoWheelDirectDrivetrain extends DrivetrainBase implements Drivetrain {
+public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Drivetrain {
 
     DcMotor frontLeft;
     DcMotor frontRight;
@@ -55,6 +54,12 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBase implements Drivetra
         this.alternate = true;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
+
+        /**
+         * Set a default master.  This is the wheel/motor that will be used to track distance
+         * travelled when following a dead reckon path.
+         */
+        setMasterMotor(frontLeft);
     }
 
     public TwoWheelDirectDrivetrain(double pivotMultiplier, DcMotor frontRight, DcMotor frontLeft)
@@ -86,12 +91,6 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBase implements Drivetra
     @Override
     public void logEncoderCounts() {
 
-    }
-
-    @Override
-    public int getCurrentPosition()
-    {
-        return 0;
     }
 
     @Override
@@ -185,50 +184,8 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBase implements Drivetra
     }
 
     @Override
-    public void setMasterMotor(DcMotor motor)
-    {
-
-    }
-
-    @Override
-    public DcMotor getMasterMotor()
-    {
-        return null;
-    }
-
-    @Override
     public void move(double axial, double lateral, double yaw)
     {
 
-    }
-
-    @Override
-    public double percentComplete()
-    {
-        RobotLog.i("Percent complete: %d, %f, %d", frontLeft.getCurrentPosition(),
-                        (Math.abs(frontLeft.getCurrentPosition()) / (double)encoderTarget), encoderTarget);
-        return (Math.abs(frontLeft.getCurrentPosition()) / (double)encoderTarget);
-    }
-
-    @Override
-    public void setTargetInches(double inches)
-    {
-        encoderTarget = (int)(inches * encoderTicksPerInch);
-    }
-
-    @Override
-    public void setTargetRotation(double degrees)
-    {
-        encoderTarget = (int)(degrees * encoderTicksPerDegree);
-    }
-
-    @Override
-    public boolean isBusy()
-    {
-        if (Math.abs(frontLeft.getCurrentPosition()) <= encoderTarget) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
