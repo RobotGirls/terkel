@@ -35,7 +35,7 @@ package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public interface Drivetrain {
+public interface Drivetrain extends DrivetrainBase {
 
     enum PivotSide {
         LEFT_OVER_RIGHT,
@@ -84,9 +84,6 @@ public interface Drivetrain {
      */
     void stop();
 
-    void setMasterMotor(DcMotor motor);
-    DcMotor getMasterMotor();
-
     /**
      * Move the robot according to axial, lateral, and yaw speeds.
      *
@@ -98,14 +95,4 @@ public interface Drivetrain {
     void resetEncoders();
     void encodersOn();
     void logEncoderCounts();
-
-    /**
-     * Returns the current encoder count of whatever motor this drivetrain deems to be the master.
-     */
-    int getCurrentPosition();
-
-    void setTargetInches(double inches);
-    void setTargetRotation(double degrees);
-    double percentComplete();
-    boolean isBusy();
 }

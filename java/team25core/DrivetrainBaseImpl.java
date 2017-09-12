@@ -35,27 +35,80 @@ package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public interface DrivetrainBase {
+public class DrivetrainBaseImpl implements DrivetrainBase {
 
     /**
-     * The motor that will be used as the master for counting encoder ticks while calculating distance.
-     *
-     * Note that our team has found that tracking one motor provides enough accuracy if your drivetrain
-     * is solid with little to no slop.  The more play in your drivetrain, the less accuracy you'll obtain.
+     * Defaults that seem to work well for 4 inch wheels.
      */
-    void setMasterMotor(DcMotor motor);
-    DcMotor getMasterMotor();
+    protected static final int TICKS_PER_DEGREE = 18;
+    protected static final int TICKS_PER_INCH = 79;
+
+    protected int encoderTicksPerInch;
+    protected int encoderTicksPerDegree;
+    protected int encoderTarget;
+    protected DcMotor master;
+
+    public void setEncoderTicksPerInch(int encoderTicksPerInch)
+    {
+        this.encoderTicksPerInch = encoderTicksPerInch;
+    }
+
+    public void setEncoderTicksPerDegree(int encoderTicksPerDegree)
+    {
+        this.encoderTicksPerDegree = encoderTicksPerDegree;
+    }
 
     /**
-     * Returns the current encoder count of whatever motor this drivetrain deems to be the master.
+     *  DrivetrainBase implementation.
      */
-    int getCurrentPosition();
 
-    /**
-     * Dead reckoning helpers.
-     */
-    void setTargetInches(double inches);
-    void setTargetRotation(double degrees);
-    double percentComplete();
-    boolean isBusy();
+    @Override
+    public void setMasterMotor(DcMotor motor)
+    {
+        master = motor;
+    }
+
+    @Override
+    public DcMotor getMasterMotor()
+    {
+        return master;
+    }
+
+    @Override
+    public int getCurrentPosition()
+    {
+        return master.getCurrentPosition();
+    }
+
+    @Override
+    public void setTargetInches(double inches)
+    {
+        encoderTarget = (int)(inches * encoderTicksPerInch);
+    }
+
+    @Override
+    public void setTargetRotation(double degrees)
+    {
+        encoderTarget = (int)(degrees * encoderTicksPerDegree);
+    }
+
+    @Override
+    public double percentComplete()
+    {
+        if (encoderTarget != 0) {
+            return (Math.abs(getCurrentPosition()) / encoderTarget);
+        } else {
+            return 1;
+        }
+    }
+
+    @Override
+    public boolean isBusy()
+    {
+        if (Math.abs(getCurrentPosition()) <= encoderTarget) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

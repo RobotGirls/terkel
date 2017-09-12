@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class TwoWheelGearedDrivetrain extends DrivetrainBase implements Drivetrain {
+public class TwoWheelGearedDrivetrain extends DrivetrainBaseImpl implements Drivetrain {
 
     DcMotor rearLeft;
     DcMotor rearRight;
@@ -53,6 +53,12 @@ public class TwoWheelGearedDrivetrain extends DrivetrainBase implements Drivetra
         this.multiplier = 1.0;
 
         setCanonicalMotorDirection();
+
+        /**
+         * Set a default master.  This is the wheel/motor that will be used to track distance
+         * travelled when following a dead reckon path.
+         */
+        setMasterMotor(rearRight);
     }
 
     public TwoWheelGearedDrivetrain(int encoderTicksPerInch, double pivotMultiplier, DcMotor rearRight, DcMotor rearLeft) {
@@ -96,12 +102,6 @@ public class TwoWheelGearedDrivetrain extends DrivetrainBase implements Drivetra
     public void logEncoderCounts()
     {
         RobotLog.i("POS Counts RL %d, RR %d", rearLeft.getCurrentPosition(), rearRight.getCurrentPosition());
-    }
-
-    @Override
-    public int getCurrentPosition()
-    {
-        return 0;
     }
 
     @Override
@@ -186,18 +186,6 @@ public class TwoWheelGearedDrivetrain extends DrivetrainBase implements Drivetra
     }
 
     @Override
-    public void setMasterMotor(DcMotor motor)
-    {
-
-    }
-
-    @Override
-    public DcMotor getMasterMotor()
-    {
-        return null;
-    }
-
-    @Override
     public void move(double axial, double lateral, double yaw)
     {
         // calculate required motor speeds to achieve axis motions
@@ -228,37 +216,5 @@ public class TwoWheelGearedDrivetrain extends DrivetrainBase implements Drivetra
 
         RobotLog.i("141 Axes A[%+5.2f], L[%+5.2f], Y[%+5.2f]", axial, lateral, yaw);
         RobotLog.i("141 Wheels L[%+5.2f], R[%+5.2f], BL[%+5.2f], BR[%+5.2f]", left, right, backLeft, backRight);
-    }
-
-    @Override
-    public double percentComplete()
-    {
-        if (encoderTarget != 0) {
-            return (Math.abs(rearLeft.getCurrentPosition()) / encoderTarget);
-        } else {
-            return 1;
-        }
-    }
-
-    @Override
-    public void setTargetInches(double inches)
-    {
-        encoderTarget = (int)(inches * encoderTicksPerInch);
-    }
-
-    @Override
-    public void setTargetRotation(double degrees)
-    {
-        encoderTarget = (int)(degrees * encoderTicksPerDegree);
-    }
-
-    @Override
-    public boolean isBusy()
-    {
-        if (Math.abs(rearLeft.getCurrentPosition()) <= encoderTarget) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
