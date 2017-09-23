@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package examples;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -43,12 +44,14 @@ import team25core.FourWheelDirectDrivetrain;
 import team25core.RobotEvent;
 import team25core.TankDriveTask;
 
+
+@Autonomous(name = "DAISY DeadReckonExample", group = "Team25")
 public class DeadReckonExample extends Robot {
 
     private DcMotor frontLeft;
     private DcMotor frontRight;
-    private DcMotor backLeft;
-    private DcMotor backRight;
+    private DcMotor rearLeft;
+    private DcMotor rearRight;
 
     private FourWheelDirectDrivetrain drivetrain;
 
@@ -69,12 +72,12 @@ public class DeadReckonExample extends Robot {
     @Override
     public void init()
     {
-        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
-        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
-        backRight = hardwareMap.get(DcMotor.class, "backRight");
+        frontLeft = hardwareMap.get(DcMotor.class, "rearLeft");
+        frontRight = hardwareMap.get(DcMotor.class, "rearRight");
+        rearLeft = hardwareMap.get(DcMotor.class, "frontLeft");
+        rearRight = hardwareMap.get(DcMotor.class, "frontRight");
 
-        drivetrain = new FourWheelDirectDrivetrain(frontRight, backRight, frontLeft, backLeft);
+        drivetrain = new FourWheelDirectDrivetrain(frontRight, rearRight, frontLeft, rearRight);
     }
 
     @Override
