@@ -43,6 +43,7 @@ public class MonitorMotorTask extends RobotTask {
 
     public static final char DISPLAY_POSITION = 0x01;
     public static final char DISPLAY_RPM = 0x02;
+    public static final char LOG_POSITION = 0x04;
 
     public enum MotorKind {
         ANDYMARK_20,
@@ -251,6 +252,9 @@ public class MonitorMotorTask extends RobotTask {
 
         robot.queueEvent(new MonitorMotorEvent(this, EventKind.ERROR_UPDATE, error));
 
+        if ((displayProperties & LOG_POSITION) != 0) {
+            RobotLog.ii("MonitorMotor", "Position %d", position);
+        }
         if ((displayProperties & DISPLAY_POSITION) != 0) {
             robot.telemetry.addData(motor.getConnectionInfo() + " Postion: ", Math.abs(position));
         }
@@ -259,7 +263,7 @@ public class MonitorMotorTask extends RobotTask {
         }
         robot.telemetry.addData(motor.getConnectionInfo() + " Target: ", Math.abs(target));
         robot.telemetry.addData(motor.getConnectionInfo() + " Error: ", Math.abs(error));
-
+        robot.telemetry.update();
         /*
          * Never stops.
          */
