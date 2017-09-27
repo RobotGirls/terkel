@@ -60,6 +60,8 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
          * travelled when following a dead reckon path.
          */
         setMasterMotor(frontLeft);
+        setEncoderTicksPerInch(TICKS_PER_INCH);
+        setEncoderTicksPerDegree(TICKS_PER_DEGREE);
     }
 
     public TwoWheelDirectDrivetrain(double pivotMultiplier, DcMotor frontRight, DcMotor frontLeft)

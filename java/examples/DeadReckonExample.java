@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package examples;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -42,7 +43,9 @@ import team25core.DeadReckonTask;
 import team25core.FourWheelDirectDrivetrain;
 import team25core.RobotEvent;
 import team25core.TankDriveTask;
+import team25core.TwoWheelDirectDrivetrain;
 
+@Autonomous(name = "DeadReckonExample")
 public class DeadReckonExample extends Robot {
 
     private DcMotor frontLeft;
@@ -50,7 +53,7 @@ public class DeadReckonExample extends Robot {
     private DcMotor backLeft;
     private DcMotor backRight;
 
-    private FourWheelDirectDrivetrain drivetrain;
+    private TwoWheelDirectDrivetrain drivetrain;
 
     /**
      * The default event handler for the robot.
@@ -69,12 +72,12 @@ public class DeadReckonExample extends Robot {
     @Override
     public void init()
     {
-        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
-        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
-        backRight = hardwareMap.get(DcMotor.class, "backRight");
+        frontLeft = hardwareMap.get(DcMotor.class, "left");
+        frontRight = hardwareMap.get(DcMotor.class, "right");
+        // backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+        // backRight = hardwareMap.get(DcMotor.class, "backRight");
 
-        drivetrain = new FourWheelDirectDrivetrain(frontRight, backRight, frontLeft, backLeft);
+        drivetrain = new TwoWheelDirectDrivetrain(frontRight, frontLeft);
     }
 
     @Override

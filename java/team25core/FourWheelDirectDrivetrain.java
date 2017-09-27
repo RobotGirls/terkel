@@ -52,7 +52,6 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
 
-        this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = 1.0;
 
@@ -63,6 +62,8 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
          * travelled when following a dead reckon path.
          */
         setMasterMotor(rearRight);
+        setEncoderTicksPerDegree(TICKS_PER_DEGREE);
+        setEncoderTicksPerInch(TICKS_PER_INCH);
     }
 
     public void setCanonicalMotorDirection()
