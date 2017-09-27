@@ -34,6 +34,7 @@
 package examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -46,6 +47,7 @@ import team25core.SingleShotTimerTask;
 import team25core.TwoWheelDirectDrivetrain;
 
 @Autonomous(name = "DeadReckonExample2")
+@Disabled
 public class DeadReckonExample2 extends Robot {
 
     private DcMotor frontLeft;
@@ -74,8 +76,6 @@ public class DeadReckonExample2 extends Robot {
     {
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        // backLeft = hardwareMap.get(DcMotor.class, "backLeft");
-        // backRight = hardwareMap.get(DcMotor.class, "backRight");
 
         drivetrain = new TwoWheelDirectDrivetrain(frontRight, frontLeft);
     }

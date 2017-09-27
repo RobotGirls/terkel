@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -54,7 +55,7 @@ public class DeadReckonExample extends Robot {
     private DcMotor rearLeft;
     private DcMotor rearRight;
 
-    private TwoWheelDirectDrivetrain drivetrain;
+    private FourWheelDirectDrivetrain drivetrain;
 
     /**
      * The default event handler for the robot.
