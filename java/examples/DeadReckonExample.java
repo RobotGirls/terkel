@@ -43,9 +43,10 @@ import team25core.DeadReckonTask;
 import team25core.FourWheelDirectDrivetrain;
 import team25core.RobotEvent;
 import team25core.TankDriveTask;
+import team25core.TwoWheelDirectDrivetrain;
 
-
-@Autonomous(name = "DAISY DeadReckonExample", group = "Team25")
+@Autonomous(name = "DeadReckonExample")
+@Disabled
 public class DeadReckonExample extends Robot {
 
     private DcMotor frontLeft;
@@ -53,7 +54,7 @@ public class DeadReckonExample extends Robot {
     private DcMotor rearLeft;
     private DcMotor rearRight;
 
-    private FourWheelDirectDrivetrain drivetrain;
+    private TwoWheelDirectDrivetrain drivetrain;
 
     /**
      * The default event handler for the robot.
