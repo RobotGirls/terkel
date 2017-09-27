@@ -42,7 +42,7 @@ import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.SingleShotTimerTask;
 
-@TeleOp(name = "Single Shot Timer Task Example", group = "Team25")
+@TeleOp(name = "Single Shot Timer Task Example")
 @Disabled
 public class SingleShotTimerTaskExample extends Robot
 {

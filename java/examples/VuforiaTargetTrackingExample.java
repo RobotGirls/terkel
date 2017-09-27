@@ -53,7 +53,7 @@ import team25core.NavigateToTargetTask;
 import team25core.Robot;
 import team25core.RobotEvent;
 
-@Autonomous(name = "VuforiaTargetTracking", group = "AutoTest")
+@Autonomous(name = "VuforiaTargetTracking")
 @Disabled
 public class VuforiaTargetTrackingExample extends Robot {
 

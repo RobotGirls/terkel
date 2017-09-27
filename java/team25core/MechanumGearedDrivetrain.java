@@ -46,7 +46,10 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
 
     double multiplier;
 
-    public MechanumGearedDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
+    public MechanumGearedDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
+    {
+        super();
+
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
