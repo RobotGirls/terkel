@@ -1,6 +1,7 @@
 package examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import team25core.MonitorMotorTask;
@@ -12,6 +13,7 @@ import team25core.RobotEvent;
  */
 
 @Autonomous(name = "Monitor Motor Example")
+@Disabled
 public class MonitorMotorExample extends Robot {
     private DcMotor left;
 

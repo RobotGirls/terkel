@@ -36,6 +36,7 @@ package examples;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDeviceInterfaceModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -50,6 +51,7 @@ import team25core.RobotEvent;
 import team25core.TwoWheelDirectDrivetrain;
 
 @Autonomous(name = "DeadReckonExample5")
+@Disabled
 public class DeadReckonExample5 extends Robot {
 
     private DcMotor frontLeft;

@@ -41,7 +41,7 @@ import team25core.GamepadTask;
 import team25core.Robot;
 import team25core.RobotEvent;
 
-@TeleOp(name = "Gamepad Task Example", group = "Team25")
+@TeleOp(name = "Gamepad Task Example")
 @Disabled
 public class GamepadTaskExample extends Robot
 {
