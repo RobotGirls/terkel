@@ -120,15 +120,15 @@ public class RunToEncoderValueTask extends RobotTask {
     @Override
     public void start()
     {
-        master.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        master.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        master.setPower(power);
     }
 
     @Override
     public void stop()
     {
         master.setPower(0.0);
+        master.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        master.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         for (DcMotor slave : slaves) {
             slave.setPower(0.0);
         }
@@ -139,6 +139,8 @@ public class RunToEncoderValueTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
+        master.setPower(power);
+
         int pos = Math.abs(master.getCurrentPosition());
 
         if (pos >= (encoderValue * 0.25) && (t_25 == null)) {
@@ -170,7 +172,7 @@ public class RunToEncoderValueTask extends RobotTask {
             robot.queueEvent(t_98);
             return false;
         } else if (pos >= encoderValue) {
-            RobotLog.i("EVENT: RunToEncoder master done " + master.getConnectionInfo() + encoderValue);
+            RobotLog.i("EVENT: RunToEncoder master done " + master.getConnectionInfo() + " Position: " + encoderValue);
             robot.queueEvent(new RunToEncoderValueEvent(this, EventKind.DONE));
             return true;
         } else {
