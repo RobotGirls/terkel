@@ -1,5 +1,7 @@
 package team25core;
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.util.RobotLog;
 
 public class RGBColor {
@@ -27,7 +29,12 @@ public class RGBColor {
         red = 255/31 * red;
         blue = 255/31 * blue;
         green = 255/63 * green;
-        return new RGBColor(red, green, blue);
+        return new RGBColor(red, blue, green);
+    }
+
+    public static RGBColor from888(int rgb888)
+    {
+        return new RGBColor(Color.red(rgb888), Color.blue(rgb888), Color.green(rgb888));
     }
 
     public int to888()

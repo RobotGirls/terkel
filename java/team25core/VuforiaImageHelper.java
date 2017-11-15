@@ -1,6 +1,8 @@
 package team25core;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Point;
 
 import com.qualcomm.robotcore.util.RobotLog;
 import com.vuforia.Image;
@@ -16,7 +18,15 @@ import java.util.TreeSet;
 
 public class VuforiaImageHelper {
 
+    private enum ImageType {
+        VUFORIA,
+        BITMAP,
+    }
+
+    private final static String HELPER_TAG = "Jewel Helper";
+
     private Image image;
+    private Bitmap bitmap;
     private ByteBuffer pixels;
     private int rows;
     private int columns;
@@ -25,6 +35,7 @@ public class VuforiaImageHelper {
     private final static int RED = 0xF800;
     private final static int GREEN = 0x07E0;
     private final static int BLUE = 0x001F;
+    private ImageType imageType;
 
     public VuforiaImageHelper(Image image)
     {
@@ -33,6 +44,13 @@ public class VuforiaImageHelper {
         this.rows = image.getHeight();
         this.columns = image.getWidth();
         this.stride = image.getStride();
+        this.imageType = ImageType.VUFORIA;
+    }
+
+    public VuforiaImageHelper(Bitmap bitmap)
+    {
+        this.bitmap = bitmap;
+        this.imageType = ImageType.BITMAP;
     }
 
     public byte[] getRow(int row)
@@ -98,6 +116,45 @@ public class VuforiaImageHelper {
     }
 
     public RGBColor getDominant(int row, int col, int width, int height)
+    {
+        switch (imageType) {
+            case VUFORIA:
+                return getImageDominant(row, col, width, height);
+            case BITMAP:
+                return getBitmapDominant(row, col, width, height);
+        }
+
+        return null;
+    }
+
+    public RGBColor getBitmapDominant(int row, int col, int width, int height)
+    {
+        TreeMap<Integer, Counter> map = new TreeMap<>();
+        Counter pixel;
+        int rgbVal;
+
+        for (int i = row; i < row + height; i++) {
+            for (int j = col; j < col + width; j++) {
+                rgbVal = Integer.valueOf(bitmap.getPixel(i, j));
+                pixel = map.get(rgbVal);
+                if (pixel != null) {
+                    pixel.increment();
+                } else {
+                    map.put(rgbVal, new Counter());
+                }
+            }
+        }
+
+        SortedSet<Map.Entry<Integer, Counter>> set = entriesSortedByValues(map);
+        Map.Entry<Integer, Counter> e = set.last();
+        Counter c = e.getValue();
+        Integer k = e.getKey();
+        RGBColor rgbColor = RGBColor.from888(k);
+        RobotLog.ii(HELPER_TAG, "Dominant = %s, Size = %d", rgbColor.toString(), set.size());
+        return rgbColor;
+    }
+
+    public RGBColor getImageDominant(int row, int col, int width, int height)
     {
         TreeMap<Integer, Counter> map = new TreeMap<>();
         Counter pixel;

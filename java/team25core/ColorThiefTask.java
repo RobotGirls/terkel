@@ -1,7 +1,9 @@
 package team25core;
 
+import android.graphics.Bitmap;
 import android.graphics.Point;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
@@ -17,7 +19,7 @@ public class ColorThiefTask extends RobotTask {
     public enum EventKind {
         RED,
         BLUE,
-        UNKNOWN,
+        BLACK,
     }
 
     public static class ImageBox {
@@ -48,11 +50,18 @@ public class ColorThiefTask extends RobotTask {
         }
     }
 
-    VuforiaLocalizer vuforia;
-    BlockingQueue<VuforiaLocalizer.CloseableFrame> frameQueue;
-    VuforiaLocalizer.CloseableFrame frame;
-    Image image;
-    ImageBox box;
+    /**
+     * Examine the logs and adjust these values to suit lighting conditions.
+     */
+    private final static int RED_DOMINANT_RED_LOWER_THRESHOLD   = 0x60;
+    private final static int RED_DOMINANT_BLUE_UPPER_THRESHOLD  = 0x30;
+    private final static int BLUE_DOMINANT_BLUE_LOWER_THRESHOLD = 0x60;
+    private final static int BLUE_DOMINANT_RED_UPPER_THRESHOLD  = 0x30;
+
+    protected VuforiaLocalizerCustom vuforia;
+    protected BlockingQueue<VuforiaLocalizer.CloseableFrame> frameQueue;
+    protected VuforiaLocalizer.CloseableFrame frame;
+    protected Image image;
 
     public ColorThiefTask(Robot robot)
     {
@@ -82,20 +91,6 @@ public class ColorThiefTask extends RobotTask {
         } else {
             RobotLog.e("Could not set frame format");
         }
-
-
-        /*
-         * Get an image to set the default size for.
-         */
-        frameQueue = vuforia.getFrameQueue();
-        try {
-            frame = frameQueue.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        image = frame.getImage(0);
-        setImageTargetLocation(0, image.getWidth()/2, image.getWidth(), image.getHeight()/2);
-
     }
 
     @Override
@@ -103,36 +98,56 @@ public class ColorThiefTask extends RobotTask {
     {
     }
 
-    public void setImageTargetLocation(int x, int y, int width, int height)
+    private boolean thresholdSatisfied(int dominant, int subordinate, int dominantLower, int subordinateUpper)
     {
-        if (box == null) {
-            box = new ImageBox();
+        if ((dominant > dominantLower) && (subordinate < subordinateUpper)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void determineColor(RGBColor dominant)
+    {
+        if (!dominant.isBlack()) {
+            if (dominant.red > dominant.blue) {
+                if (thresholdSatisfied(dominant.red, dominant.blue, RED_DOMINANT_RED_LOWER_THRESHOLD, RED_DOMINANT_BLUE_UPPER_THRESHOLD)) {
+                    robot.queueEvent(new ColorThiefEvent(this, EventKind.RED));
+                } else {
+                    robot.queueEvent(new ColorThiefEvent(this, EventKind.BLACK));
+                }
+            } else {
+                if (thresholdSatisfied(dominant.blue, dominant.red, BLUE_DOMINANT_BLUE_LOWER_THRESHOLD, BLUE_DOMINANT_RED_UPPER_THRESHOLD)) {
+                    robot.queueEvent(new ColorThiefEvent(this, EventKind.BLUE));
+                } else {
+                    robot.queueEvent(new ColorThiefEvent(this, EventKind.BLACK));
+                }
+            }
+            robot.telemetry.addData("Dominant color ", "0x" + Integer.toHexString(dominant.to888()));
+        } else {
+            robot.queueEvent(new ColorThiefEvent(this, EventKind.BLACK));
         }
 
-        box.lowerLeft.set(x, y);
-        box.extent.set(width, height);
     }
 
     @Override
     public boolean timeslice()
     {
         RGBColor dominant;
-        try {
-            frame = frameQueue.take();
-            image = frame.getImage(0);
-            VuforiaImageHelper helper = new VuforiaImageHelper(image);
-            dominant = helper.getDominant(box.lowerLeft.x, box.lowerLeft.y, box.extent.x, box.extent.y);
-            if (!dominant.isBlack()) {
-                if (dominant.red > dominant.blue) {
-                    robot.queueEvent(new ColorThiefEvent(this, EventKind.RED));
-                } else {
-                    robot.queueEvent(new ColorThiefEvent(this, EventKind.BLUE));
-                }
-                robot.telemetry.addData("Dominant color ", "0x" + Integer.toHexString(dominant.to888()));
+
+        if (vuforia.attentionNeeded()) {
+            Bitmap bitmap = vuforia.getBitmap();
+            if (bitmap == null) {
+                return false;
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+            VuforiaImageHelper helper = new VuforiaImageHelper(bitmap);
+            dominant = helper.getDominant(0, 0, bitmap.getWidth(), bitmap.getHeight());
+            determineColor(dominant);
+
+            vuforia.clearAttentionNeeded();
         }
+
         return false;
     }
 }
