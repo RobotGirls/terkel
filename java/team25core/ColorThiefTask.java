@@ -9,12 +9,18 @@ import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.internal.vuforia.VuforiaLocalizerImpl;
 
 import java.util.concurrent.BlockingQueue;
 
 public class ColorThiefTask extends RobotTask {
+
+    public enum PollingMode {
+        ON,
+        OFF,
+    }
 
     public enum EventKind {
         RED,
@@ -58,14 +64,24 @@ public class ColorThiefTask extends RobotTask {
     private final static int BLUE_DOMINANT_BLUE_LOWER_THRESHOLD = 0x60;
     private final static int BLUE_DOMINANT_RED_UPPER_THRESHOLD  = 0x30;
 
+    private final static int POLL_RATE = 2;
+
     protected VuforiaLocalizerCustom vuforia;
     protected BlockingQueue<VuforiaLocalizer.CloseableFrame> frameQueue;
     protected VuforiaLocalizer.CloseableFrame frame;
     protected Image image;
+    protected PollingMode pollingMode;
+    protected ElapsedTime pollTimer;
+    protected Telemetry.Item dominantTelemetry;
+    protected Telemetry.Item pollingTelemetry;
 
     public ColorThiefTask(Robot robot)
     {
         super(robot);
+
+        this.pollingMode = PollingMode.OFF;
+        this.dominantTelemetry = robot.telemetry.addData("Dominant color: ", "0x000000");
+        this.pollingTelemetry = robot.telemetry.addData("Polling: ", "OFF");
     }
 
     @Override
@@ -98,6 +114,15 @@ public class ColorThiefTask extends RobotTask {
     {
     }
 
+    public void setPollingMode(PollingMode pollingMode)
+    {
+        this.pollingMode = pollingMode;
+
+        if (pollingMode == PollingMode.ON) {
+            pollTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        }
+    }
+
     private boolean thresholdSatisfied(int dominant, int subordinate, int dominantLower, int subordinateUpper)
     {
         if ((dominant > dominantLower) && (subordinate < subordinateUpper)) {
@@ -123,7 +148,7 @@ public class ColorThiefTask extends RobotTask {
                     robot.queueEvent(new ColorThiefEvent(this, EventKind.BLACK));
                 }
             }
-            robot.telemetry.addData("Dominant color ", "0x" + Integer.toHexString(dominant.to888()));
+            dominantTelemetry.setValue("0x" + Integer.toHexString(dominant.to888()));
         } else {
             robot.queueEvent(new ColorThiefEvent(this, EventKind.BLACK));
         }
@@ -134,6 +159,12 @@ public class ColorThiefTask extends RobotTask {
     public boolean timeslice()
     {
         RGBColor dominant;
+
+        if ((pollingMode == PollingMode.ON) && (pollTimer.time() > POLL_RATE)) {
+            vuforia.forceRefreshBitmap();
+            pollTimer.reset();
+            return false;
+        }
 
         if (vuforia.attentionNeeded()) {
             Bitmap bitmap = vuforia.getBitmap();
@@ -147,6 +178,8 @@ public class ColorThiefTask extends RobotTask {
 
             vuforia.clearAttentionNeeded();
         }
+
+        pollingTelemetry.setValue(pollingMode.toString());
 
         return false;
     }

@@ -4,32 +4,17 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.opengl.GLES20;
 import android.opengl.GLException;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.qualcomm.robotcore.util.RobotLog;
-import com.vuforia.Matrix44F;
-import com.vuforia.Renderer;
-import com.vuforia.State;
-import com.vuforia.Tool;
-import com.vuforia.TrackableResult;
-import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
 import com.vuforia.Vuforia;
 
-import org.firstinspires.ftc.robotcore.internal.opengl.AutoConfigGLSurfaceView;
 import org.firstinspires.ftc.robotcore.internal.vuforia.VuforiaLocalizerImpl;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.Parameters.CameraMonitorFeedback.BUILDINGS;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.Parameters.CameraMonitorFeedback.NONE;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.Parameters.CameraMonitorFeedback.TEAPOT;
 
 public class VuforiaLocalizerCustom extends VuforiaLocalizerImpl {
 
@@ -133,6 +118,11 @@ public class VuforiaLocalizerCustom extends VuforiaLocalizerImpl {
         refreshBitmap = true;
         touchPoint.set(x, y);
         RobotLog.ii(DETECTION_TAG, "Touched at " + x + ", " + y);
+    }
+
+    public void forceRefreshBitmap()
+    {
+        refreshBitmap = true;
     }
 
     public Point getTouchPosition()
