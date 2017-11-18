@@ -33,6 +33,8 @@
 
 package examples;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import team25core.FourWheelDirectDrivetrain;
@@ -40,6 +42,8 @@ import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.TankDriveTask;
 
+@Autonomous(name = "FourWheelDriveTaskExample")
+@Disabled
 public class FourWheelDriveTaskExample extends Robot {
 
     private DcMotor frontLeft;

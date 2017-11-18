@@ -48,6 +48,12 @@ public class DrivetrainBaseImpl implements DrivetrainBase {
     protected int encoderTarget;
     protected DcMotor master;
 
+    public DrivetrainBaseImpl()
+    {
+        setEncoderTicksPerInch(TICKS_PER_INCH);
+        setEncoderTicksPerDegree(TICKS_PER_DEGREE);
+    }
+
     public void setEncoderTicksPerInch(int encoderTicksPerInch)
     {
         this.encoderTicksPerInch = encoderTicksPerInch;

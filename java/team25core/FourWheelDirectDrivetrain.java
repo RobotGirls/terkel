@@ -46,7 +46,10 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
 
     double multiplier;
 
-    public FourWheelDirectDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft) {
+    public FourWheelDirectDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
+    {
+        super();
+
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
         this.frontLeft = frontLeft;
@@ -62,8 +65,6 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
          * travelled when following a dead reckon path.
          */
         setMasterMotor(rearRight);
-        setEncoderTicksPerDegree(TICKS_PER_DEGREE);
-        setEncoderTicksPerInch(TICKS_PER_INCH);
     }
 
     public void setCanonicalMotorDirection()

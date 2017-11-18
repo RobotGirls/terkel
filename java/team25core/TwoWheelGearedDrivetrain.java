@@ -44,7 +44,10 @@ public class TwoWheelGearedDrivetrain extends DrivetrainBaseImpl implements Driv
 
     double multiplier;
 
-    public TwoWheelGearedDrivetrain(int encoderTicksPerInch, DcMotor rearRight, DcMotor rearLeft) {
+    public TwoWheelGearedDrivetrain(int encoderTicksPerInch, DcMotor rearRight, DcMotor rearLeft)
+    {
+        super();
+        
         this.rearLeft = rearLeft;
         this.rearRight = rearRight;
 
