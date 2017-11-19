@@ -58,7 +58,7 @@ public class TankDriveTask extends RobotTask {
     {
         Gamepad gamepad = robot.gamepad1;
 
-        left  = -gamepad.left_stick_y * slowMultiplier;
+        left  = gamepad.left_stick_y * slowMultiplier;
         right = gamepad.right_stick_y * slowMultiplier;
     }
 
