@@ -46,6 +46,8 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
 
     public TwoWheelDirectDrivetrain(DcMotor frontRight, DcMotor frontLeft)
     {
+        super();
+
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
 

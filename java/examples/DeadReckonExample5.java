@@ -35,6 +35,8 @@ package examples;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDeviceInterfaceModule;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -46,7 +48,10 @@ import team25core.MonitorGyroTask;
 import team25core.MonitorMotorTask;
 import team25core.Robot;
 import team25core.RobotEvent;
+import team25core.TwoWheelDirectDrivetrain;
 
+@Autonomous(name = "DeadReckonExample5")
+@Disabled
 public class DeadReckonExample5 extends Robot {
 
     private DcMotor frontLeft;
@@ -57,7 +62,7 @@ public class DeadReckonExample5 extends Robot {
     private ModernRoboticsUsbDeviceInterfaceModule interfaceModule;
     private final static int LIMIT_SWITCH_PORT = 0;
 
-    private FourWheelDirectDrivetrain drivetrain;
+    private TwoWheelDirectDrivetrain drivetrain;
 
     private DeadReckonTask deadReckonTask;
 
@@ -80,12 +85,12 @@ public class DeadReckonExample5 extends Robot {
     {
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
-        backRight = hardwareMap.get(DcMotor.class, "backRight");
+        // backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+        // backRight = hardwareMap.get(DcMotor.class, "backRight");
 
         interfaceModule = hardwareMap.get(ModernRoboticsUsbDeviceInterfaceModule.class, "cdim");
 
-        drivetrain = new FourWheelDirectDrivetrain(frontRight, backRight, frontLeft, backLeft);
+        drivetrain = new TwoWheelDirectDrivetrain(frontRight, frontLeft);
     }
 
     @Override

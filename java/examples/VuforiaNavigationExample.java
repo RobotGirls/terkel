@@ -46,7 +46,7 @@ import team25core.NavigateToTargetTask;
 import team25core.Robot;
 import team25core.RobotEvent;
 
-@Autonomous(name = "Daisy: Vuforia Target Finding", group = "Team 25")
+@Autonomous(name = "Vuforia Target Finding")
 @Disabled
 public class VuforiaNavigationExample extends Robot
 {
@@ -81,9 +81,9 @@ public class VuforiaNavigationExample extends Robot
     {
         NavigateToTargetTask.NavigateToTargetEvent event = (NavigateToTargetTask.NavigateToTargetEvent) e;
         if (event.kind == NavigateToTargetTask.EventKind.FOUND_TARGET) {
-            RobotLog.i("141 Found target");
+            RobotLog.i("Found target");
         } else if (event.kind == NavigateToTargetTask.EventKind.TIMEOUT) {
-            RobotLog.i("141 Timeout");
+            RobotLog.i("Timeout");
         }
     }
 }

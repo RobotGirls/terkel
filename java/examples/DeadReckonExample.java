@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -43,9 +44,10 @@ import team25core.DeadReckonTask;
 import team25core.FourWheelDirectDrivetrain;
 import team25core.RobotEvent;
 import team25core.TankDriveTask;
+import team25core.TwoWheelDirectDrivetrain;
 
-
-@Autonomous(name = "DAISY DeadReckonExample", group = "Team25")
+@Autonomous(name = "DeadReckonExample")
+@Disabled
 public class DeadReckonExample extends Robot {
 
     private DcMotor frontLeft;

@@ -54,7 +54,7 @@ import team25core.RobotEvent;
 import team25core.RobotNavigation;
 import team25core.TwoWheelDirectDrivetrain;
 
-@Autonomous(name = "LAMEINGO RETURNS: VUFORIA ORIENTATION", group = "Team 25")
+@Autonomous(name = "Vuforia Orientation")
 @Disabled
 public class VuforiaOrientationExample extends Robot
 {

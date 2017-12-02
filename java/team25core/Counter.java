@@ -1,5 +1,5 @@
 /*
- * Copyright (c) September 2017 FTC Teams 25/5218
+ *  Copyright (c) September 2017 FTC Teams 25/5218
  *
  *  All rights reserved.
  *
@@ -33,88 +33,43 @@
 
 package team25core;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
+import android.support.annotation.NonNull;
 
-public class DrivetrainBaseImpl implements DrivetrainBase {
+import java.lang.Object;
 
-    /**
-     * Defaults that seem to work well for 4 inch wheels.
-     */
-    protected static final int TICKS_PER_DEGREE = 18;
-    protected static final int TICKS_PER_INCH = 79;
+public class Counter extends Object implements Comparable<Counter> {
 
-    protected int encoderTicksPerInch;
-    protected int encoderTicksPerDegree;
-    protected int encoderTarget;
-    protected DcMotor master;
+    private int value;
 
-    public DrivetrainBaseImpl()
+    public Counter()
     {
-        setEncoderTicksPerInch(TICKS_PER_INCH);
-        setEncoderTicksPerDegree(TICKS_PER_DEGREE);
+        value = 0;
     }
 
-    public void setEncoderTicksPerInch(int encoderTicksPerInch)
+    public Counter(int start)
     {
-        this.encoderTicksPerInch = encoderTicksPerInch;
+        value = start;
     }
 
-    public void setEncoderTicksPerDegree(int encoderTicksPerDegree)
+    public void increment()
     {
-        this.encoderTicksPerDegree = encoderTicksPerDegree;
+        value++;
     }
 
-    /**
-     *  DrivetrainBase implementation.
-     */
-
-    @Override
-    public void setMasterMotor(DcMotor motor)
+    public int getValue()
     {
-        master = motor;
+        return value;
     }
 
     @Override
-    public DcMotor getMasterMotor()
+    public int compareTo(@NonNull Counter another)
     {
-        return master;
-    }
-
-    @Override
-    public int getCurrentPosition()
-    {
-        return master.getCurrentPosition();
-    }
-
-    @Override
-    public void setTargetInches(double inches)
-    {
-        encoderTarget = (int)(inches * encoderTicksPerInch);
-    }
-
-    @Override
-    public void setTargetRotation(double degrees)
-    {
-        encoderTarget = (int)(degrees * encoderTicksPerDegree);
-    }
-
-    @Override
-    public double percentComplete()
-    {
-        if (encoderTarget != 0) {
-            return (Math.abs(getCurrentPosition()) / encoderTarget);
+        if (this.value == another.value) {
+            return 0;
+        } else if (this.value < another.value) {
+            return -1;
         } else {
             return 1;
-        }
-    }
-
-    @Override
-    public boolean isBusy()
-    {
-        if (Math.abs(getCurrentPosition()) <= encoderTarget) {
-            return true;
-        } else {
-            return false;
         }
     }
 }
