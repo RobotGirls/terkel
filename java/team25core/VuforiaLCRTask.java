@@ -1,5 +1,7 @@
 package team25core;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -11,6 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
  */
 
 public class VuforiaLCRTask extends RobotTask {
+
+    private VuforiaTrackable relicTemplate;
 
     public enum EventKind {
         LEFT,
@@ -38,8 +42,15 @@ public class VuforiaLCRTask extends RobotTask {
         }
     }
 
+
     @Override
-    public boolean timeslice()
+    public void stop()
+    {
+
+    }
+
+    @Override
+    public void start()
     {
         int cameraMonitorViewId = robot.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", robot.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -54,30 +65,29 @@ public class VuforiaLCRTask extends RobotTask {
         relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
 
         relicTrackables.activate();
+    }
 
-        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-
-        if (vuMark == RelicRecoveryVuMark.LEFT) {
-            robot.queueEvent(new VuMarkEvent(this, EventKind.LEFT));
-        } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
-            robot.queueEvent(new VuMarkEvent(this, EventKind.RIGHT));
-        } else if (vuMark == RelicRecoveryVuMark.CENTER) {
-            robot.queueEvent(new VuMarkEvent(this, EventKind.CENTER));
-        }
+    @Override
+    public boolean timeslice()
+    {
+        final RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+        robot.addTask(new PeriodicTimerTask(this.robot, 2000) {
+            @Override
+            public void handleEvent(RobotEvent e)
+            {
+                PeriodicTimerEvent event = (PeriodicTimerEvent)e;
+                if (event.kind == EventKind.EXPIRED) {
+                    if (vuMark == RelicRecoveryVuMark.LEFT) {
+                        robot.queueEvent(new VuMarkEvent(this, VuforiaLCRTask.EventKind.LEFT));
+                    } else if (vuMark == RelicRecoveryVuMark.RIGHT) {
+                        robot.queueEvent(new VuMarkEvent(this, VuforiaLCRTask.EventKind.RIGHT));
+                    } else if (vuMark == RelicRecoveryVuMark.CENTER) {
+                        robot.queueEvent(new VuMarkEvent(this, VuforiaLCRTask.EventKind.CENTER));
+                    }
+                }
+            }
+        });
 
         return true;
     }
-
-    @Override
-    public void stop()
-    {
-
-    }
-
-    @Override
-    public void start()
-    {
-
-    }
-
 }
