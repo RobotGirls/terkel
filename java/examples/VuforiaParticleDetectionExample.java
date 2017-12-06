@@ -13,6 +13,7 @@ import team25core.Robot;
 import team25core.RobotEvent;
 
 @Autonomous(name = "VuforiaParticleDetection")
+@Disabled
 public class VuforiaParticleDetectionExample extends Robot {
 
     Telemetry.Item particle;
