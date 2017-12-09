@@ -74,6 +74,7 @@ public class ColorThiefTask extends RobotTask {
     protected ElapsedTime pollTimer;
     protected Telemetry.Item dominantTelemetry;
     protected Telemetry.Item pollingTelemetry;
+    protected VuforiaLocalizer.CameraDirection cameraDirection;
 
     public ColorThiefTask(Robot robot)
     {
@@ -82,7 +83,20 @@ public class ColorThiefTask extends RobotTask {
         this.pollingMode = PollingMode.OFF;
         this.dominantTelemetry = robot.telemetry.addData("Dominant color: ", "0x000000");
         this.pollingTelemetry = robot.telemetry.addData("Polling: ", "OFF");
+        this.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
     }
+
+    public ColorThiefTask(Robot robot, VuforiaLocalizer.CameraDirection cameraDirection)
+    {
+        super(robot);
+
+        this.pollingMode = PollingMode.OFF;
+        this.dominantTelemetry = robot.telemetry.addData("Dominant color: ", "0x000000");
+        this.pollingTelemetry = robot.telemetry.addData("Polling: ", "OFF");
+        this.cameraDirection = cameraDirection;
+    }
+
+
 
     @Override
     public void start()
@@ -97,7 +111,7 @@ public class ColorThiefTask extends RobotTask {
          * Here we chose the back (HiRes) camera (for greater range), but
          * for a competition robot, the front camera might be more convenient.
          */
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraDirection = this.cameraDirection;
         // this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         this.vuforia = new VuforiaLocalizerCustom(parameters);
 
