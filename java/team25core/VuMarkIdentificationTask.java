@@ -1,7 +1,9 @@
 package team25core;
+/*
+ * FTC Team 25: Created by Elizabeth Wu on December 09, 2017
+ */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -9,24 +11,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-public class VuMarkIdentificationTask extends RobotTask
-{
+public class VuMarkIdentificationTask extends RobotTask {
 
-    public enum EventKind
-    {
+
+    public enum EventKind {
         LEFT,
         RIGHT,
         CENTER,
         UNKNOWN,
     }
 
-    public enum PollingMode {
-        ON,
-        OFF,
-    }
+    public class VuMarkIdentificationEvent extends RobotEvent {
 
-    public class VuMarkIdentificationEvent extends RobotEvent
-    {
         public EventKind kind;
 
         public VuMarkIdentificationEvent(RobotTask task, EventKind kind)
@@ -34,6 +30,7 @@ public class VuMarkIdentificationTask extends RobotTask
             super(task);
             this.kind = kind;
         }
+
         public String toString()
         {
             return kind.toString();
@@ -43,54 +40,38 @@ public class VuMarkIdentificationTask extends RobotTask
     protected VuforiaLocalizerCustom vuforia;
     protected VuforiaTrackable relicTemplate;
     protected Telemetry.Item vuMarkTelemetry;
-    protected ElapsedTime pollTimer;
-    protected PollingMode pollingMode;
-    protected VuforiaBase vuforiaBase;
 
-    protected final static int POLL_RATE = 2;
+    public VuMarkIdentificationTask(Robot robot) {
+        super(robot);
+        this.vuMarkTelemetry = robot.telemetry.addData("Vumark: ", "Not Visible");
+    }
 
-    public VuMarkIdentificationTask(Robot robot, VuforiaBase vuforiaBase)
+    public VuMarkIdentificationTask(Robot robot, VuforiaLocalizerCustom vuforia)
     {
         super(robot);
-        this.vuMarkTelemetry = robot.telemetry.addData("VuMark: ", "Not Visible");
-        this.pollingMode = PollingMode.OFF;
-        this.vuforiaBase = vuforiaBase;
+        this.vuforia = vuforia;
+        this.vuMarkTelemetry = robot.telemetry.addData("Vumark: ", "Not Visible");
     }
 
     @Override
     public void start()
     {
-        vuforia = vuforiaBase.getVuforia();
-
         VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
         relicTemplate = relicTrackables.get(0);
 
         relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
         relicTrackables.activate();
+
     }
 
     @Override
-    public void stop()
-    {
-    }
+    public void stop() {
 
-    public void setPollingMode(PollingMode pollingMode)
-    {
-        this.pollingMode = pollingMode;
-
-        if (pollingMode == PollingMode.ON) {
-            pollTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-        }
     }
 
     @Override
     public boolean timeslice()
     {
-        if ((pollingMode == PollingMode.ON) && (pollTimer.time() > POLL_RATE)) {
-            pollTimer.reset();
-            return false;
-        }
-
         /**
          * See if any of the instances of {@link relicTemplate} are currently visible.
          * {@link RelicRecoveryVuMark} is an enum which can have the following values:
@@ -98,22 +79,22 @@ public class VuMarkIdentificationTask extends RobotTask
          * UNKNOWN will be returned by {@link RelicRecoveryVuMark#from(VuforiaTrackable)}.
          */
         RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-        switch (vuMark) {
-            case UNKNOWN:
-                robot.queueEvent(new VuMarkIdentificationEvent(this, EventKind.UNKNOWN));
-                break;
-            case LEFT:
-                robot.queueEvent(new VuMarkIdentificationEvent(this, EventKind.LEFT));
-                break;
-            case CENTER:
-                robot.queueEvent(new VuMarkIdentificationEvent(this, EventKind.CENTER));
-                break;
-            case RIGHT:
-                robot.queueEvent(new VuMarkIdentificationEvent(this, EventKind.RIGHT));
-                break;
+        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+           // vuMarkTelemetry.addData("VuMark", "%s visible", vuMark);
+
+            vuMarkTelemetry.setValue("VuMark: %s visible", vuMark.toString());
+            return false;
+
         }
-        vuMarkTelemetry.setValue("%s visible", vuMark.toString());
+
+        else {
+            vuMarkTelemetry.setValue("VuMark: not visible");
+
+        }
+
+
 
         return false;
+
     }
 }
