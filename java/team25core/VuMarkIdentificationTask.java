@@ -4,6 +4,7 @@ package team25core;
  */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -11,18 +12,24 @@ import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-public class VuMarkIdentificationTask extends RobotTask {
+public class VuMarkIdentificationTask extends RobotTask
+{
 
-
-    public enum EventKind {
+    public enum EventKind
+    {
         LEFT,
         RIGHT,
         CENTER,
         UNKNOWN,
     }
 
-    public class VuMarkIdentificationEvent extends RobotEvent {
+    public enum PollingMode {
+        ON,
+        OFF,
+    }
 
+    public class VuMarkIdentificationEvent extends RobotEvent
+    {
         public EventKind kind;
 
         public VuMarkIdentificationEvent(RobotTask task, EventKind kind)
@@ -30,7 +37,6 @@ public class VuMarkIdentificationTask extends RobotTask {
             super(task);
             this.kind = kind;
         }
-
         public String toString()
         {
             return kind.toString();
@@ -40,10 +46,17 @@ public class VuMarkIdentificationTask extends RobotTask {
     protected VuforiaLocalizerCustom vuforia;
     protected VuforiaTrackable relicTemplate;
     protected Telemetry.Item vuMarkTelemetry;
+    protected ElapsedTime pollTimer;
+    protected PollingMode pollingMode;
+    protected RelicRecoveryVuMark glyphPosition;
 
-    public VuMarkIdentificationTask(Robot robot) {
+    protected final static int POLL_RATE = 1;
+
+    public VuMarkIdentificationTask(Robot robot)
+    {
         super(robot);
         this.vuMarkTelemetry = robot.telemetry.addData("Vumark: ", "Not Visible");
+        this.pollingMode = PollingMode.OFF;
     }
 
     public VuMarkIdentificationTask(Robot robot, VuforiaLocalizerCustom vuforia)
@@ -51,6 +64,7 @@ public class VuMarkIdentificationTask extends RobotTask {
         super(robot);
         this.vuforia = vuforia;
         this.vuMarkTelemetry = robot.telemetry.addData("Vumark: ", "Not Visible");
+        this.pollingMode = PollingMode.OFF;
     }
 
     @Override
@@ -61,17 +75,36 @@ public class VuMarkIdentificationTask extends RobotTask {
 
         relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
         relicTrackables.activate();
-
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
 
+    }
+
+    public void setPollingMode(PollingMode pollingMode)
+    {
+        this.pollingMode = pollingMode;
+
+        if (pollingMode == PollingMode.ON) {
+            pollTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        }
+    }
+
+    public RelicRecoveryVuMark getGlyphPosition() {
+
+        return this.glyphPosition;
     }
 
     @Override
     public boolean timeslice()
     {
+        if ((pollingMode == PollingMode.ON) && (pollTimer.time() > POLL_RATE)) {
+            vuforia.forceRefreshBitmap();
+            pollTimer.reset();
+            return false;
+        }
         /**
          * See if any of the instances of {@link relicTemplate} are currently visible.
          * {@link RelicRecoveryVuMark} is an enum which can have the following values:
@@ -81,20 +114,13 @@ public class VuMarkIdentificationTask extends RobotTask {
         RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
         if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
            // vuMarkTelemetry.addData("VuMark", "%s visible", vuMark);
-
             vuMarkTelemetry.setValue("VuMark: %s visible", vuMark.toString());
+            glyphPosition = vuMark;
             return false;
-
-        }
-
-        else {
+        } else {
             vuMarkTelemetry.setValue("VuMark: not visible");
-
         }
-
-
 
         return false;
-
     }
 }

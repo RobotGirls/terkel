@@ -48,7 +48,7 @@ public class VuforiaLocalizerCustom extends VuforiaLocalizerImpl {
 
     }
 
-    @Override
+ //   @Override
     public void onRenderFrame()
     {
         int row;
