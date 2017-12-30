@@ -14,12 +14,15 @@ import team25core.GamepadTask;
 import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.VuMarkIdentificationTask;
+import team25core.VuforiaBase;
 import team25core.VuforiaLocalizerCustom;
 
 @Autonomous(name = "VuMark Detection")
 public class VuMarkDetectionExample extends Robot {
 
     VuMarkIdentificationTask vmIdTask;
+    VuforiaBase vuforiaBase;
+
     private ColorThiefTask colorThiefTask;
 
     boolean pollOn = false;
@@ -36,11 +39,10 @@ public class VuMarkDetectionExample extends Robot {
     {
         RobotLog.i("506 Init Started");
 
-        //telemetry.setAutoClear(false);
-        colorThiefTask = new ColorThiefTask(this, VuforiaLocalizer.CameraDirection.FRONT);
-        this.addTask(colorThiefTask);
+        vuforiaBase = new VuforiaBase();
+        vuforiaBase.init(this);
 
-        vmIdTask = new VuMarkIdentificationTask(this, colorThiefTask.getVuforia());
+        vmIdTask = new VuMarkIdentificationTask(this, vuforiaBase);
         this.addTask(vmIdTask);
         RobotLog.i("506 added VuMark ID task");
 

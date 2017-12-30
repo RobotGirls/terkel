@@ -65,7 +65,6 @@ public class ColorThiefTask extends RobotTask {
 
     private final static int POLL_RATE = 2;
 
-    protected VuforiaLocalizerCustom vuforia;
     protected BlockingQueue<VuforiaLocalizer.CloseableFrame> frameQueue;
     protected VuforiaLocalizer.CloseableFrame frame;
     protected Image image;
@@ -73,53 +72,34 @@ public class ColorThiefTask extends RobotTask {
     protected ElapsedTime pollTimer;
     protected Telemetry.Item dominantTelemetry;
     protected Telemetry.Item pollingTelemetry;
-    protected VuforiaLocalizer.CameraDirection cameraDirection;
+    protected VuforiaLocalizerCustom vuforia;
+    protected VuforiaBase vuforiaBase;
 
-    public ColorThiefTask(Robot robot)
+    public ColorThiefTask(Robot robot, VuforiaBase vuforiaBase)
     {
         super(robot);
 
         this.pollingMode = PollingMode.OFF;
         this.dominantTelemetry = robot.telemetry.addData("Dominant color: ", "0x000000");
         this.pollingTelemetry = robot.telemetry.addData("Polling: ", "OFF");
-        this.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        this.vuforia = vuforiaBase.getVuforia();
     }
 
-    public ColorThiefTask(Robot robot, VuforiaLocalizer.CameraDirection cameraDirection)
+    public ColorThiefTask(Robot robot, VuforiaBase vuforiaBase, VuforiaLocalizer.CameraDirection cameraDirection)
     {
         super(robot);
 
         this.pollingMode = PollingMode.OFF;
         this.dominantTelemetry = robot.telemetry.addData("Dominant color: ", "0x000000");
         this.pollingTelemetry = robot.telemetry.addData("Polling: ", "OFF");
-        this.cameraDirection = cameraDirection;
+        this.vuforia = vuforiaBase.getVuforia();
+        vuforiaBase.setCameraDirection(cameraDirection);
     }
-
-
 
     @Override
     public void start()
     {
-        int cameraMonitorViewId = robot.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", robot.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        parameters.vuforiaLicenseKey = "AdLmvUj/////AAAAGe/kAsI/H0WukR1Af5Og5w2Ey6b+wOXQ0h30RtwQyvYckcYCH8CBcrs0EGIqrGt0wbi7/icc/5DO3kqFkMdUh41bqjMCXWLU4d3Bz35AwPn89qCf/zp+ggEwgIUry20vwpU4uACQEqOJox8PHwzBmax9PquM/Jiq+/6wTx+8Bnd3Io4ymylg2uTVOsumVcphYhjkSyzaT+sUYtXGEdVEMWdyny8WuK4RE1SsaVLOvYap++/pA9b/7LLOFqW3yAwkaDMrPeqkCIN7RnDwH0ZxTbHsRRC/xKl43igL1T02tg0eUmeeyHdUxjP8T9BQlCdDmZvA5wGg6AAqe2ORWauhS49UvjW5xLGxglnsXXm0N4ce";
-
-        /*
-         * We also indicate which camera on the RC that we wish to use.
-         * Here we chose the back (HiRes) camera (for greater range), but
-         * for a competition robot, the front camera might be more convenient.
-         */
-        parameters.cameraDirection = this.cameraDirection;
-        // this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-        this.vuforia = new VuforiaLocalizerCustom(parameters);
-
-        vuforia.setFrameQueueCapacity(1);
-        if (Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true)) {
-            RobotLog.i("Frame format set");
-        } else {
-            RobotLog.e("Could not set frame format");
-        }
+        vuforiaBase.init(robot);
     }
 
     @Override
