@@ -70,8 +70,8 @@ public class MecanumWheelDriveTask extends RobotTask {
         this.robot = robot;
         this.isSuspended = false;
 
-        //frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        //rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
     }
