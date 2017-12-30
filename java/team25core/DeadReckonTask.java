@@ -186,6 +186,7 @@ public class DeadReckonTask extends RobotTask {
         } else {
             return true;
         }
+
     }
 
     @Override
@@ -262,6 +263,7 @@ public class DeadReckonTask extends RobotTask {
             if (segment.type == STRAIGHT) {
                 drivetrain.straight(segment.speed);
             } else if (segment.type == SIDEWAYS) {
+                RobotLog.i("*****************************************SIDEWAYS CONSUME SEGMENT");
                 drivetrain.strafe(segment.speed);
             } else if (segment.type == BACK_LEFT_DIAGONAL) {
                 drivetrain.leftDiagonal(segment.speed);
