@@ -1,0 +1,86 @@
+package examples;
+/*
+ * FTC Team 25: elizabeth, December 12, 2017
+ */
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.RobotLog;
+import com.vuforia.CameraDevice;
+
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+
+import team25core.ColorThiefTask;
+import team25core.GamepadTask;
+import team25core.Robot;
+import team25core.RobotEvent;
+import team25core.VuMarkIdentificationTask;
+import team25core.VuforiaLocalizerCustom;
+
+@Autonomous(name = "VuMark Detection")
+public class VuMarkDetectionExample extends Robot {
+
+    VuMarkIdentificationTask vmIdTask;
+    private ColorThiefTask colorThiefTask;
+
+    boolean pollOn = false;
+
+    @Override
+    public void handleEvent(RobotEvent e)
+    {
+        RobotLog.i("VuMark: Detected" + e.toString());
+
+    }
+
+    @Override
+    public void init()
+    {
+        RobotLog.i("506 Init Started");
+
+        //telemetry.setAutoClear(false);
+        colorThiefTask = new ColorThiefTask(this, VuforiaLocalizer.CameraDirection.FRONT);
+        this.addTask(colorThiefTask);
+
+        vmIdTask = new VuMarkIdentificationTask(this, colorThiefTask.getVuforia());
+        this.addTask(vmIdTask);
+        RobotLog.i("506 added VuMark ID task");
+
+        this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_1) {
+            @Override
+            public void handleEvent(RobotEvent e)
+            {
+                GamepadEvent gamepadEvent = (GamepadEvent)e;
+                switch (gamepadEvent.kind) {
+                    case BUTTON_A_DOWN:
+                        togglePolling();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        RobotLog.i("506 Init Finished");
+    }
+
+    private void togglePolling() {
+        RobotLog.i("506 Polling toggled");
+        if (pollOn == false) {
+            vmIdTask.setPollingMode(VuMarkIdentificationTask.PollingMode.ON);
+            RobotLog.i("506 Polling ON");
+            pollOn = true;
+
+        } else {
+            vmIdTask.setPollingMode(VuMarkIdentificationTask.PollingMode.OFF);
+            RobotLog.i("506 Polling OFF");
+            pollOn = false;
+        }
+    }
+
+    @Override
+    public void start()
+    {
+
+    }
+
+}
+
