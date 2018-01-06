@@ -31,7 +31,6 @@ public class VuMarkDetectionExample extends Robot {
     public void handleEvent(RobotEvent e)
     {
         RobotLog.i("VuMark: Detected" + e.toString());
-
     }
 
     @Override
