@@ -44,9 +44,11 @@ public class OneWheelDriveTask extends RobotTask
 
     public double right;
     public double left;
+    public double ceiling;
 
     public boolean slow = false;
     public boolean useLeftJoystick = false;
+    public boolean ceilingOn = false;
 
     public double slowMultiplier = 0.5;
 
@@ -93,15 +95,37 @@ public class OneWheelDriveTask extends RobotTask
         robot.removeTask(this);
     }
 
+    public void useCeiling(double ceiling)
+    {
+        ceilingOn = true;
+        this.ceiling = ceiling;
+    }
+
     @Override
     public boolean timeslice()
     {
         getJoystick();
 
         if (useLeftJoystick) {
-           motor.setPower(left);
+           if (ceilingOn) {
+               if (left > ceiling) {
+                   motor.setPower(ceiling);
+               } else {
+                   motor.setPower(left);
+               }
+           } else {
+               motor.setPower(left);
+           }
         } else {
-            motor.setPower(right);
+            if (ceilingOn) {
+                if (right > ceiling) {
+                    motor.setPower(ceiling);
+                } else {
+                    motor.setPower(right);
+                }
+            } else {
+                motor.setPower(right);
+            }
         }
 
         if (slow) {
@@ -112,6 +136,8 @@ public class OneWheelDriveTask extends RobotTask
 
         robot.telemetry.addData("L: ", left);
         robot.telemetry.addData("R: ", right);
+
+        //robot.telemetry.addData("Lift Encoder: ", motor.getCurrentPosition());
 
         return false;
     }

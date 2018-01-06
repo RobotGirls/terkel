@@ -74,6 +74,8 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
         this.alternate = true;
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
+
+        setMasterMotor(frontLeft);
     }
 
     @Override
