@@ -99,7 +99,6 @@ public class ColorThiefTask extends RobotTask {
     @Override
     public void start()
     {
-        vuforiaBase.init(robot);
     }
 
     @Override
