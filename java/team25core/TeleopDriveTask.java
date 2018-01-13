@@ -36,7 +36,6 @@ package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.RobotLog;
 
 public class TeleopDriveTask extends RobotTask {
@@ -46,18 +45,8 @@ public class TeleopDriveTask extends RobotTask {
     protected DcMotor rearLeft;
     protected DcMotor rearRight;
 
-    public double fr;
-    public double fl;
-    public double rr;
-    public double rl;
     public double slowMultiplier = 1;
-    public double leftX;
-    public double rightX;
-    public double leftY;
-    public double rightY;
 
-    public boolean modJoystick = false;
-    public boolean yForward = true;
     public boolean isSuspended = false;
 
     protected JoystickDriveControlScheme driveScheme;
@@ -80,148 +69,9 @@ public class TeleopDriveTask extends RobotTask {
         rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    /**
-     * if modifiedJoystick argument is true, then the left joystick will be used for forward,
-     * backwards, and sideways, while the right joystick will be used for turning
-     */
-    public TeleopDriveTask(Robot robot, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight, boolean modifiedJoystick)
-    {
-        super(robot);
-
-        this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-        this.rearLeft = rearLeft;
-        this.rearRight = rearRight;
-        this.robot = robot;
-        this.isSuspended = false;
-        this.modJoystick = modifiedJoystick;
-
-        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
-    }
-
-    private void getJoystick() {
-        Gamepad gamepad;
-        gamepad = robot.gamepad1;
-
-        if (yForward) {
-            leftX = gamepad.left_stick_x;
-            rightX = gamepad.right_stick_x;
-            leftY = gamepad.left_stick_y;
-            rightY = gamepad.right_stick_y;
-        } else {
-            leftX = -gamepad.left_stick_y;
-            rightX = -gamepad.right_stick_y;
-            leftY = -gamepad.left_stick_x;
-            rightY = -gamepad.right_stick_x;
-        }
-
-        // If joysticks are pointed left (negative joystick values), counter rotate wheels.
-        // Threshold for joystick values in the x may vary.
-
-        if (leftX > 0.5 && rightX > 0.5) {
-            fl = -leftX;
-            rl = leftX;
-            fr = -rightX;
-            rr = rightX;
-        } else if (leftX < -0.5 && rightX < -0.5) {
-            fl = -leftX;
-            rl = leftX;
-            fr = -rightX;
-            rr = rightX;
-        } else if (gamepad.right_trigger > 0.5) {
-            fr = -1.0;
-            rl = 1.0;
-        } else if (gamepad.left_trigger > 0.5) {
-            fl = 1.0;
-            rr = -1.0;
-        } else if (gamepad.left_bumper) {
-            fr = 1.0;
-            rl = -1.0;
-        } else if (gamepad.right_bumper) {
-            rr = 1.0;
-            fl = -1.0;
-        } else {
-            fl = leftY;
-            rl = leftY;
-            fr = -rightY;
-            rr = -rightY;
-        }
-    }
-
-    private void getModifiedJoystick() {
-        Gamepad gamepad;
-        gamepad = robot.gamepad1;
-
-        if (yForward) {
-            leftX = gamepad.left_stick_x;
-            rightX = gamepad.right_stick_x;
-            leftY = gamepad.left_stick_y;
-            rightY = gamepad.right_stick_y;
-        } else {
-            leftX = -gamepad.left_stick_y;
-            rightX = -gamepad.right_stick_y;
-            leftY = -gamepad.left_stick_x;
-            rightY = -gamepad.right_stick_x;
-        }
-
-        // If joysticks are pointed left (negative joystick values), counter rotate wheels.
-        // Threshold for joystick values in the x may vary.
-
-        if (leftX == 1.0 && leftY <= 0.2 && leftY >= -0.2) { // sideways right
-            fl = -leftX;
-            rl = leftX;
-            fr = -leftX;
-            rr = leftX;
-        } else if (leftX == -1.0 && leftY <= 0.2 && leftY >= -0.2) { // sideways left
-            fl = -leftX;
-            rl = leftX;
-            fr = -leftX;
-            rr = leftX;
-        } else if (leftX > 0 && leftX < 1.0 && leftY > 0.2 && leftY < 1.0) { // backward diagonal right gamepad.right_trigger > 0.5  0.6 0.7 abd 0.7
-            fr = -1.0;
-            rl = 1.0;
-        } else if (leftX > -1.0 && leftX < 0 && leftY > 0.2 && leftY < 1.0) { // backward diagonal left gamepad.left_trigger > 0.5 -0.6 abd 0.7
-            fl = 1.0;
-            rr = -1.0;
-        } else if (leftX > -1.0 && leftX < 0 && leftY < 0.2 && leftY > -1.0) { // forward diagonal left gamepad.left_bumper -0.7 and -0.8 0.7
-            fr = 1.0;
-            rl = -1.0;
-        } else if (leftX > 0 && leftX < 1.0 && leftY < 0.2 && leftY > -1.0) { // forward diagonal right gamepad.right_bumper 0.8 0.9 and -0.5 0.6
-            rr = 1.0;
-            fl = -1.0;
-        } else if (rightX > 0) { // rotate right
-            fl = -rightX;
-            rl = -rightX;
-            fr = -rightX;
-            rr = -rightX;
-        } else if (rightX < 0) { // rotate left
-            fl = -rightX;
-            rl = -rightX;
-            fr = -rightX;
-            rr = -rightX;
-        } else { // forward and backward
-            fl = leftY;
-            rl = leftY;
-            fr = -leftY;
-            rr = -leftY;
-        }
-    }
-
     public void suspendTask(boolean isSuspended)
     {
         this.isSuspended = isSuspended;
-    }
-
-    public void changeDirection()
-    {
-       if (yForward) {
-           yForward = false;
-       } else {
-           yForward = true;
-       }
     }
 
     @Override
@@ -259,11 +109,6 @@ public class TeleopDriveTask extends RobotTask {
         }
 
         RobotLog.i("teleop timeslice not suspended");
-        if (modJoystick) {
-            getModifiedJoystick();
-        } else {
-            getJoystick();
-        }
 
         MotorValues values = driveScheme.getMotorPowers();
 
@@ -274,5 +119,4 @@ public class TeleopDriveTask extends RobotTask {
 
         return false;
     }
-
 }
