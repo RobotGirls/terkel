@@ -1,6 +1,6 @@
 package examples;
 /*
- * FTC Team 25: elizabeth, December 12, 2017
+ * FTC Team 25: Created by Elizabeth Wu on December 12, 2017.
  */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -17,7 +17,7 @@ import team25core.VuMarkIdentificationTask;
 import team25core.VuforiaBase;
 import team25core.VuforiaLocalizerCustom;
 
-@Autonomous(name = "VuMark Detection")
+@Autonomous(name = "VuMark Detection", group = "Test")
 public class VuMarkDetectionExample extends Robot {
 
     VuMarkIdentificationTask vmIdTask;
