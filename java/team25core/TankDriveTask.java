@@ -62,8 +62,7 @@ public class TankDriveTask extends RobotTask {
         right = gamepad.right_stick_y * slowMultiplier;
     }
 
-    public void slowDown(boolean slow)
-    {
+    public void slowDown(boolean slow) {
         if (slow) {
             slowMultiplier = 0.5;
         } else {
@@ -71,8 +70,7 @@ public class TankDriveTask extends RobotTask {
         }
     }
 
-    public void slowDown(double mult)
-    {
+    public void slowDown(double mult) {
         slowMultiplier = mult;
     }
 

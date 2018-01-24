@@ -67,7 +67,9 @@ public class BalanceTask extends RobotTask {
     Orientation angles;
     Acceleration gravity;
 
-    public BalanceTask(Robot robot, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
+    double tolerance;
+
+    public BalanceTask(Robot robot, double tolerance , DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
     {
         super(robot);
 
@@ -77,6 +79,7 @@ public class BalanceTask extends RobotTask {
         this.rearRight = rearRight;
         this.robot = robot;
         this.isSuspended = false;
+        this.tolerance = tolerance;
 
         //frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         //rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -85,67 +88,14 @@ public class BalanceTask extends RobotTask {
     }
 
     private void getJoystick() {
-        Gamepad gamepad;
-        gamepad = robot.gamepad1;
 
-        if (yForward) {
-            leftX = gamepad.left_stick_x;
-            rightX = gamepad.right_stick_x;
-            leftY = gamepad.left_stick_y;
-            rightY = gamepad.right_stick_y;
-        } else {
-            leftX = -gamepad.left_stick_y;
-            rightX = -gamepad.right_stick_y;
-            leftY = -gamepad.left_stick_x;
-            rightY = -gamepad.right_stick_x;
-        }
-
-        // If joysticks are pointed left (negative joystick values), counter rotate wheels.
-        // Threshold for joystick values in the x may vary.
-
-        if (leftX > 0.5 && rightX > 0.5) {
-            fl = -leftX;
-            rl = leftX;
-            fr = -rightX;
-            rr = rightX;
-        } else if (leftX < -0.5 && rightX < -0.5) {
-            fl = -leftX;
-            rl = leftX;
-            fr = -rightX;
-            rr = rightX;
-        } else if (gamepad.right_trigger > 0.5) {
-            fr = -1.0;
-            rl = 1.0;
-        } else if (gamepad.left_trigger > 0.5) {
-            fl = 1.0;
-            rr = -1.0;
-        } else if (gamepad.left_bumper) {
-            fr = 1.0;
-            rl = -1.0;
-        } else if (gamepad.right_bumper) {
-            rr = 1.0;
-            fl = -1.0;
-        } else {
-            fl = leftY;
-            rl = leftY;
-            fr = -rightY;
-            rr = -rightY;
-        }
     }
 
-    public void suspendTask(boolean isSuspended)
+    //public void suspendTask(boolean isSuspended)
     {
         this.isSuspended = isSuspended;
     }
 
-    public void changeDirection()
-    {
-       if (yForward) {
-           yForward = false;
-       } else {
-           yForward = true;
-       }
-    }
 
     @Override
     public void start()
