@@ -34,44 +34,66 @@
 
 package team25core;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.RobotLog;
 
-public class TankDriveTask extends RobotTask {
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+public class BalanceTask extends RobotTask {
     protected Robot robot;
-    protected Drivetrain drivetrain;
+    protected DcMotor frontLeft;
+    protected DcMotor frontRight;
+    protected DcMotor rearLeft;
+    protected DcMotor rearRight;
 
-    public double right;
-    public double left;
+    public double fr;
+    public double fl;
+    public double rr;
+    public double rl;
     public double slowMultiplier = 1;
+    public double leftX;
+    public double rightX;
+    public double leftY;
+    public double rightY;
 
-    public TankDriveTask(Robot robot, Drivetrain drivetrain)
+    public boolean yForward = true;
+    public boolean isSuspended = false;
+
+    BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
+
+    double tolerance;
+
+    public BalanceTask(Robot robot, double tolerance , DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
     {
         super(robot);
 
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+        this.rearLeft = rearLeft;
+        this.rearRight = rearRight;
         this.robot = robot;
-        this.drivetrain = drivetrain;
+        this.isSuspended = false;
+        this.tolerance = tolerance;
+
+        //frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        //rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    private void getJoystick()
+    private void getJoystick() {
+
+    }
+
+    //public void suspendTask(boolean isSuspended)
     {
-        Gamepad gamepad = robot.gamepad1;
-
-        left  = gamepad.left_stick_y * slowMultiplier;
-        right = gamepad.right_stick_y * slowMultiplier;
-    }
-
-    public void slowDown(boolean slow) {
-        if (slow) {
-            slowMultiplier = 0.5;
-        } else {
-            slowMultiplier = 1;
-        }
-    }
-
-    public void slowDown(double mult) {
-        slowMultiplier = mult;
+        this.isSuspended = isSuspended;
     }
 
 
@@ -79,6 +101,20 @@ public class TankDriveTask extends RobotTask {
     public void start()
     {
         // Nothing.
+    }
+
+    public void slowDown(boolean slow)
+    {
+        if (slow) {
+            slowMultiplier = 0.5;
+        } else {
+            slowMultiplier = 1;
+        }
+    }
+
+    public void slowDown(double mult)
+    {
+        slowMultiplier = mult;
     }
 
     @Override
@@ -90,13 +126,20 @@ public class TankDriveTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
+        if (isSuspended) {
+            RobotLog.i("teleop timeslice suspended");
+            return false;
+        }
+
+        RobotLog.i("teleop timeslice not suspended");
         getJoystick();
 
-        drivetrain.setPowerLeft(left);
-        drivetrain.setPowerRight(right);
+        frontLeft.setPower(fl * slowMultiplier);
+        rearLeft.setPower(rl * slowMultiplier);
+        frontRight.setPower(fr * slowMultiplier);
+        rearRight.setPower(rr * slowMultiplier);
+
         return false;
     }
-
-
 
 }

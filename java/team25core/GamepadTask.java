@@ -59,6 +59,15 @@ public class GamepadTask extends RobotTask {
         LEFT_TRIGGER_UP,
         RIGHT_TRIGGER_DOWN,
         RIGHT_TRIGGER_UP,
+        DPAD_UP_UP,
+        DPAD_UP_DOWN,
+        DPAD_DOWN_UP,
+        DPAD_DOWN_DOWN,
+        DPAD_LEFT_UP,
+        DPAD_LEFT_DOWN,
+        DPAD_RIGHT_UP,
+        DPAD_RIGHT_DOWN
+
     };
 
     public class GamepadEvent extends RobotEvent {
@@ -87,6 +96,11 @@ public class GamepadTask extends RobotTask {
         public boolean right_bumper_pressed;
         public boolean left_trigger_pressed;
         public boolean right_trigger_pressed;
+        public boolean dpad_up_pressed;
+        public boolean dpad_down_pressed;
+        public boolean dpad_left_pressed;
+        public boolean dpad_right_pressed;
+
     }
 
     protected GamepadNumber gamepadNum;
@@ -107,6 +121,12 @@ public class GamepadTask extends RobotTask {
         this.buttonState.right_bumper_pressed  = false;
         this.buttonState.left_trigger_pressed  = false;
         this.buttonState.right_trigger_pressed = false;
+
+        this.buttonState.dpad_up_pressed    = false;
+        this.buttonState.dpad_down_pressed    = false;
+        this.buttonState.dpad_left_pressed    = false;
+        this.buttonState.dpad_right_pressed    = false;
+
 
         this.gamepadNum = gamepadNum;
     }
@@ -208,6 +228,39 @@ public class GamepadTask extends RobotTask {
             robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_TRIGGER_UP));
             buttonState.right_trigger_pressed = false;
         }
+
+        if ((gamepad.dpad_up) && (buttonState.dpad_up_pressed == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_UP_DOWN));
+            buttonState.dpad_up_pressed = true;
+        } else if ((!gamepad.dpad_up) && (buttonState.dpad_up_pressed == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_UP_UP));
+            buttonState.dpad_up_pressed = false;
+        }
+
+        if ((gamepad.dpad_down) && (buttonState.dpad_down_pressed == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_DOWN_DOWN));
+            buttonState.dpad_down_pressed = true;
+        } else if ((!gamepad.dpad_down) && (buttonState.dpad_down_pressed == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_DOWN_UP));
+            buttonState.dpad_down_pressed = false;
+        }
+
+        if ((gamepad.dpad_left) && (buttonState.dpad_left_pressed == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_LEFT_DOWN));
+            buttonState.dpad_left_pressed = true;
+        } else if ((!gamepad.dpad_left) && (buttonState.dpad_left_pressed == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_LEFT_UP));
+            buttonState.dpad_left_pressed = false;
+        }
+
+        if ((gamepad.dpad_right) && (buttonState.dpad_right_pressed == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_RIGHT_DOWN));
+            buttonState.dpad_right_pressed = true;
+        } else if ((!gamepad.dpad_right) && (buttonState.dpad_right_pressed == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_RIGHT_UP));
+            buttonState.dpad_right_pressed = false;
+        }
+
 
         /*
          * This task lives forever.
