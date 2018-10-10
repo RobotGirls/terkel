@@ -52,7 +52,7 @@ public class VuMarkIdentificationTask extends RobotTask
     public VuMarkIdentificationTask(Robot robot, VuforiaBase vuforiaBase)
     {
         super(robot);
-        this.vuMarkTelemetry = robot.telemetry.addData("Vumark: ", "Not Visible");
+        this.vuMarkTelemetry = robot.telemetry.addData("VuMark: ", "Not Visible");
         this.pollingMode = PollingMode.OFF;
         this.vuforiaBase = vuforiaBase;
     }
@@ -72,7 +72,6 @@ public class VuMarkIdentificationTask extends RobotTask
     @Override
     public void stop()
     {
-        // Noop
     }
 
     public void setPollingMode(PollingMode pollingMode)
@@ -113,7 +112,7 @@ public class VuMarkIdentificationTask extends RobotTask
                 robot.queueEvent(new VuMarkIdentificationEvent(this, EventKind.RIGHT));
                 break;
         }
-        vuMarkTelemetry.setValue("VuMark: %s visible", vuMark.toString());
+        vuMarkTelemetry.setValue("%s visible", vuMark.toString());
 
         return false;
     }

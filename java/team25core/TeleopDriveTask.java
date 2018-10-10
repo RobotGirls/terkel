@@ -35,34 +35,53 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.RobotLog;
 
-public class TankDriveTask extends RobotTask {
-
+public class TeleopDriveTask extends RobotTask {
     protected Robot robot;
-    protected Drivetrain drivetrain;
+    protected DcMotor frontLeft;
+    protected DcMotor frontRight;
+    protected DcMotor rearLeft;
+    protected DcMotor rearRight;
 
-    public double right;
-    public double left;
     public double slowMultiplier = 1;
 
-    public TankDriveTask(Robot robot, Drivetrain drivetrain)
+    public boolean isSuspended = false;
+
+    protected JoystickDriveControlScheme driveScheme;
+
+    public TeleopDriveTask(Robot robot, JoystickDriveControlScheme driveScheme, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
     {
         super(robot);
 
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+        this.rearLeft = rearLeft;
+        this.rearRight = rearRight;
         this.robot = robot;
-        this.drivetrain = drivetrain;
+        this.isSuspended = false;
+        this.driveScheme = driveScheme;
+
+        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    private void getJoystick()
+    public void suspendTask(boolean isSuspended)
     {
-        Gamepad gamepad = robot.gamepad1;
-
-        left  = gamepad.left_stick_y * slowMultiplier;
-        right = gamepad.right_stick_y * slowMultiplier;
+        this.isSuspended = isSuspended;
     }
 
-    public void slowDown(boolean slow) {
+    @Override
+    public void start()
+    {
+        // Nothing.
+    }
+
+    public void slowDown(boolean slow)
+    {
         if (slow) {
             slowMultiplier = 0.5;
         } else {
@@ -70,15 +89,9 @@ public class TankDriveTask extends RobotTask {
         }
     }
 
-    public void slowDown(double mult) {
-        slowMultiplier = mult;
-    }
-
-
-    @Override
-    public void start()
+    public void slowDown(double mult)
     {
-        // Nothing.
+        slowMultiplier = mult;
     }
 
     @Override
@@ -90,13 +103,20 @@ public class TankDriveTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
-        getJoystick();
+        if (isSuspended) {
+            RobotLog.i("teleop timeslice suspended");
+            return false;
+        }
 
-        drivetrain.setPowerLeft(left);
-        drivetrain.setPowerRight(right);
+        RobotLog.i("teleop timeslice not suspended");
+
+        MotorValues values = driveScheme.getMotorPowers();
+
+        frontLeft.setPower(values.fl * slowMultiplier);
+        rearLeft.setPower(values.rl * slowMultiplier);
+        frontRight.setPower(values.fr * slowMultiplier);
+        rearRight.setPower(values.rr * slowMultiplier);
+
         return false;
     }
-
-
-
 }

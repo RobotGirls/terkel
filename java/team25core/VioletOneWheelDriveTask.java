@@ -37,32 +37,42 @@ package team25core;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-public class TankDriveTask extends RobotTask {
-
+public class VioletOneWheelDriveTask extends RobotTask
+{
     protected Robot robot;
-    protected Drivetrain drivetrain;
+    protected DcMotor motor;
 
     public double right;
     public double left;
-    public double slowMultiplier = 1;
+    public double ceiling;
 
-    public TankDriveTask(Robot robot, Drivetrain drivetrain)
+    public boolean slow = false;
+    public boolean useLeftJoystick = false;
+    public boolean ceilingOn = false;
+
+    //public double slowMultiplier = 0.5;
+    public double slowMultiplier;
+
+    public VioletOneWheelDriveTask(Robot robot, DcMotor motor, boolean useLeftJoystick, double slowMultiplier)
     {
         super(robot);
 
+        this.motor = motor;
         this.robot = robot;
-        this.drivetrain = drivetrain;
+        this.useLeftJoystick = useLeftJoystick;
+        this.slowMultiplier = slowMultiplier;
     }
 
     private void getJoystick()
     {
-        Gamepad gamepad = robot.gamepad1;
+        Gamepad gamepad = robot.gamepad2;
 
-        left  = gamepad.left_stick_y * slowMultiplier;
-        right = gamepad.right_stick_y * slowMultiplier;
+        left = -gamepad.left_stick_y * slowMultiplier;
+        right = -gamepad.right_stick_y * slowMultiplier;
     }
 
-    public void slowDown(boolean slow) {
+    public void slowDown(boolean slow)
+    {
         if (slow) {
             slowMultiplier = 0.5;
         } else {
@@ -70,10 +80,10 @@ public class TankDriveTask extends RobotTask {
         }
     }
 
-    public void slowDown(double mult) {
+    public void slowDown(double mult)
+    {
         slowMultiplier = mult;
     }
-
 
     @Override
     public void start()
@@ -87,16 +97,50 @@ public class TankDriveTask extends RobotTask {
         robot.removeTask(this);
     }
 
+    public void useCeiling(double ceiling)
+    {
+        ceilingOn = true;
+        this.ceiling = ceiling;
+    }
+
     @Override
     public boolean timeslice()
     {
         getJoystick();
 
-        drivetrain.setPowerLeft(left);
-        drivetrain.setPowerRight(right);
+        if (useLeftJoystick) {
+           if (ceilingOn) {
+               if (left > ceiling) {
+                   motor.setPower(ceiling);
+               } else {
+                   motor.setPower(left);
+               }
+           } else {
+               motor.setPower(left);
+           }
+        } else {
+            if (ceilingOn) {
+                if (right > ceiling) {
+                    motor.setPower(ceiling);
+                } else {
+                    motor.setPower(right);
+                }
+            } else {
+                motor.setPower(right);
+            }
+        }
+
+        if (slow) {
+            robot.telemetry.addData("Slow: ", "true");
+        } else {
+            robot.telemetry.addData("Slow: ", "false");
+        }
+
+        robot.telemetry.addData("L: ", left);
+        robot.telemetry.addData("R: ", right);
+
+        //robot.telemetry.addData("Lift Encoder: ", motor.getCurrentPosition());
+
         return false;
     }
-
-
-
 }

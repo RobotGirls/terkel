@@ -1,6 +1,7 @@
 package examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -17,7 +18,8 @@ import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.ServoCalibrateTask;
 
-@Autonomous(name = "Servo Calibrate Utility")
+@Autonomous(name = "ServoCalibrateUtility")
+@Disabled
 public class ServoCalibrateUtility extends Robot {
 
     List<Servo> servoList;

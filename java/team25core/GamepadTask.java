@@ -101,6 +101,7 @@ public class GamepadTask extends RobotTask {
         public boolean dpad_right_pressed;
         public boolean dpad_up_pressed;
         public boolean dpad_down_pressed;
+
     }
 
     protected GamepadNumber gamepadNum;
@@ -125,6 +126,12 @@ public class GamepadTask extends RobotTask {
         this.buttonState.dpad_right_pressed = false;
         this.buttonState.dpad_up_pressed = false;
         this.buttonState.dpad_down_pressed = false;
+
+        this.buttonState.dpad_up_pressed    = false;
+        this.buttonState.dpad_down_pressed    = false;
+        this.buttonState.dpad_left_pressed    = false;
+        this.buttonState.dpad_right_pressed    = false;
+
 
         this.gamepadNum = gamepadNum;
     }
@@ -233,7 +240,6 @@ public class GamepadTask extends RobotTask {
         } else if ((!gamepad.dpad_left) && (buttonState.dpad_left_pressed == true)) {
             robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_LEFT_UP));
             buttonState.dpad_left_pressed = false;
-
         }
 
         if ((gamepad.dpad_right) && (buttonState.dpad_right_pressed == false)) {
@@ -259,6 +265,7 @@ public class GamepadTask extends RobotTask {
             robot.queueEvent(new GamepadEvent(this, EventKind.DPAD_DOWN_UP));
             buttonState.dpad_down_pressed = false;
         }
+
         /*
          * This task lives forever.
          */

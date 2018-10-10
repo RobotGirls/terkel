@@ -34,28 +34,23 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.RobotLog;
 
-public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Drivetrain {
+public class OneWheelDirectDrivetrain extends DrivetrainBaseImpl implements Drivetrain {
 
     DcMotor frontLeft;
-    DcMotor frontRight;
 
     double multiplier;
     boolean alternate;
 
-    public TwoWheelDirectDrivetrain(DcMotor frontRight, DcMotor frontLeft)
+    public OneWheelDirectDrivetrain(DcMotor frontLeft)
     {
         super();
 
         this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
 
         this.encoderTarget = 0;
         this.multiplier = 1.0;
         this.alternate = true;
-
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
 
         /**
          * Set a default master.  This is the wheel/motor that will be used to track distance
@@ -64,16 +59,12 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
         setMasterMotor(frontLeft);
     }
 
-    public TwoWheelDirectDrivetrain(double pivotMultiplier, DcMotor frontRight, DcMotor frontLeft)
+    public OneWheelDirectDrivetrain(double pivotMultiplier, DcMotor frontLeft)
     {
         this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-
         this.encoderTarget = 0;
         this.multiplier = pivotMultiplier;
         this.alternate = true;
-
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
 
         /**
          * Set a default master.  This is the wheel/motor that will be used to track distance
@@ -86,14 +77,12 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
     public void resetEncoders()
     {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
     public void encodersOn()
     {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
@@ -109,12 +98,10 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
          */
         if (alternate) {
             alternate = false;
-            frontRight.setPower(speed);
             frontLeft.setPower(speed);
         } else {
             alternate = true;
             frontLeft.setPower(speed);
-            frontRight.setPower(speed);
         }
     }
 
@@ -139,7 +126,6 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
     @Override
     public void turn(double speed)
     {
-        frontRight.setPower(-speed);
         frontLeft.setPower(speed);
     }
 
@@ -149,19 +135,15 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
         switch (side) {
         case LEFT_OVER_RIGHT:
             frontLeft.setPower(-speed);
-            frontRight.setPower((1/multiplier) * speed);
             break;
         case LEFT_OVER_LEFT:
             frontLeft.setPower((1/multiplier) * -speed);
-            frontRight.setPower(speed);
             break;
         case RIGHT_OVER_RIGHT:
             frontLeft.setPower(speed);
-            frontRight.setPower((1/multiplier) * -speed);
             break;
         case RIGHT_OVER_LEFT:
             frontLeft.setPower((1/multiplier) * speed);
-            frontRight.setPower(-speed);
             break;
         }
     }
@@ -188,7 +170,6 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
     public void stop()
     {
         frontLeft.setPower(0.0);
-        frontRight.setPower(0.0);
     }
 
     @Override
