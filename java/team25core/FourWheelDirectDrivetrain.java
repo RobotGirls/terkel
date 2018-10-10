@@ -83,6 +83,23 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         rearRight.setDirection(DcMotor.Direction.FORWARD);
     }
+
+    public void setSplitPersonalityMotorDirection(boolean isTeleop)
+    {
+        if (isTeleop == true) {
+            frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+            frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+            rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+            rearRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        } else {
+            frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+            frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+            rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+            rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        }
+
+    }
+
     @Override
     public void resetEncoders()
     {
