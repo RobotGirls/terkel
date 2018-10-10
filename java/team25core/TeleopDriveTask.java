@@ -35,38 +35,49 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.RobotLog;
 
-public class OneWheelDriveTask extends RobotTask
-{
+public class TeleopDriveTask extends RobotTask {
     protected Robot robot;
-    protected DcMotor motor;
+    protected DcMotor frontLeft;
+    protected DcMotor frontRight;
+    protected DcMotor rearLeft;
+    protected DcMotor rearRight;
 
-    public double right;
-    public double left;
-    public double ceiling;
+    public double slowMultiplier = 1;
 
-    public boolean slow = false;
-    public boolean useLeftJoystick = false;
-    public boolean ceilingOn = false;
+    public boolean isSuspended = false;
 
-    public double slowMultiplier = 0.5;
+    protected JoystickDriveControlScheme driveScheme;
 
-    public OneWheelDriveTask(Robot robot, DcMotor motor, boolean useLeftJoystick)
+    public TeleopDriveTask(Robot robot, JoystickDriveControlScheme driveScheme, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
     {
         super(robot);
 
-        this.motor = motor;
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+        this.rearLeft = rearLeft;
+        this.rearRight = rearRight;
         this.robot = robot;
-        this.useLeftJoystick = useLeftJoystick;
+        this.isSuspended = false;
+        this.driveScheme = driveScheme;
+
+        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    private void getJoystick()
+    public void suspendTask(boolean isSuspended)
     {
-        Gamepad gamepad = robot.gamepad2;
+        this.isSuspended = isSuspended;
+    }
 
-        left = -gamepad.left_stick_y * slowMultiplier;
-        right = -gamepad.right_stick_y * slowMultiplier;
+    @Override
+    public void start()
+    {
+        // Nothing.
     }
 
     public void slowDown(boolean slow)
@@ -84,60 +95,27 @@ public class OneWheelDriveTask extends RobotTask
     }
 
     @Override
-    public void start()
-    {
-        // Nothing.
-    }
-
-    @Override
     public void stop()
     {
         robot.removeTask(this);
     }
 
-    public void useCeiling(double ceiling)
-    {
-        ceilingOn = true;
-        this.ceiling = ceiling;
-    }
-
     @Override
     public boolean timeslice()
     {
-        getJoystick();
-
-        if (useLeftJoystick) {
-           if (ceilingOn) {
-               if (left > ceiling) {
-                   motor.setPower(ceiling);
-               } else {
-                   motor.setPower(left);
-               }
-           } else {
-               motor.setPower(left);
-           }
-        } else {
-            if (ceilingOn) {
-                if (right > ceiling) {
-                    motor.setPower(ceiling);
-                } else {
-                    motor.setPower(right);
-                }
-            } else {
-                motor.setPower(right);
-            }
+        if (isSuspended) {
+            RobotLog.i("teleop timeslice suspended");
+            return false;
         }
 
-        if (slow) {
-            robot.telemetry.addData("Slow: ", "true");
-        } else {
-            robot.telemetry.addData("Slow: ", "false");
-        }
+        RobotLog.i("teleop timeslice not suspended");
 
-        robot.telemetry.addData("L: ", left);
-        robot.telemetry.addData("R: ", right);
+        MotorValues values = driveScheme.getMotorPowers();
 
-        //robot.telemetry.addData("Lift Encoder: ", motor.getCurrentPosition());
+        frontLeft.setPower(values.fl * slowMultiplier);
+        rearLeft.setPower(values.rl * slowMultiplier);
+        frontRight.setPower(values.fr * slowMultiplier);
+        rearRight.setPower(values.rr * slowMultiplier);
 
         return false;
     }

@@ -37,7 +37,7 @@ package team25core;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-public class OneWheelDriveTask extends RobotTask
+public class VioletOneWheelDriveTask extends RobotTask
 {
     protected Robot robot;
     protected DcMotor motor;
@@ -50,15 +50,17 @@ public class OneWheelDriveTask extends RobotTask
     public boolean useLeftJoystick = false;
     public boolean ceilingOn = false;
 
-    public double slowMultiplier = 0.5;
+    //public double slowMultiplier = 0.5;
+    public double slowMultiplier;
 
-    public OneWheelDriveTask(Robot robot, DcMotor motor, boolean useLeftJoystick)
+    public VioletOneWheelDriveTask(Robot robot, DcMotor motor, boolean useLeftJoystick, double slowMultiplier)
     {
         super(robot);
 
         this.motor = motor;
         this.robot = robot;
         this.useLeftJoystick = useLeftJoystick;
+        this.slowMultiplier = slowMultiplier;
     }
 
     private void getJoystick()

@@ -11,6 +11,7 @@ import team25core.ColorThiefTask;
 import team25core.GamepadTask;
 import team25core.Robot;
 import team25core.RobotEvent;
+import team25core.VuforiaBase;
 
 @Autonomous(name = "VuforiaParticleDetection")
 @Disabled
@@ -18,6 +19,8 @@ public class VuforiaParticleDetectionExample extends Robot {
 
     Telemetry.Item particle;
     ColorThiefTask colorThiefTask;
+    VuforiaBase vuforiaBase;
+
     boolean flashOn = false;
 
     @Override
@@ -30,9 +33,12 @@ public class VuforiaParticleDetectionExample extends Robot {
     @Override
     public void init()
     {
+        vuforiaBase = new VuforiaBase();
+        vuforiaBase.init(this);
+
         telemetry.setAutoClear(false);
         particle = telemetry.addData("Particle: ", "No data");
-        colorThiefTask = new ColorThiefTask(this);
+        colorThiefTask = new ColorThiefTask(this, vuforiaBase);
         this.addTask(colorThiefTask);
 
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_1) {

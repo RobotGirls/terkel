@@ -34,39 +34,73 @@
 
 package team25core;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.RobotLog;
 
-public class OneWheelDriveTask extends RobotTask
-{
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
+public class BalanceTask extends RobotTask {
     protected Robot robot;
-    protected DcMotor motor;
+    protected DcMotor frontLeft;
+    protected DcMotor frontRight;
+    protected DcMotor rearLeft;
+    protected DcMotor rearRight;
 
-    public double right;
-    public double left;
-    public double ceiling;
+    public double fr;
+    public double fl;
+    public double rr;
+    public double rl;
+    public double slowMultiplier = 1;
+    public double leftX;
+    public double rightX;
+    public double leftY;
+    public double rightY;
 
-    public boolean slow = false;
-    public boolean useLeftJoystick = false;
-    public boolean ceilingOn = false;
+    public boolean yForward = true;
+    public boolean isSuspended = false;
 
-    public double slowMultiplier = 0.5;
+    BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
 
-    public OneWheelDriveTask(Robot robot, DcMotor motor, boolean useLeftJoystick)
+    double tolerance;
+
+    public BalanceTask(Robot robot, double tolerance , DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
     {
         super(robot);
 
-        this.motor = motor;
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+        this.rearLeft = rearLeft;
+        this.rearRight = rearRight;
         this.robot = robot;
-        this.useLeftJoystick = useLeftJoystick;
+        this.isSuspended = false;
+        this.tolerance = tolerance;
+
+        //frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        //rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    private void getJoystick()
-    {
-        Gamepad gamepad = robot.gamepad2;
+    private void getJoystick() {
 
-        left = -gamepad.left_stick_y * slowMultiplier;
-        right = -gamepad.right_stick_y * slowMultiplier;
+    }
+
+    //public void suspendTask(boolean isSuspended)
+    {
+        this.isSuspended = isSuspended;
+    }
+
+
+    @Override
+    public void start()
+    {
+        // Nothing.
     }
 
     public void slowDown(boolean slow)
@@ -84,61 +118,28 @@ public class OneWheelDriveTask extends RobotTask
     }
 
     @Override
-    public void start()
-    {
-        // Nothing.
-    }
-
-    @Override
     public void stop()
     {
         robot.removeTask(this);
     }
 
-    public void useCeiling(double ceiling)
-    {
-        ceilingOn = true;
-        this.ceiling = ceiling;
-    }
-
     @Override
     public boolean timeslice()
     {
+        if (isSuspended) {
+            RobotLog.i("teleop timeslice suspended");
+            return false;
+        }
+
+        RobotLog.i("teleop timeslice not suspended");
         getJoystick();
 
-        if (useLeftJoystick) {
-           if (ceilingOn) {
-               if (left > ceiling) {
-                   motor.setPower(ceiling);
-               } else {
-                   motor.setPower(left);
-               }
-           } else {
-               motor.setPower(left);
-           }
-        } else {
-            if (ceilingOn) {
-                if (right > ceiling) {
-                    motor.setPower(ceiling);
-                } else {
-                    motor.setPower(right);
-                }
-            } else {
-                motor.setPower(right);
-            }
-        }
-
-        if (slow) {
-            robot.telemetry.addData("Slow: ", "true");
-        } else {
-            robot.telemetry.addData("Slow: ", "false");
-        }
-
-        robot.telemetry.addData("L: ", left);
-        robot.telemetry.addData("R: ", right);
-
-        //robot.telemetry.addData("Lift Encoder: ", motor.getCurrentPosition());
+        frontLeft.setPower(fl * slowMultiplier);
+        rearLeft.setPower(rl * slowMultiplier);
+        frontRight.setPower(fr * slowMultiplier);
+        rearRight.setPower(rr * slowMultiplier);
 
         return false;
     }
+
 }
