@@ -247,19 +247,23 @@ public class DeadReckonTask extends RobotTask {
 
         switch (segment.state) {
         case INITIALIZE:
+            RobotLog.i("INITIALIZE");
             drivetrain.resetEncoders();
             segment.state = DeadReckonPath.SegmentState.ENCODER_RESET;
             break;
         case ENCODER_RESET:
+            RobotLog.i("ENCODER");
             drivetrain.resetEncoders();
             segment.state = DeadReckonPath.SegmentState.SET_TARGET;
             break;
         case SET_TARGET:
+            RobotLog.i("SET_TARGET");
             drivetrain.encodersOn();
             setTarget(segment);
             segment.state = DeadReckonPath.SegmentState.CONSUME_SEGMENT;
             break;
         case CONSUME_SEGMENT:
+            RobotLog.i("CONSUME_SEGMENT " + segment.type);
             if (segment.type == STRAIGHT) {
                 drivetrain.straight(segment.speed);
             } else if (segment.type == SIDEWAYS) {
@@ -275,6 +279,7 @@ public class DeadReckonTask extends RobotTask {
             segment.state = DeadReckonPath.SegmentState.ENCODER_TARGET;
             break;
         case ENCODER_TARGET:
+            RobotLog.i("ENCODER TARGET");
             if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
                 RobotLog.i("251 Solo sensor criteria satisfied");
                 segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
@@ -294,11 +299,13 @@ public class DeadReckonTask extends RobotTask {
                     reason = DoneReason.RIGHT_SENSOR_SATISFIED;
                 }
             } else if (hitTarget()) {
+                RobotLog.i("HIT TARGET");
                 segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
                 reason = DoneReason.ENCODER_REACHED;
             }
             break;
         case STOP_MOTORS:
+            RobotLog.i("STOP");
             drivetrain.stop();
             segment.state = DeadReckonPath.SegmentState.WAIT;
             waitState = 0;
@@ -316,8 +323,8 @@ public class DeadReckonTask extends RobotTask {
             segment.state = DeadReckonPath.SegmentState.INITIALIZE;
         }
 
-        robot.telemetry.addData("Segment: ", num);
-        robot.telemetry.addData("State: ", segment.state.toString());
+        // robot.telemetry.addData("Segment: ", num);
+        // robot.telemetry.addData("State: ", segment.state.toString());
 
         return false;
     }
