@@ -137,6 +137,7 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
     @Override
     public void strafe(double speed)
     {
+        RobotLog.i("506 Arrived at strafe " + speed);
         frontRight.setPower(-speed);
         rearRight.setPower(speed);
         frontLeft.setPower(speed);
@@ -146,18 +147,27 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
     @Override
     public void leftDiagonal(double speed)
     {
-        // Not supported
+        // Not tested
+        frontRight.setPower(speed);
+        rearRight.setPower(0);
+        frontLeft.setPower(0);
+        rearLeft.setPower(speed);
     }
 
     @Override
     public void rightDiagonal(double speed)
     {
-        // Not supported
+        // Not tested
+        frontRight.setPower(0);
+        rearRight.setPower(speed);
+        frontLeft.setPower(speed);
+        rearLeft.setPower(0);
     }
 
     @Override
     public void turn(double speed)
     {
+        // Turn around center 
         frontRight.setPower(-speed);
         rearRight.setPower(-speed);
         frontLeft.setPower(speed);

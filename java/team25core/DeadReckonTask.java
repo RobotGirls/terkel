@@ -279,12 +279,13 @@ public class DeadReckonTask extends RobotTask {
             segment.state = DeadReckonPath.SegmentState.ENCODER_TARGET;
             break;
         case ENCODER_TARGET:
-            RobotLog.i("ENCODER TARGET");
+          //  RobotLog.i("ENCODER TARGET");
             if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
                 RobotLog.i("251 Solo sensor criteria satisfied");
                 segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
                 reason = DoneReason.SENSOR_SATISFIED;
             } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
+              RobotLog.i("251 Sensors 2 installed");
                 if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
                     RobotLog.i("251 Left and right criteria satisfied");
                     segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
@@ -302,7 +303,9 @@ public class DeadReckonTask extends RobotTask {
                 RobotLog.i("HIT TARGET");
                 segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
                 reason = DoneReason.ENCODER_REACHED;
-            }
+            } //else {
+              //RobotLog.i("251 Ended in else");
+           // }
             break;
         case STOP_MOTORS:
             RobotLog.i("STOP");
