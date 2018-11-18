@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.TFOD_MODEL_ASSET;
@@ -16,8 +17,7 @@ import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.TFOD
 public class MineralDetectionTask extends RobotTask {
 
     public enum EventKind {
-        GOLD_DETECTED,
-        SILVER_DETECTED,
+        OBJECTS_DETECTED,
     }
 
     protected ElapsedTime timer;
@@ -25,18 +25,13 @@ public class MineralDetectionTask extends RobotTask {
     public class MineralDetectionEvent extends RobotEvent {
 
         public EventKind kind;
-        protected float xCoordinate;
+        public List<Recognition> minerals;
 
-        public MineralDetectionEvent(RobotTask task, EventKind kind, float xCoordinate)
+        public MineralDetectionEvent(RobotTask task, EventKind kind, List<Recognition> minerals)
         {
             super(task);
             this.kind = kind;
-            this.xCoordinate = xCoordinate;
-        }
-
-        public float getxCoordinate()
-        {
-            return xCoordinate;
+            this.minerals.addAll(minerals);
         }
 
         public String toString()
@@ -50,10 +45,28 @@ public class MineralDetectionTask extends RobotTask {
     private TFObjectDetector tfod;
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+    private int rateLimitSecs;
+    private DetectionKind detectionKind;
+
+    public enum DetectionKind {
+        EVERYTHING,
+        GOLD,
+        SILVER,
+        LARGEST_GOLD,
+    };
+
+    public enum MineralKind {
+        GOLD_MINERAL,
+        SILVER_MINERAL,
+        UNKNOWN_MINERAL,
+    };
 
     public MineralDetectionTask(Robot robot)
     {
         super(robot);
+
+        rateLimitSecs = 0;
+        detectionKind = DetectionKind.EVERYTHING;
     }
 
     private void initVuforia() {
@@ -91,11 +104,24 @@ public class MineralDetectionTask extends RobotTask {
         }
     }
 
+    public void rateLimit(int seconds)
+    {
+        this.rateLimitSecs = seconds;
+    }
+
+    public void setDetectionKind(DetectionKind detectionKind)
+    {
+        this.detectionKind = detectionKind;
+    }
+
     @Override
     public void start()
     {
         tfod.activate();
-        timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+
+        if (rateLimitSecs != 0) {
+            timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        }
     }
 
     @Override
@@ -104,25 +130,112 @@ public class MineralDetectionTask extends RobotTask {
         tfod.deactivate();
     }
 
-    @Override
-    public boolean timeslice()
+    public static MineralKind isMineral(Recognition object)
     {
-        if (timer.time() < 3) {
-            return false;
+        if (object.getLabel().equals(LABEL_GOLD_MINERAL)) {
+            return MineralKind.GOLD_MINERAL;
+        } else if (object.getLabel().equals(LABEL_SILVER_MINERAL)) {
+            return MineralKind.SILVER_MINERAL;
+        } else {
+            return MineralKind.UNKNOWN_MINERAL;
+        }
+    }
+
+    protected void processEverything(List<Recognition> objects)
+    {
+        if (objects.size() > 0) {
+            robot.queueEvent(new MineralDetectionEvent(this, EventKind.OBJECTS_DETECTED, objects));
+        }
+    }
+
+    protected void processGold(List<Recognition> objects)
+    {
+        List<Recognition> gold = new ArrayList<>();
+        for (Recognition object : objects) {
+            if (isMineral(object) == MineralKind.GOLD_MINERAL) {
+                gold.add(object);
+            }
         }
 
-        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-        if (updatedRecognitions.size() > 0) {
-            for (Recognition object : updatedRecognitions) {
-                if (object.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                    robot.queueEvent(new MineralDetectionEvent(this, EventKind.GOLD_DETECTED, object.getLeft()));
-                } else if (object.getLabel().equals(LABEL_SILVER_MINERAL)) {
-                    robot.queueEvent(new MineralDetectionEvent(this, EventKind.SILVER_DETECTED, object.getLeft()));
+        if (!gold.isEmpty()) {
+            robot.queueEvent(new MineralDetectionEvent(this, EventKind.OBJECTS_DETECTED, gold));
+        }
+    }
+
+    protected void processSilver(List<Recognition> objects)
+    {
+        List<Recognition> silver = new ArrayList<>();
+        for (Recognition object : objects) {
+            if (isMineral(object) == MineralKind.SILVER_MINERAL) {
+                silver.add(object);
+            }
+        }
+
+        if (!silver.isEmpty()) {
+            robot.queueEvent(new MineralDetectionEvent(this, EventKind.OBJECTS_DETECTED, silver));
+        }
+
+    }
+
+    protected void processLargestGold(List<Recognition> objects)
+    {
+        if (objects.isEmpty()) {
+            return;
+        }
+
+        Recognition largest = null;
+        List<Recognition> singleton;
+
+        for (Recognition object : objects) {
+            if (isMineral(object) == MineralKind.GOLD_MINERAL) {
+                if (largest == null) {
+                    largest = object;
+                } else if ((largest.getHeight() * largest.getWidth()) < (object.getWidth() * object.getHeight())) {
+                    largest = object;
                 }
             }
         }
 
-        timer.reset();
+        if (largest != null) {
+            singleton = new ArrayList<>();
+            singleton.add(largest);
+            robot.queueEvent(new MineralDetectionEvent(this, EventKind.OBJECTS_DETECTED, singleton));
+        }
+    }
+
+    protected void processDetectedObjects(List<Recognition> objects)
+    {
+        switch (detectionKind) {
+            case EVERYTHING:
+                processEverything(objects);
+                break;
+            case GOLD:
+                processGold(objects);
+                break;
+            case SILVER:
+                processSilver(objects);
+                break;
+            case LARGEST_GOLD:
+                processLargestGold(objects);
+                break;
+        }
+    }
+
+    @Override
+    public boolean timeslice()
+    {
+        if (rateLimitSecs != 0) {
+            if (timer.time() < 3) {
+                return false;
+            }
+        }
+
+        processDetectedObjects(tfod.getUpdatedRecognitions());
+
+        if (rateLimitSecs != 0) {
+            timer.reset();
+        }
+
         return false;
     }
 }

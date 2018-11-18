@@ -1,4 +1,4 @@
-package opmodes;
+package examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -27,10 +27,11 @@ public class MineralDetectionTest extends Robot {
             @Override
             public void handleEvent(RobotEvent e) {
                 MineralDetectionEvent event = (MineralDetectionEvent)e;
-                RobotLog.ii(TAG, "Saw: " + event.kind + " Location: " + event.getxCoordinate());
+                RobotLog.ii(TAG, "Saw: " + event.kind + " Confidence: " + event.minerals.get(0).getConfidence());
             }
         };
         mdTask.init(telemetry, hardwareMap);
+        mdTask.setDetectionKind(MineralDetectionTask.DetectionKind.LARGEST_GOLD);
     }
 
     @Override
