@@ -27,11 +27,12 @@ public class MineralDetectionTask extends RobotTask {
         public EventKind kind;
         public List<Recognition> minerals;
 
-        public MineralDetectionEvent(RobotTask task, EventKind kind, List<Recognition> minerals)
+        public MineralDetectionEvent(RobotTask task, EventKind kind, List<Recognition> m)
         {
             super(task);
             this.kind = kind;
-            this.minerals.addAll(minerals);
+            this.minerals = new ArrayList<>(m.size());
+            this.minerals.addAll(m);
         }
 
         public String toString()
@@ -45,7 +46,7 @@ public class MineralDetectionTask extends RobotTask {
     private TFObjectDetector tfod;
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
-    private int rateLimitSecs;
+    private int rateLimitMs;
     private DetectionKind detectionKind;
 
     public enum DetectionKind {
@@ -65,7 +66,7 @@ public class MineralDetectionTask extends RobotTask {
     {
         super(robot);
 
-        rateLimitSecs = 0;
+        rateLimitMs = 0;
         detectionKind = DetectionKind.EVERYTHING;
     }
 
@@ -104,9 +105,9 @@ public class MineralDetectionTask extends RobotTask {
         }
     }
 
-    public void rateLimit(int seconds)
+    public void rateLimit(int ms)
     {
-        this.rateLimitSecs = seconds;
+        this.rateLimitMs = ms;
     }
 
     public void setDetectionKind(DetectionKind detectionKind)
@@ -119,8 +120,8 @@ public class MineralDetectionTask extends RobotTask {
     {
         tfod.activate();
 
-        if (rateLimitSecs != 0) {
-            timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        if (rateLimitMs != 0) {
+            timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         }
     }
 
@@ -128,6 +129,7 @@ public class MineralDetectionTask extends RobotTask {
     public void stop()
     {
         tfod.deactivate();
+        robot.removeTask(this);
     }
 
     public static MineralKind isMineral(Recognition object)
@@ -205,6 +207,10 @@ public class MineralDetectionTask extends RobotTask {
 
     protected void processDetectedObjects(List<Recognition> objects)
     {
+        if (objects == null || objects.isEmpty()) {
+            return;
+        }
+
         switch (detectionKind) {
             case EVERYTHING:
                 processEverything(objects);
@@ -224,15 +230,15 @@ public class MineralDetectionTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
-        if (rateLimitSecs != 0) {
-            if (timer.time() < 3) {
+        if (rateLimitMs != 0) {
+            if (timer.time() < rateLimitMs) {
                 return false;
             }
         }
 
         processDetectedObjects(tfod.getUpdatedRecognitions());
 
-        if (rateLimitSecs != 0) {
+        if (rateLimitMs != 0) {
             timer.reset();
         }
 
