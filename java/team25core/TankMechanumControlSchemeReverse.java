@@ -64,12 +64,12 @@ public class TankMechanumControlSchemeReverse implements JoystickDriveControlSch
             rl = leftWheelForward;
             fr = rightWheelForward;
             rr = rightWheelBackward;
-        } else if (leftY > 0.5) {
+        /*} else if (leftY > 0.5) {
             fl = leftWheelForward;
             rl = leftWheelForward;
         } else if (rightY > 0.5) {
             fr = rightWheelForward;
-            rr = rightWheelForward;
+            rr = rightWheelForward;*/
         } else if (gamepad.right_trigger > 0.5) {   // backward diagonal to the right
             //fr = -1.0;
             //rl = 1.0;
