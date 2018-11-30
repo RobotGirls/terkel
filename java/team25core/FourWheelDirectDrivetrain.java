@@ -45,6 +45,7 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
     DcMotor frontRight;
 
     double multiplier;
+    boolean doStrafeReverse = false;
 
     public FourWheelDirectDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
     {
@@ -133,16 +134,46 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
         rearRight.setPower(speed);
         rearLeft.setPower(speed);
     }
-
     @Override
     public void strafe(double speed)
     {
-        RobotLog.i("506 Arrived at strafe " + speed);
-        frontRight.setPower(-speed);
-        rearRight.setPower(speed);
-        frontLeft.setPower(speed);
-        rearLeft.setPower(-speed);
+        if (!doStrafeReverse) {
+            RobotLog.i("506 Arrived at strafe " + speed);
+            frontRight.setPower(-speed);
+            rearRight.setPower(speed);
+            frontLeft.setPower(speed);
+            rearLeft.setPower(-speed);
+        }
     }
+
+    public void setStrafeReverse(boolean strafeReverse)
+    {
+        doStrafeReverse = strafeReverse;
+    }
+
+    //@Override
+    public void strafeReverse(double speed)
+    {
+        double leftWheelForward;
+        double leftWheelBackward;
+        double rightWheelForward;
+        double rightWheelBackward;
+        leftWheelForward   = -1;
+        leftWheelBackward  = 1;
+        rightWheelForward  = -1;
+        rightWheelBackward = 1;
+        RobotLog.i("506 Arrived at strafeReverse " + speed);
+        //frontRight.setPower(-speed);
+        //rearRight.setPower(speed);
+        //frontLeft.setPower(speed);
+        //rearLeft.setPower(-speed);
+        frontRight.setPower(rightWheelBackward * speed);
+        rearRight.setPower(rightWheelForward * speed);
+        frontLeft.setPower(leftWheelForward * speed);
+        rearLeft.setPower(leftWheelBackward * speed);
+        doStrafeReverse = true;
+    }
+
 
     @Override
     public void leftDiagonal(double speed)
