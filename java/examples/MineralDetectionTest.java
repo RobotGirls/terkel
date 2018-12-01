@@ -21,19 +21,20 @@ public class MineralDetectionTest extends Robot {
     }
 
     @Override
-    public void init()
-    {
-        mdTask = new MineralDetectionTask(this) {
-            @Override
-            public void handleEvent(RobotEvent e) {
-                MineralDetectionEvent event = (MineralDetectionEvent)e;
-                RobotLog.ii(TAG, "Saw: " + event.kind + " Confidence: " + event.minerals.get(0).getConfidence());
-            }
-        };
-        mdTask.init(telemetry, hardwareMap);
-        mdTask.setDetectionKind(MineralDetectionTask.DetectionKind.LARGEST_GOLD);
-    }
+        public void init()
+        {
+            mdTask = new MineralDetectionTask(this) {
+                @Override
+                public void handleEvent(RobotEvent e) {
+                    MineralDetectionEvent event = (MineralDetectionEvent)e;
+                    RobotLog.ii(TAG, "Saw: " + event.kind + " Confidence: " + event.minerals.get(0).getConfidence());
+                }
+            };
 
+            mdTask.init(telemetry, hardwareMap);
+            mdTask.setDetectionKind(MineralDetectionTask.DetectionKind.EVERYTHING);
+
+        }
     @Override
     public void start()
     {
