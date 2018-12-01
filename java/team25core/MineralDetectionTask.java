@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -44,10 +45,11 @@ public class MineralDetectionTask extends RobotTask {
     private VuforiaLocalizer vuforia;
     private Telemetry telemetry;
     private TFObjectDetector tfod;
-    private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
+    public static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
     private int rateLimitMs;
     private DetectionKind detectionKind;
+    private String cameraName;
 
     public enum DetectionKind {
         EVERYTHING,
@@ -70,14 +72,28 @@ public class MineralDetectionTask extends RobotTask {
         detectionKind = DetectionKind.EVERYTHING;
     }
 
-    private void initVuforia() {
+    public MineralDetectionTask(Robot robot, String cameraName)
+    {
+        super(robot);
+        rateLimitMs = 0;
+        detectionKind = DetectionKind.EVERYTHING;
+        this.cameraName = cameraName;
+    }
+
+    private void initVuforia(HardwareMap hardwareMap) {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VuforiaConstants.VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+
+        if (cameraName != null) {
+            parameters.vuforiaLicenseKey = VuforiaConstants.WEBCAM_VUFORIA_KEY;
+            parameters.cameraName = hardwareMap.get(WebcamName.class, cameraName);
+
+        } else {
+            parameters.vuforiaLicenseKey = VuforiaConstants.VUFORIA_KEY;
+        }
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
@@ -96,7 +112,7 @@ public class MineralDetectionTask extends RobotTask {
 
     public void init(Telemetry telemetry, HardwareMap hardwareMap)
     {
-        initVuforia();
+        initVuforia(hardwareMap);
 
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod(hardwareMap);
