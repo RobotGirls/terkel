@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import opmodes.HisaishiCalibration;
 import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.RobotTask;
@@ -60,11 +59,11 @@ public class TwoAxisShoulderTask extends RobotTask {
     /**
      * TODO: Add real constants here.
      */
-    private static final double Y_AXIS_STOWED = HisaishiCalibration.JEWEL_Y_AXIS_STOWED;
-    private static final double Y_AXIS_DEPLOYED = HisaishiCalibration.JEWEL_Y_AXIS_DEPLOYED;
-    private static final double X_AXIS_NEUTRAL = HisaishiCalibration.JEWEL_X_AXIS_NEUTRAL;
-    private static final double X_AXIS_FORWARD = HisaishiCalibration.JEWEL_X_AXIS_FORWARD;
-    private static final double X_AXIS_BACK = HisaishiCalibration.JEWEL_X_AXIS_BACK;
+    private static final double Y_AXIS_STOWED = 0;
+    private static final double Y_AXIS_DEPLOYED = 0;
+    private static final double X_AXIS_NEUTRAL = 0;
+    private static final double X_AXIS_FORWARD = 0;
+    private static final double X_AXIS_BACK = 0;
 
 /*
     As of December 14th.
