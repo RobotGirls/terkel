@@ -1,6 +1,6 @@
 package team25core;
 /*
- * FTC Team 25: elizabeth, December 20, 2018
+ * FTC Team 25: Created by Elizabeth Wu, December 20, 2018
  */
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,21 +21,22 @@ public class HoldPositionTask extends RobotTask {
         this.deadBand = deadBand;
     }
 
-
     @Override
-    public void start() {
+    public void start()
+    {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
         robot.removeTask(this);
     }
 
     @Override
-    public boolean timeslice() {
-
+    public boolean timeslice()
+    {
         int currPos = motor.getCurrentPosition();
 
         if (currPos > deadBand) {
@@ -47,6 +48,5 @@ public class HoldPositionTask extends RobotTask {
         }
 
         return false;
-
     }
 }
