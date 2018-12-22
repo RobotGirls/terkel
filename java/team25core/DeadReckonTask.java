@@ -60,8 +60,7 @@ public class DeadReckonTask extends RobotTask {
         LEFT_SENSOR_SATISFIED,
     };
 
-    public class DeadReckonEvent extends RobotEvent
-    {
+    public class DeadReckonEvent extends RobotEvent {
 
         public EventKind kind;
         public int segment_num;
