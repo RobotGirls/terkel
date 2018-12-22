@@ -176,8 +176,6 @@ public class Team25DcMotor extends DcMotorImpl
     {
         int currentPosition = getCurrentPosition();
 
-        RobotLog.i("506 isBusy Current Position" + currentPosition + " & Target Position" + targetPosition);
-
         return (Math.abs(currentPosition) < targetPosition);
     }
 

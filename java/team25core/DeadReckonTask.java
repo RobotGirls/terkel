@@ -110,8 +110,7 @@ public class DeadReckonTask extends RobotTask {
     SingleShotTimerTask sst;
     int waitState = 0;
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain)
-    {
+    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain) {
         super(robot);
 
         this.sensorsInstalled = SensorsInstalled.SENSORS_NONE;
@@ -124,8 +123,7 @@ public class DeadReckonTask extends RobotTask {
         this.drivetrain = drivetrain;
     }
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria criteria)
-    {
+    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria criteria) {
         super(robot);
 
         this.sensorsInstalled = SensorsInstalled.SENSORS_ONE;
@@ -138,8 +136,7 @@ public class DeadReckonTask extends RobotTask {
         this.drivetrain = drivetrain;
     }
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria)
-    {
+    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria) {
         super(robot);
 
         this.sensorsInstalled = SensorsInstalled.SENSORS_TWO;
@@ -155,7 +152,7 @@ public class DeadReckonTask extends RobotTask {
     @Override
     public void start()
     {
-        // TODO: ??
+        //
     }
 
     @Override
@@ -186,7 +183,6 @@ public class DeadReckonTask extends RobotTask {
         } else {
             return true;
         }
-
     }
 
     @Override
@@ -247,27 +243,22 @@ public class DeadReckonTask extends RobotTask {
 
         switch (segment.state) {
         case INITIALIZE:
-            RobotLog.i("INITIALIZE");
             drivetrain.resetEncoders();
             segment.state = DeadReckonPath.SegmentState.ENCODER_RESET;
             break;
         case ENCODER_RESET:
-            RobotLog.i("ENCODER");
             drivetrain.resetEncoders();
             segment.state = DeadReckonPath.SegmentState.SET_TARGET;
             break;
         case SET_TARGET:
-            RobotLog.i("SET_TARGET");
             drivetrain.encodersOn();
             setTarget(segment);
             segment.state = DeadReckonPath.SegmentState.CONSUME_SEGMENT;
             break;
         case CONSUME_SEGMENT:
-            RobotLog.i("CONSUME_SEGMENT " + segment.type);
             if (segment.type == STRAIGHT) {
                 drivetrain.straight(segment.speed);
             } else if (segment.type == SIDEWAYS) {
-                RobotLog.i("*****************************************SIDEWAYS CONSUME SEGMENT");
                 drivetrain.strafe(segment.speed);
             } else if (segment.type == LEFT_DIAGONAL) {
                 drivetrain.leftDiagonal(segment.speed);
@@ -300,7 +291,6 @@ public class DeadReckonTask extends RobotTask {
                     reason = DoneReason.RIGHT_SENSOR_SATISFIED;
                 }
             } else if (hitTarget()) {
-                RobotLog.i("HIT TARGET");
                 segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
                 reason = DoneReason.ENCODER_REACHED;
             } //else {
@@ -308,7 +298,6 @@ public class DeadReckonTask extends RobotTask {
            // }
             break;
         case STOP_MOTORS:
-            RobotLog.i("STOP");
             drivetrain.stop();
             segment.state = DeadReckonPath.SegmentState.WAIT;
             waitState = 0;
