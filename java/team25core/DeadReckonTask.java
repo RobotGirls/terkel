@@ -35,8 +35,8 @@ package team25core;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
-import static team25core.DeadReckonPath.SegmentType.BACK_LEFT_DIAGONAL;
-import static team25core.DeadReckonPath.SegmentType.BACK_RIGHT_DIAGONAL;
+import static team25core.DeadReckonPath.SegmentType.LEFT_DIAGONAL;
+import static team25core.DeadReckonPath.SegmentType.RIGHT_DIAGONAL;
 import static team25core.DeadReckonPath.SegmentType.SIDEWAYS;
 import static team25core.DeadReckonPath.SegmentType.STRAIGHT;
 import static team25core.DeadReckonPath.SegmentType.TURN;
@@ -155,7 +155,7 @@ public class DeadReckonTask extends RobotTask {
     @Override
     public void start()
     {
-        // TODO: ??
+
     }
 
     @Override
@@ -168,8 +168,8 @@ public class DeadReckonTask extends RobotTask {
     {
         switch (segment.type) {
         case STRAIGHT:
-        case BACK_RIGHT_DIAGONAL:
-        case BACK_LEFT_DIAGONAL:
+        case RIGHT_DIAGONAL:
+        case LEFT_DIAGONAL:
         case SIDEWAYS:
             drivetrain.setTargetInches(segment.distance);
             break;
@@ -186,7 +186,6 @@ public class DeadReckonTask extends RobotTask {
         } else {
             return true;
         }
-
     }
 
     @Override
@@ -265,9 +264,9 @@ public class DeadReckonTask extends RobotTask {
             } else if (segment.type == SIDEWAYS) {
                 RobotLog.i("*****************************************SIDEWAYS CONSUME SEGMENT");
                 drivetrain.strafe(segment.speed);
-            } else if (segment.type == BACK_LEFT_DIAGONAL) {
+            } else if (segment.type == LEFT_DIAGONAL) {
                 drivetrain.leftDiagonal(segment.speed);
-            } else if (segment.type == BACK_RIGHT_DIAGONAL) {
+            } else if (segment.type == RIGHT_DIAGONAL) {
                 drivetrain.rightDiagonal(segment.speed);
             } else {
                 drivetrain.turn(segment.speed);
@@ -316,8 +315,8 @@ public class DeadReckonTask extends RobotTask {
             segment.state = DeadReckonPath.SegmentState.INITIALIZE;
         }
 
-        robot.telemetry.addData("Segment: ", num);
-        robot.telemetry.addData("State: ", segment.state.toString());
+        // robot.telemetry.addData("Segment: ", num);
+        // robot.telemetry.addData("State: ", segment.state.toString());
 
         return false;
     }

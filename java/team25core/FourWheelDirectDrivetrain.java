@@ -45,6 +45,7 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
     DcMotor frontRight;
 
     double multiplier;
+    boolean doStrafeReverse = false;
 
     public FourWheelDirectDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
     {
@@ -132,7 +133,6 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
         rearRight.setPower(speed);
         rearLeft.setPower(speed);
     }
-
     @Override
     public void strafe(double speed)
     {
@@ -142,21 +142,35 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
         rearLeft.setPower(-speed);
     }
 
+    public void setStrafeReverse(boolean strafeReverse)
+    {
+        doStrafeReverse = strafeReverse;
+    }
+
     @Override
     public void leftDiagonal(double speed)
     {
-        // Not supported
+        // Not tested
+        frontRight.setPower(speed);
+        rearRight.setPower(0);
+        frontLeft.setPower(0);
+        rearLeft.setPower(speed);
     }
 
     @Override
     public void rightDiagonal(double speed)
     {
-        // Not supported
+        // Not tested
+        frontRight.setPower(0);
+        rearRight.setPower(speed);
+        frontLeft.setPower(speed);
+        rearLeft.setPower(0);
     }
 
     @Override
     public void turn(double speed)
     {
+        // Turn around center 
         frontRight.setPower(-speed);
         rearRight.setPower(-speed);
         frontLeft.setPower(speed);
