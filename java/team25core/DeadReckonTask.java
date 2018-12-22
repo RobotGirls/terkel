@@ -60,7 +60,8 @@ public class DeadReckonTask extends RobotTask {
         LEFT_SENSOR_SATISFIED,
     };
 
-    public class DeadReckonEvent extends RobotEvent {
+    public class DeadReckonEvent extends RobotEvent
+    {
 
         public EventKind kind;
         public int segment_num;
@@ -110,7 +111,8 @@ public class DeadReckonTask extends RobotTask {
     SingleShotTimerTask sst;
     int waitState = 0;
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain) {
+    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain)
+    {
         super(robot);
 
         this.sensorsInstalled = SensorsInstalled.SENSORS_NONE;
@@ -123,7 +125,8 @@ public class DeadReckonTask extends RobotTask {
         this.drivetrain = drivetrain;
     }
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria criteria) {
+    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria criteria)
+    {
         super(robot);
 
         this.sensorsInstalled = SensorsInstalled.SENSORS_ONE;
@@ -136,7 +139,8 @@ public class DeadReckonTask extends RobotTask {
         this.drivetrain = drivetrain;
     }
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria) {
+    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria)
+    {
         super(robot);
 
         this.sensorsInstalled = SensorsInstalled.SENSORS_TWO;
@@ -152,7 +156,7 @@ public class DeadReckonTask extends RobotTask {
     @Override
     public void start()
     {
-        //
+
     }
 
     @Override
@@ -292,7 +296,7 @@ public class DeadReckonTask extends RobotTask {
             } else if (hitTarget()) {
                 segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
                 reason = DoneReason.ENCODER_REACHED;
-            } 
+            }
             break;
         case STOP_MOTORS:
             drivetrain.stop();

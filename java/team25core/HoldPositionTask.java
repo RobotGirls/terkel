@@ -1,8 +1,8 @@
-package team25core;
 /*
  * FTC Team 25: Created by Elizabeth Wu, December 20, 2018
  */
 
+package team25core;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class HoldPositionTask extends RobotTask {
@@ -14,7 +14,8 @@ public class HoldPositionTask extends RobotTask {
 
     private DcMotor motor;
 
-    public HoldPositionTask(Robot robot, DcMotor motor, double deadBand) {
+    public HoldPositionTask(Robot robot, DcMotor motor, double deadBand)
+    {
         super(robot);
 
         this.motor = motor;
