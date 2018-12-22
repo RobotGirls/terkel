@@ -259,6 +259,7 @@ public class DeadReckonTask extends RobotTask {
             if (segment.type == STRAIGHT) {
                 drivetrain.straight(segment.speed);
             } else if (segment.type == SIDEWAYS) {
+                RobotLog.i("*****************************************SIDEWAYS CONSUME SEGMENT");
                 drivetrain.strafe(segment.speed);
             } else if (segment.type == LEFT_DIAGONAL) {
                 drivetrain.leftDiagonal(segment.speed);
@@ -270,13 +271,11 @@ public class DeadReckonTask extends RobotTask {
             segment.state = DeadReckonPath.SegmentState.ENCODER_TARGET;
             break;
         case ENCODER_TARGET:
-          //  RobotLog.i("ENCODER TARGET");
             if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
                 RobotLog.i("251 Solo sensor criteria satisfied");
                 segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
                 reason = DoneReason.SENSOR_SATISFIED;
             } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
-              RobotLog.i("251 Sensors 2 installed");
                 if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
                     RobotLog.i("251 Left and right criteria satisfied");
                     segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
@@ -293,9 +292,7 @@ public class DeadReckonTask extends RobotTask {
             } else if (hitTarget()) {
                 segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
                 reason = DoneReason.ENCODER_REACHED;
-            } //else {
-              //RobotLog.i("251 Ended in else");
-           // }
+            } 
             break;
         case STOP_MOTORS:
             drivetrain.stop();

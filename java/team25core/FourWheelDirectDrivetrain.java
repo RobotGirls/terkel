@@ -128,7 +128,6 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
     @Override
     public void straight(double speed)
     {
-        logEncoderCounts();
         frontRight.setPower(speed);
         frontLeft.setPower(speed);
         rearRight.setPower(speed);
