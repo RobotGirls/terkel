@@ -32,15 +32,15 @@ public class HoldPositionTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
-    }
+            robot.removeTask(this);
+        }
 
-    @Override
-    public boolean timeslice()
-    {
-        int currPos = motor.getCurrentPosition();
+        @Override
+        public boolean timeslice()
+        {
+            int currPos = motor.getCurrentPosition();
 
-        if (currPos > deadBand) {
+            if (currPos > deadBand) {
             motor.setPower(-SPEED);
         } else if (currPos < deadBand) {
             motor.setPower(SPEED);

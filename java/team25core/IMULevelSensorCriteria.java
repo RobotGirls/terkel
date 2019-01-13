@@ -86,7 +86,7 @@ public class IMULevelSensorCriteria implements SensorCriteria {
 
     protected double getPitch() {
         angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        return AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.thirdAngle);
+        return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.thirdAngle));
     }
 
     protected double getMag() {
@@ -100,8 +100,8 @@ public class IMULevelSensorCriteria implements SensorCriteria {
     @Override
     public boolean satisfied() {
         tilt = getPitch();
-        RobotLog.i("Title: %.2f", tilt);
-        if (tilt >= maxTilt) {
+        RobotLog.i("Tilt: %.2f %.2f", tilt, maxTilt);
+        if (tilt <= maxTilt) {
             return true;
         } else {
             return false;
