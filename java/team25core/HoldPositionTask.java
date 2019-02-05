@@ -4,8 +4,11 @@
 
 package team25core;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 public class HoldPositionTask extends RobotTask {
+
+    private static String TAG = "HoldPositionTask";
 
     private final static float SPEED = 0.02f;
     private final static float STOPPED = 0.0f;
@@ -32,20 +35,21 @@ public class HoldPositionTask extends RobotTask {
     @Override
     public void stop()
     {
-            robot.removeTask(this);
-        }
+    	robot.removeTask(this);
+    }
 
-        @Override
-        public boolean timeslice()
-        {
-            int currPos = motor.getCurrentPosition();
+    @Override
+    public boolean timeslice()
+    {
+        int currPos = motor.getCurrentPosition();
 
-            if (currPos > deadBand) {
+        RobotLog.ii(TAG, "position " + currPos);
+        if (Math.abs(currPos) < deadBand) {
+            motor.setPower(STOPPED);
+        } else if (currPos > deadBand) {
             motor.setPower(-SPEED);
         } else if (currPos < deadBand) {
             motor.setPower(SPEED);
-        } else {
-            motor.setPower(STOPPED);
         }
 
         return false;
