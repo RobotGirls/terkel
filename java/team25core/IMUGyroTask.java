@@ -150,7 +150,7 @@ public class IMUGyroTask extends RobotTask {
         // IMUGyroEvent errorUpdate = new IMUGyroEvent(this, EventKind.ERROR_UPDATE, fHeading);
         // robot.queueEvent(errorUpdate);
 
-        if ((fHeading >= slop) && (fHeading <= slop)) {
+        if (fHeading <= Math.abs(slop)) {
             IMUGyroEvent hitTarget = new IMUGyroEvent(this, EventKind.HIT_TARGET);
             robot.queueEvent(hitTarget);
             ret = true;
