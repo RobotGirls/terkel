@@ -35,7 +35,7 @@ public class HoldPositionTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
+    	robot.removeTask(this);
     }
 
     @Override
