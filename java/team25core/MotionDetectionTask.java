@@ -31,6 +31,7 @@ public class MotionDetectionTask extends RobotTask {
 
     public MotionDetectionTask(Robot robot, BNO055IMU imu) {
         super(robot);
+        this.imu = imu;
     }
 
     @Override
