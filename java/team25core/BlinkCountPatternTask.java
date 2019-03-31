@@ -86,6 +86,8 @@ public class BlinkCountPatternTask extends RobotTask {
             @Override
             public void onEnter(Event event)
             {
+                super.onEnter(event);
+
                 blinkin.setPattern(blinkColor);
                 ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
             }
@@ -112,6 +114,8 @@ public class BlinkCountPatternTask extends RobotTask {
             @Override
             public void onEnter(Event event)
             {
+                super.onEnter(event);
+
                 blinkin.setPattern(intervalColor);
             }
 
@@ -137,6 +141,8 @@ public class BlinkCountPatternTask extends RobotTask {
             @Override
             public void onEnter(Event event)
             {
+                super.onEnter(event);
+
                 time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
                 blinkin.setPattern(endMarkerColor);
             }
