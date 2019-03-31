@@ -166,10 +166,6 @@ public class BlinkCountPatternTask extends RobotTask {
         {
             StateTransition transition;
 
-            /**************************************************
-             * WifiOn exit transitions
-             **************************************************/
-
             transition = new StateTransition(
                     blinkReset,
                     BlinkEvent.RESET,
