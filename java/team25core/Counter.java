@@ -33,10 +33,6 @@
 
 package team25core;
 
-import android.support.annotation.NonNull;
-
-import java.lang.Object;
-
 public class Counter extends Object implements Comparable<Counter> {
 
     private int value;
@@ -62,7 +58,7 @@ public class Counter extends Object implements Comparable<Counter> {
     }
 
     @Override
-    public int compareTo(@NonNull Counter another)
+    public int compareTo( Counter another)
     {
         if (this.value == another.value) {
             return 0;
