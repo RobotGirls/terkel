@@ -138,9 +138,7 @@ public class OdometryTask extends RobotTask {
     private double calculateGlobalOffset()
     {
         calculatePolarCoord();
-
         dGlobalOffset = localOffset - thetaM;
-
         calculateCartesianCoord();
 
         return dGlobalOffset;
