@@ -30,16 +30,15 @@ public class OdometryTask extends RobotTask {
 
     protected int thetaR;
     protected double theta;
-    protected double dTheta;
-    protected double deltaThetaR;
-
     protected double theta1;
     protected double theta0;
     protected double thetaM;
+    protected double dTheta;
     protected double dGlobalOffset;
     protected double translation0;
 
     protected double pose;
+    protected double pose_r;
     protected double x;
     protected double y;
     protected double localOffset;
@@ -91,7 +90,8 @@ public class OdometryTask extends RobotTask {
     }
 
     // Complete local translation vector (step 8)
-    private double calculatePosition(double dS, double dR) {
+    private double calculatePosition(double dS, double dR)
+    {
         x = (dS / pose) + sSide;
         y = (dR / pose) + sRight;
         position_x = 2 * Math.sin(pose / 2) * x;
@@ -107,6 +107,13 @@ public class OdometryTask extends RobotTask {
         return pose;
     }
 
+    private double calculateResetPose(double dLr, double dRr)
+    {
+        pose_r = GLOBAL_ORIENTATION + ((dLr - dRr) / (sLeft + sRight));
+
+        return pose_r;
+    }
+
     private double calculateDistance(double delta)
     {
         return (delta / ENC_TICK_PER_REV) * WHEEL_DIAMETER;
@@ -114,6 +121,7 @@ public class OdometryTask extends RobotTask {
 
     private double calculatePolarCoord()
     {
+        radius = Math.sqrt((x*x + y*y));
         theta = Math.atan(y / x);
 
         return theta;
@@ -121,15 +129,21 @@ public class OdometryTask extends RobotTask {
 
     private double calculateCartesianCoord()
     {
-        return x;
+        x = WHEEL_DIAMETER * Math.cos(position_x);
+        y = WHEEL_DIAMETER * Math.sin(position_y);
 
+        return x;
     }
 
-    private double calculateNewAbsolutePosition()
+    private double calculateGlobalOffset()
     {
+        calculatePolarCoord();
 
+        dGlobalOffset = localOffset - thetaM;
 
-        return newAbsolutePosition;
+        calculateCartesianCoord();
+
+        return dGlobalOffset;
     }
 
     @Override
@@ -167,12 +181,12 @@ public class OdometryTask extends RobotTask {
         dLr = calculateDistance(cR);
 
         //Arc Angle or change in orientation of the robot (step 2)
-        pose = calculatePose(dLr, dRr);
+        pose  = calculatePose(dL, dR);
+
+        pose_r = calculateResetPose(dLr, dRr);
 
         //New absolute orientation (step 6)
-        theta1 = thetaR + pose;
-
-        dTheta = theta1 - previousPose;
+        theta1 = thetaR + pose_r;
 
         localOffset = calculateLocalOffset(dES, dER);
 
@@ -184,9 +198,9 @@ public class OdometryTask extends RobotTask {
         }
 
         // We calculate thetaM to find the average orientation (step 9)
-        thetaM = theta0 + (dTheta / 2);
+        thetaM = theta0 + (pose / 2);
 
-        dGlobalOffset = localOffset - thetaM;
+        calculateGlobalOffset();
 
         // New absolute position (step 11)
         newAbsolutePosition = translation0 + localOffset;
