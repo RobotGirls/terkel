@@ -58,7 +58,7 @@ public class Counter extends Object implements Comparable<Counter> {
     }
 
     @Override
-    public int compareTo( Counter another)
+    public int compareTo(  Counter another)
     {
         if (this.value == another.value) {
             return 0;

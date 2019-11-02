@@ -120,7 +120,7 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
     @Override
     public void strafe(double speed)
     {
-        RobotLog.i("****************************************************STRAFE");
+        RobotLog.i("****************************************************STRAFE, speed=%f", speed);
         logEncoderCounts();
         frontRight.setPower(-speed);
         rearRight.setPower(speed);
