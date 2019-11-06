@@ -58,16 +58,16 @@ public class OdometryTask extends RobotTask {
     private final static int WHEEL_DIAMETER = 4;
     private final static int GLOBAL_ORIENTATION = 0;
 
-    public OdometryTask(Robot robot, DcMotor twLeft, DcMotor twRight, DcMotor twBack, Telemetry telemetry, int sLeft, int sRight, int sSide)
+    public OdometryTask(Robot robot, DcMotor twLeft, DcMotor twRight, DcMotor twBack, int sLeft, int sRight, int sSide)
     {
         super(robot);
         this.twLeft = twLeft;
         this.twRight = twRight;
         this.twSide = twBack;
 
-        this.leftEncoderTelemetryItem = telemetry.addData("Left Encoder", "0");
-        this.rightEncoderTelemetryItem = telemetry.addData("Right Encoder", "0");
-        this.sideEncoderTelemetryItem = telemetry.addData("Side Encoder", "0");
+        this.leftEncoderTelemetryItem = robot.telemetry.addData("Left Encoder", "0");
+        this.rightEncoderTelemetryItem = robot.telemetry.addData("Right Encoder", "0");
+        this.sideEncoderTelemetryItem = robot.telemetry.addData("Side Encoder", "0");
 
         this.sLeft = sLeft;
         this.sRight = sRight;
@@ -213,6 +213,8 @@ public class OdometryTask extends RobotTask {
         previousPose = pose;
         pose = theta0;
         dTheta = theta1 - previousPose;
+
+        robot.telemetry.update();
 
         return false;
     }
