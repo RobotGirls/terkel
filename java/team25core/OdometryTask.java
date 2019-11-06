@@ -161,6 +161,7 @@ public class OdometryTask extends RobotTask {
         cR = twRight.getCurrentPosition();
         cS = twSide.getCurrentPosition();
 
+        leftEncoderTelemetryItem.setValue(cL);
         rightEncoderTelemetryItem.setValue(cR);
         sideEncoderTelemetryItem.setValue(cS);
 
