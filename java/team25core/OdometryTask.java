@@ -20,9 +20,9 @@ public class OdometryTask extends RobotTask {
     protected double dL;
     protected double dR;
     protected double dS;
-    public double dEL;
-    public double dER;
-    public double dES;
+    protected double dEL;
+    protected double dER;
+    protected double dES;
 
     protected int sLeft;
     protected int sRight;
@@ -90,14 +90,12 @@ public class OdometryTask extends RobotTask {
     }
 
     // Complete local translation vector (step 8)
-    private double calculatePosition(double dS, double dR)
+    private void calculatePosition(double dS, double dR)
     {
         x = (dS / pose) + sSide;
         y = (dR / pose) + sRight;
         position_x = 2 * Math.sin(pose / 2) * x;
         position_y = 2 * Math.sin(pose / 2) * y;
-
-        return calculatePosition(dS, dR);
     }
 
     private double calculatePose(double dL, double dR)
@@ -177,6 +175,8 @@ public class OdometryTask extends RobotTask {
         // Right wheel travel and Left wheel travel since last reset
         dRr = calculateDistance(cL);
         dLr = calculateDistance(cR);
+
+        //dRr.getWheelDistance;
 
         //Arc Angle or change in orientation of the robot (step 2)
         pose  = calculatePose(dL, dR);
