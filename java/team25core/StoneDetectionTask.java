@@ -243,10 +243,10 @@ public class StoneDetectionTask extends RobotTask {
                 processEverything(objects);
                 break;
             case SKY_STONE_DETECTED:
-                processStone(objects);
+                processSkyStone(objects);
                 break;
             case STONE_DETECTED:
-                processSkyStone(objects);
+                processStone(objects);
                 break;
             case LARGEST_STONE_DETECTED:
                 processLargestSkyStone(objects);
