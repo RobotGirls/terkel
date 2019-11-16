@@ -62,11 +62,6 @@ public class TeleopDriveTask extends RobotTask {
         this.robot = robot;
         this.isSuspended = false;
         this.driveScheme = driveScheme;
-
-        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        rearLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     public void suspendTask(boolean isSuspended)
@@ -104,13 +99,14 @@ public class TeleopDriveTask extends RobotTask {
     public boolean timeslice()
     {
         if (isSuspended) {
-            RobotLog.i("teleop timeslice suspended");
             return false;
         }
 
-        RobotLog.i("teleop timeslice not suspended");
 
         MotorValues values = driveScheme.getMotorPowers();
+
+        // RobotLog.i("teleop timeslice %f, %f, %f, %f",
+        //        values.fl, values.rl, values.fr, values.rr);
 
         frontLeft.setPower(values.fl * slowMultiplier);
         rearLeft.setPower(values.rl * slowMultiplier);
