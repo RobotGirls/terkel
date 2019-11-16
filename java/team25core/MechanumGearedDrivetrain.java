@@ -84,6 +84,7 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         rearRight.setDirection(DcMotor.Direction.REVERSE);
     }
+
     @Override
     public void resetEncoders()
     {
