@@ -62,16 +62,11 @@ public class TankMechanumControlScheme implements JoystickDriveControlScheme {
         // If joysticks are pointed left (negative joystick values), counter rotate wheels.
         // Threshold for joystick values in the x may vary.
 
-        if (leftX > 0.5 && rightX > 0.5) {          // sideways right
-            fl = leftX;
-            rl = -leftX;
-            fr = rightX;
-            rr = -rightX;
-        } else if (leftX < -0.5 && rightX < -0.5) { // sideways left
+        if (Math.abs(leftX) > 0.5 && Math.abs(rightX) > 0.5) {          // sideways right
             fl = -leftX;
             rl = leftX;
-            fr = -rightX;
-            rr = rightX;
+            fr = rightX;
+            rr = -rightX;
         } else if (gamepad.right_trigger > 0.5) {   // backward diagonal to the right
             fr = -1.0;
             rl = 1.0;
