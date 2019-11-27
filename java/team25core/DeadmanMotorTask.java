@@ -69,17 +69,38 @@ public class DeadmanMotorTask extends RobotTask {
     DeadmanButton button;
     boolean done;
     boolean buttonDown;
+    HoldPositionTask holdPositionTask;
+    boolean useHoldMotorPositionTask=false;
 
+    ///Creates a DeadmanMotorTask without HoldMotorPositionTask
     public DeadmanMotorTask(Robot robot, DcMotor motor, double power, GamepadTask.GamepadNumber gamepad, DeadmanButton button)
     {
         super(robot);
 
+        holdPositionTask=null;
+        useHoldMotorPositionTask = false;
         this.motor = motor;
         this.gamepad = gamepad;
         this.button = button;
         this.power = power;
         done = false;
     }
+
+    ///Creates a DeadmanMotorTask with option for HoldMotorPositionTask
+
+    public DeadmanMotorTask(Robot robot, DcMotor motor, double power, GamepadTask.GamepadNumber gamepad, DeadmanButton button, boolean useHoldMotorPositionTask)
+    {
+        super(robot);
+
+        holdPositionTask = new HoldPositionTask(robot, motor, 1);
+        this.useHoldMotorPositionTask=useHoldMotorPositionTask;
+        this.motor = motor;
+        this.gamepad = gamepad;
+        this.button = button;
+        this.power = power;
+        done = false;
+    }
+
 
     protected boolean isButtonTracked(GamepadTask.EventKind kind)
     {
@@ -120,7 +141,11 @@ public class DeadmanMotorTask extends RobotTask {
         case RIGHT_TRIGGER_DOWN:
             motor.setPower(power);
             robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_DOWN));
+            if (useHoldMotorPositionTask) {
+                robot.removeTask(holdPositionTask);
+            }
             break;
+
         case BUTTON_A_UP:
         case BUTTON_B_UP:
         case BUTTON_X_UP:
@@ -131,6 +156,9 @@ public class DeadmanMotorTask extends RobotTask {
         case RIGHT_TRIGGER_UP:
             motor.setPower(0.0);
             robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_UP));
+            if (useHoldMotorPositionTask) {
+                robot.addTask(holdPositionTask);
+            }
             break;
         }
     }
@@ -165,4 +193,6 @@ public class DeadmanMotorTask extends RobotTask {
     public boolean timeslice() {
        return done;
     }
+
+
 }

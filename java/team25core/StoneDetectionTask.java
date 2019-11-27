@@ -59,7 +59,7 @@ public class StoneDetectionTask extends RobotTask {
         EVERYTHING,
         STONE_DETECTED,
         SKY_STONE_DETECTED,
-        LARGEST_STONE_DETECTED,
+        LARGEST_SKY_STONE_DETECTED,
         UNKNOWN_DETECTED,
     }
      public enum StoneKind {
@@ -248,7 +248,7 @@ public class StoneDetectionTask extends RobotTask {
             case STONE_DETECTED:
                 processStone(objects);
                 break;
-            case LARGEST_STONE_DETECTED:
+            case LARGEST_SKY_STONE_DETECTED:
                 processLargestSkyStone(objects);
                 break;
         }
