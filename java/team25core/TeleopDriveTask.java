@@ -46,6 +46,7 @@ public class TeleopDriveTask extends RobotTask {
     protected DcMotor rearRight;
 
     public double slowMultiplier = 1;
+    protected double speedLimit;
 
     public boolean isSuspended = false;
 
@@ -62,6 +63,21 @@ public class TeleopDriveTask extends RobotTask {
         this.robot = robot;
         this.isSuspended = false;
         this.driveScheme = driveScheme;
+        this.speedLimit = 1.0;
+    }
+
+    public TeleopDriveTask(Robot robot, double speedLimit, JoystickDriveControlScheme driveScheme, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
+    {
+        super(robot);
+
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+        this.rearLeft = rearLeft;
+        this.rearRight = rearRight;
+        this.robot = robot;
+        this.isSuspended = false;
+        this.driveScheme = driveScheme;
+        this.speedLimit = speedLimit;
     }
 
     public void suspendTask(boolean isSuspended)
@@ -80,7 +96,7 @@ public class TeleopDriveTask extends RobotTask {
         if (slow) {
             slowMultiplier = 0.5;
         } else {
-            slowMultiplier = 1;
+            slowMultiplier = speedLimit;
         }
     }
 
