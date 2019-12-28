@@ -322,14 +322,17 @@ public class DeadReckonTask extends RobotTask {
         case STOP_MOTORS:
             drivetrain.stop();
             setupWaitState(segment);
+            break;
         case WAIT:
             if (timer.time() >= segment.millisecond_pause) {
                 segment.state = DeadReckonPath.SegmentState.DONE;
             }
+            break;
         case DONE:
             num++;
             dr.nextSegment();
             segment.state = DeadReckonPath.SegmentState.INITIALIZE;
+            break;
         }
 
         // robot.telemetry.addData("Segment: ", num);
