@@ -301,6 +301,7 @@ public class DeadReckonTask extends RobotTask {
             drivetrain.stop();
             segment.state = DeadReckonPath.SegmentState.WAIT;
             waitState = 0;
+            break;
         case WAIT:
             waitState++;
             /*
@@ -309,14 +310,16 @@ public class DeadReckonTask extends RobotTask {
             if (waitState > 50) {
                 segment.state = DeadReckonPath.SegmentState.DONE;
             }
+            break;
         case DONE:
             num++;
             dr.nextSegment();
             segment.state = DeadReckonPath.SegmentState.INITIALIZE;
+            break;
         }
 
-        // robot.telemetry.addData("Segment: ", num);
-        // robot.telemetry.addData("State: ", segment.state.toString());
+        robot.telemetry.addData("Segment: ", num);
+        robot.telemetry.addData("State: ", segment.state.toString());
 
         return false;
     }
