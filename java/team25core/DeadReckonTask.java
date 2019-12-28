@@ -194,9 +194,11 @@ public class DeadReckonTask extends RobotTask {
         }
     }
 
-    protected void setupWaitState(DeadReckonPath.Segment segment)
+    protected void setupWaitState(DeadReckonPath.Segment segment, boolean sendEvent)
     {
-        robot.queueEvent(new DeadReckonEvent(this, EventKind.PAUSING, num));
+        if (sendEvent == true) {
+            robot.queueEvent(new DeadReckonEvent(this, EventKind.PAUSING, num));
+        }
         segment.state = WAIT;
         timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     }
@@ -275,7 +277,7 @@ public class DeadReckonTask extends RobotTask {
             break;
         case CONSUME_SEGMENT:
             if (segment.type == PAUSE) {
-                setupWaitState(segment);
+                setupWaitState(segment, true);
                 break;
             }
 
@@ -321,7 +323,7 @@ public class DeadReckonTask extends RobotTask {
             break;
         case STOP_MOTORS:
             drivetrain.stop();
-            setupWaitState(segment);
+            setupWaitState(segment, false);
             break;
         case WAIT:
             if (timer.time() >= segment.millisecond_pause) {

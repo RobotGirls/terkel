@@ -115,6 +115,11 @@ public class DeadReckonPath {
         segments.add(new Segment(type, distance, speed));
     }
 
+    public void addPause(int millisecond_pause)
+    {
+        segments.add(new Segment(millisecond_pause));
+    }
+
     public void nextSegment()
     {
         segments.remove();
