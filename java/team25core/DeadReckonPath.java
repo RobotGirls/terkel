@@ -47,6 +47,7 @@ public class DeadReckonPath {
         SIDEWAYS,
         LEFT_DIAGONAL,
         RIGHT_DIAGONAL,
+        PAUSE,
     }
 
     public enum SegmentState {
@@ -77,6 +78,7 @@ public class DeadReckonPath {
         public SegmentState state;
         public double distance;
         public double speed;
+        public int millisecond_pause;
 
         Segment(SegmentType type, double distance, double speed)
         {
@@ -84,6 +86,16 @@ public class DeadReckonPath {
             this.distance = distance;
             this.type = type;
             this.speed = speed;
+            this.millisecond_pause = 500;
+        }
+
+        Segment(int millisecond_pause)
+        {
+            this.state = SegmentState.INITIALIZE;
+            this.distance = 0;
+            this.type = SegmentType.PAUSE;
+            this.speed = 0;
+            this.millisecond_pause = millisecond_pause;
         }
     }
 
@@ -101,6 +113,11 @@ public class DeadReckonPath {
     public void addSegment(SegmentType type, double distance, double speed)
     {
         segments.add(new Segment(type, distance, speed));
+    }
+
+    public void addPause(int millisecond_pause)
+    {
+        segments.add(new Segment(millisecond_pause));
     }
 
     public void nextSegment()
