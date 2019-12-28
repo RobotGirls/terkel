@@ -35,6 +35,7 @@ package team25core;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
+import static team25core.DeadReckonPath.SegmentState.STOP_MOTORS;
 import static team25core.DeadReckonPath.SegmentType.LEFT_DIAGONAL;
 import static team25core.DeadReckonPath.SegmentType.RIGHT_DIAGONAL;
 import static team25core.DeadReckonPath.SegmentType.SIDEWAYS;
@@ -275,25 +276,27 @@ public class DeadReckonTask extends RobotTask {
             break;
         case ENCODER_TARGET:
             if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
-                RobotLog.i("251 Solo sensor criteria satisfied");
-                segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
+                RobotLog.i("5218 Solo sensor criteria satisfied");
+                segment.state = STOP_MOTORS;
                 reason = DoneReason.SENSOR_SATISFIED;
-            } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
-                if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
-                    RobotLog.i("251 Left and right criteria satisfied");
-                    segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
-                    reason = DoneReason.BOTH_SENSORS_SATISFIED;
-                } else if (leftCriteria.satisfied()) {
-                    RobotLog.i("251 Left criteria satisfied");
-                    segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
+            } else if (sensorsInstalled == SensorsInstalled.SENSORS_ONE) {
+                if (leftCriteria.satisfied()) {
+                    RobotLog.i("5218 Left criteria satisfied");
+                    segment.state = STOP_MOTORS;
                     reason = DoneReason.LEFT_SENSOR_SATISFIED;
                 } else if (rightCriteria.satisfied()) {
-                    RobotLog.i("251 Right criteria satisfied");
-                    segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
+                    RobotLog.i("5218 Right criteria satisfied");
+                    segment.state = STOP_MOTORS;
                     reason = DoneReason.RIGHT_SENSOR_SATISFIED;
                 }
+            } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
+                if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
+                    RobotLog.i("5218 Left and right criteria satisfied");
+                    segment.state = STOP_MOTORS;
+                    reason = DoneReason.BOTH_SENSORS_SATISFIED;
+                }
             } else if (hitTarget()) {
-                segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
+                segment.state = STOP_MOTORS;
                 reason = DoneReason.ENCODER_REACHED;
             }
             break;
