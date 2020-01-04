@@ -39,11 +39,13 @@ public abstract class RobotTask {
 
     protected Robot robot;
     protected RobotEventListener listener;
+    protected boolean isSuspended;
 
     public RobotTask(Robot robot)
     {
         this.robot = robot;
         this.listener = null;
+        this.isSuspended = false;
     }
 
     public abstract void start();
@@ -66,6 +68,21 @@ public abstract class RobotTask {
         } else {
             robot.handleEvent(e);
         }
+    }
+
+    public void suspend()
+    {
+        isSuspended = true;
+    }
+
+    public void resume()
+    {
+        isSuspended = false;
+    }
+
+    public boolean isSuspended()
+    {
+        return isSuspended;
     }
 
     /*
