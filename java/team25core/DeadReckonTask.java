@@ -194,6 +194,10 @@ public class DeadReckonTask extends RobotTask {
         }
     }
 
+    public void disableSensors() {
+        sensorsInstalled = SensorsInstalled.SENSORS_NONE;
+    }
+
     protected void setupWaitState(DeadReckonPath.Segment segment, boolean sendEvent)
     {
         if (sendEvent == true) {
