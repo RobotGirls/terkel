@@ -112,6 +112,10 @@ public abstract class Robot extends OpMode {
          * more work to do), at which point it is stopped.
          */
         for (RobotTask t : tasks) {
+            if (t.isSuspended()) {
+                continue;
+            }
+
             if (t.timeslice()) {
                 t.stop();
             }
