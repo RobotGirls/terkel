@@ -37,12 +37,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import java.util.Map;
+
 public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Drivetrain {
 
     DcMotor rearLeft;
     DcMotor rearRight;
     DcMotor frontLeft;
     DcMotor frontRight;
+    Map<MotorPackage.MotorLocation, MotorPackage> motorMap;
 
     double multiplier;
 
@@ -58,6 +61,30 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
         this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = 1.0;
+
+        setCanonicalMotorDirection();
+
+        /**
+         * Set a default master.  This is the wheel/motor that will be used to track distance
+         * travelled when following a dead reckon path.
+         */
+        setMasterMotor(rearRight);
+    }
+
+    public MechanumGearedDrivetrain(int encoderTicksPerInch, Map<MotorPackage.MotorLocation, MotorPackage> motorMap)
+    {
+        super();
+
+        this.rearLeft = motorMap.get(MotorPackage.MotorLocation.BACK_LEFT).motor;
+        this.rearRight = motorMap.get(MotorPackage.MotorLocation.BACK_RIGHT).motor;
+        this.frontLeft = motorMap.get(MotorPackage.MotorLocation.FRONT_LEFT).motor;
+        this.frontRight = motorMap.get(MotorPackage.MotorLocation.FRONT_RIGHT).motor;
+
+        this.encoderTicksPerInch = encoderTicksPerInch;
+        this.encoderTarget = 0;
+        this.multiplier = 1.0;
+
+        this.motorMap = motorMap;
 
         setCanonicalMotorDirection();
 
@@ -118,16 +145,37 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
         rearLeft.setPower(speed);
     }
 
+    public double setAdjustedPower(MotorPackage motorPackage, double speed)
+    {
+        if (motorPackage == null) {
+            return speed;
+        }
+
+        if (motorPackage.offsetCoefficient != 0) {
+            if (((speed > 0) && (motorPackage.offsetPolarity == MotorPackage.OffsetPolarity.POLARITY_POSITIVE)) || ((speed < 0) && (motorPackage.offsetPolarity == MotorPackage.OffsetPolarity.POLARITY_NEGATIVE))) {
+                speed = speed * motorPackage.offsetCoefficient;
+            }
+        }
+        motorPackage.motor.setPower(speed);
+        return speed;
+    }
+
     @Override
     public void strafe(double speed)
     {
-        RobotLog.i("****************************************************STRAFE");
-        logEncoderCounts();
-        frontRight.setPower(-speed);
-        rearRight.setPower(speed);
-        frontLeft.setPower(speed);
-        rearLeft.setPower(-speed);
-        logEncoderCounts();
+        double adjSpeed;
+
+        adjSpeed = setAdjustedPower(motorMap.get(MotorPackage.MotorLocation.FRONT_RIGHT), -speed);
+        RobotLog.i("%s, %f", MotorPackage.MotorLocation.FRONT_RIGHT.toString(), adjSpeed);
+
+        adjSpeed = setAdjustedPower(motorMap.get(MotorPackage.MotorLocation.BACK_RIGHT), speed);
+        RobotLog.i("%s, %f", MotorPackage.MotorLocation.BACK_RIGHT.toString(), adjSpeed);
+
+        adjSpeed = setAdjustedPower(motorMap.get(MotorPackage.MotorLocation.FRONT_LEFT), speed);
+        RobotLog.i("%s, %f", MotorPackage.MotorLocation.FRONT_LEFT.toString(), adjSpeed);
+
+        adjSpeed = setAdjustedPower(motorMap.get(MotorPackage.MotorLocation.BACK_LEFT), -speed);
+        RobotLog.i("%s, %f", MotorPackage.MotorLocation.BACK_LEFT.toString(), adjSpeed);
     }
 
     @Override
