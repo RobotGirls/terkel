@@ -47,7 +47,7 @@ import java.util.Set;
 
 public class Team25DcMotor extends DcMotorImpl
 {
-    public enum MotorLocation {
+    public enum Team25DcMotorLocation {
         UNKNOWN,
         FRONT_LEFT,
         FRONT_RIGHT,
@@ -59,7 +59,7 @@ public class Team25DcMotor extends DcMotorImpl
     protected double power;
     protected int targetPosition;
     protected Set<Team25DcMotor> slaves = null;
-    protected MotorLocation location;
+    protected Team25DcMotorLocation location;
     private final static double powerMax = 1.0;
     private final static double powerMin = -1.0;
 
@@ -79,7 +79,7 @@ public class Team25DcMotor extends DcMotorImpl
         this.power = 0.0;
     }
 
-    public Team25DcMotor(Robot robot, DcMotorController controller, int portNumber, MotorLocation loc)
+    public Team25DcMotor(Robot robot, DcMotorController controller, int portNumber, Team25DcMotorLocation loc)
     {
         super(controller, portNumber);
         this.robot = robot;
@@ -146,14 +146,14 @@ public class Team25DcMotor extends DcMotorImpl
             super.setPower(power);
             ((Team25DcMotor)slaves.toArray()[0]).setPower(-power);
         } else if (slaves.size() == 3) {
-            if (this.location == MotorLocation.UNKNOWN) {
+            if (this.location == Team25DcMotorLocation.UNKNOWN) {
                 throw new UnsupportedOperationException("All motors must have location specified for the turn operation");
             }
             this.power = power;
             super.setPower(power);
 
             for (Team25DcMotor m : slaves) {
-                if (this.location == MotorLocation.UNKNOWN) {
+                if (this.location == Team25DcMotorLocation.UNKNOWN) {
                     throw new UnsupportedOperationException("All motors must have location specified for the turn operation");
                 } else if (this.location.toString().substring(this.location.toString().indexOf('_')) ==
                             m.location.toString().substring(m.location.toString().indexOf('_'))) {

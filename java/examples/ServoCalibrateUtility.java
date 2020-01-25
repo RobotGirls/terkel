@@ -19,7 +19,7 @@ import team25core.RobotEvent;
 import team25core.ServoCalibrateTask;
 
 @Autonomous(name = "ServoCalibrateUtility")
-@Disabled
+// @Disabled
 public class ServoCalibrateUtility extends Robot {
 
     List<Servo> servoList;

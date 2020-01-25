@@ -43,7 +43,6 @@ public class MotorStallTask extends RobotTask {
 
     @Override
     public void stop() {
-        robot.removeTask(this);
         RobotLog.i("Motor stall task stopped!");
         status.setValue("Stopped");
     }

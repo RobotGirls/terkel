@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) September 2017 FTC Teams 25/5218
  *
@@ -35,74 +34,41 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class TeleopDriveTask extends RobotTask {
+public class SimpleMonitorMotorTask extends RobotTask {
     protected Robot robot;
-    protected DcMotor frontLeft;
-    protected DcMotor frontRight;
-    protected DcMotor rearLeft;
-    protected DcMotor rearRight;
+    protected DcMotor motor;
 
-    public double slowMultiplier = 1;
-    protected double speedLimit;
+    public enum EventKind {
+        MOVING_FORWARD,
+        MOVING_BACKWARD,
+        STOPPED,
+    }
 
-    public boolean isSuspended = false;
+    public class SimpleMonitorMotorEvent extends RobotEvent {
+        public EventKind kind;
+        public int val;
 
-    protected JoystickDriveControlScheme driveScheme;
+        public SimpleMonitorMotorEvent(RobotTask task, EventKind kind) {
+            super(task);
+            this.kind = kind;
+        }
+    }
 
-    public TeleopDriveTask(Robot robot, JoystickDriveControlScheme driveScheme, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
+    public SimpleMonitorMotorTask(Robot robot, DcMotor motor)
     {
         super(robot);
 
-        this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-        this.rearLeft = rearLeft;
-        this.rearRight = rearRight;
+        this.motor = motor;
         this.robot = robot;
-        this.isSuspended = false;
-        this.driveScheme = driveScheme;
-        this.speedLimit = 1.0;
-    }
-
-    public TeleopDriveTask(Robot robot, double speedLimit, JoystickDriveControlScheme driveScheme, DcMotor frontLeft, DcMotor frontRight, DcMotor rearLeft, DcMotor rearRight)
-    {
-        super(robot);
-
-        this.frontLeft = frontLeft;
-        this.frontRight = frontRight;
-        this.rearLeft = rearLeft;
-        this.rearRight = rearRight;
-        this.robot = robot;
-        this.isSuspended = false;
-        this.driveScheme = driveScheme;
-        this.speedLimit = speedLimit;
-    }
-
-    public void suspendTask(boolean isSuspended)
-    {
-        this.isSuspended = isSuspended;
     }
 
     @Override
     public void start()
     {
-        // Nothing.
-    }
 
-    public void slowDown(boolean slow)
-    {
-        if (slow) {
-            slowMultiplier = 0.5;
-        } else {
-            slowMultiplier = speedLimit;
-        }
-    }
-
-    public void slowDown(double mult)
-    {
-        slowMultiplier = mult;
     }
 
     @Override
@@ -113,21 +79,13 @@ public class TeleopDriveTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
-        if (isSuspended) {
-            return false;
+        if (motor.getPower() == 0) {
+            robot.queueEvent(new SimpleMonitorMotorEvent(this, EventKind.STOPPED));
+        } else if (motor.getPower() > 0) {
+            robot.queueEvent(new SimpleMonitorMotorEvent(this, EventKind.MOVING_FORWARD));
+        } else if (motor.getPower() < 0) {
+            robot.queueEvent(new SimpleMonitorMotorEvent(this, EventKind.MOVING_BACKWARD));
         }
-
-
-        MotorValues values = driveScheme.getMotorPowers();
-
-        // RobotLog.i("teleop timeslice %f, %f, %f, %f",
-        //        values.fl, values.rl, values.fr, values.rr);
-
-        frontLeft.setPower(values.fl * slowMultiplier);
-        rearLeft.setPower(values.rl * slowMultiplier);
-        frontRight.setPower(values.fr * slowMultiplier);
-        rearRight.setPower(values.rr * slowMultiplier);
-
         return false;
     }
 }

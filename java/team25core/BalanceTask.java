@@ -120,7 +120,6 @@ public class BalanceTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override

@@ -179,7 +179,6 @@ public class MonitorMotorTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     protected void calculateRpm()
@@ -200,8 +199,6 @@ public class MonitorMotorTask extends RobotTask {
             return;
         }
 
-        RobotLog.i("RPM - start");
-
         /*
          * Someone should check my math.  The equation could be simplified but I was
          * intentionally verbose in order to attempt to document how we are calculating RPM.
@@ -209,22 +206,13 @@ public class MonitorMotorTask extends RobotTask {
         deltaPosition = position - lastPosition;
         deltaTime = (int)timeSinceLastCall.milliseconds();
 
-        RobotLog.i("RPM - deltaPosition: " + deltaPosition);
-        RobotLog.i("RPM - deltaTime: " + deltaTime);
-
         distanceRotated = (deltaPosition / (double)ticksPerRevolution);
-        RobotLog.i("RPM - distanceRotated: " + distanceRotated);
         oneRotationMultiplier = 1 / distanceRotated;
 
-        RobotLog.i("RPM - oneRotationMultiplier: " + oneRotationMultiplier);
-
         rpm = (int)(MILLIS_IN_MINUTE / (oneRotationMultiplier * deltaTime));
-        RobotLog.i("RPM - rpm: " + rpm);
 
         timeSinceLastCall.reset();
         lastPosition = position;
-
-        RobotLog.i("RPM - end");
     }
 
     @Override

@@ -111,8 +111,6 @@ public class LimitSwitchTask extends RobotTask {
     @Override
     public void stop()
     {
-        // Remove task.
-        robot.removeTask(this);
     }
 
     @Override

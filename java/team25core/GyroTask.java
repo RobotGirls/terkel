@@ -99,7 +99,6 @@ public class GyroTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override

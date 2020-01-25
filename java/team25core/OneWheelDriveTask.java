@@ -92,7 +92,6 @@ public class OneWheelDriveTask extends RobotTask
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     public void useCeiling(double ceiling)

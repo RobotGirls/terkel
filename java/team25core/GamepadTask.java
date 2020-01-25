@@ -145,7 +145,6 @@ public class GamepadTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     /*

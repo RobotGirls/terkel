@@ -33,15 +33,21 @@
 
 package team25core;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import static team25core.DeadReckonPath.SegmentState.STOP_MOTORS;
+import static team25core.DeadReckonPath.SegmentState.WAIT;
 import static team25core.DeadReckonPath.SegmentType.LEFT_DIAGONAL;
 import static team25core.DeadReckonPath.SegmentType.RIGHT_DIAGONAL;
 import static team25core.DeadReckonPath.SegmentType.SIDEWAYS;
 import static team25core.DeadReckonPath.SegmentType.STRAIGHT;
+import static team25core.DeadReckonPath.SegmentType.PAUSE;
 import static team25core.DeadReckonPath.SegmentType.TURN;
 
 public class DeadReckonTask extends RobotTask {
+
+    private final static String TAG = "DeadREckonTask";
 
     public enum EventKind {
         SEGMENT_DONE,
@@ -50,6 +56,7 @@ public class DeadReckonTask extends RobotTask {
         RIGHT_SENSOR_SATISFIED,
         LEFT_SENSOR_SATISFIED,
         PATH_DONE,
+        PAUSING,
     }
 
     protected enum DoneReason {
@@ -106,6 +113,9 @@ public class DeadReckonTask extends RobotTask {
     protected SensorCriteria rightCriteria;
     protected DoneReason reason;
     protected Drivetrain drivetrain;
+    protected ElapsedTime timer;
+    protected boolean isStrafing;
+    protected boolean isStraight;
 
     SingleShotTimerTask sst;
     int waitState = 0;
@@ -155,13 +165,14 @@ public class DeadReckonTask extends RobotTask {
     @Override
     public void start()
     {
-
+        RobotLog.i(TAG, "Start");
     }
 
     @Override
     public void stop()
     {
-        robot.removeTask(this);
+        RobotLog.i(TAG, "Stop");
+        drivetrain.stop();
     }
 
     public void setTarget(DeadReckonPath.Segment segment)
@@ -186,6 +197,19 @@ public class DeadReckonTask extends RobotTask {
         } else {
             return true;
         }
+    }
+
+    public void disableSensors() {
+        sensorsInstalled = SensorsInstalled.SENSORS_NONE;
+    }
+
+    protected void setupWaitState(DeadReckonPath.Segment segment, boolean sendEvent)
+    {
+        if (sendEvent == true) {
+            robot.queueEvent(new DeadReckonEvent(this, EventKind.PAUSING, num));
+        }
+        segment.state = WAIT;
+        timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     }
 
     @Override
@@ -241,11 +265,15 @@ public class DeadReckonTask extends RobotTask {
             } else if (reason == DoneReason.RIGHT_SENSOR_SATISFIED) {
                 RobotLog.e("251 Dead reckon right sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.RIGHT_SENSOR_SATISFIED, num));
+            } else {
+                RobotLog.e("251 Dead reckon segment %d done - no reason", num);
             }
         }
 
         switch (segment.state) {
         case INITIALIZE:
+            isStrafing = false;
+            isStraight = false;
             drivetrain.resetEncoders();
             segment.state = DeadReckonPath.SegmentState.ENCODER_RESET;
             break;
@@ -259,11 +287,20 @@ public class DeadReckonTask extends RobotTask {
             segment.state = DeadReckonPath.SegmentState.CONSUME_SEGMENT;
             break;
         case CONSUME_SEGMENT:
+            if (segment.type == PAUSE) {
+                setupWaitState(segment, true);
+                break;
+            }
+
             if (segment.type == STRAIGHT) {
+                isStraight = true;
                 drivetrain.straight(segment.speed);
             } else if (segment.type == SIDEWAYS) {
-                RobotLog.i("*****************************************SIDEWAYS CONSUME SEGMENT");
-                drivetrain.strafe(segment.speed);
+                isStrafing = true;
+                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
+                    @Override
+                    public void run(double speed) { drivetrain.strafe(speed); }
+                });
             } else if (segment.type == LEFT_DIAGONAL) {
                 drivetrain.leftDiagonal(segment.speed);
             } else if (segment.type == RIGHT_DIAGONAL) {
@@ -275,48 +312,60 @@ public class DeadReckonTask extends RobotTask {
             break;
         case ENCODER_TARGET:
             if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
-                RobotLog.i("251 Solo sensor criteria satisfied");
-                segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
+                RobotLog.i("5218 Solo sensor criteria satisfied");
+                segment.state = STOP_MOTORS;
                 reason = DoneReason.SENSOR_SATISFIED;
-            } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
-                if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
-                    RobotLog.i("251 Left and right criteria satisfied");
-                    segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
-                    reason = DoneReason.BOTH_SENSORS_SATISFIED;
-                } else if (leftCriteria.satisfied()) {
-                    RobotLog.i("251 Left criteria satisfied");
-                    segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
+            } else if (sensorsInstalled == SensorsInstalled.SENSORS_ONE) {
+                if (leftCriteria.satisfied()) {
+                    RobotLog.i("5218 Left criteria satisfied");
+                    segment.state = STOP_MOTORS;
                     reason = DoneReason.LEFT_SENSOR_SATISFIED;
                 } else if (rightCriteria.satisfied()) {
-                    RobotLog.i("251 Right criteria satisfied");
-                    segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
+                    RobotLog.i("5218 Right criteria satisfied");
+                    segment.state = STOP_MOTORS;
                     reason = DoneReason.RIGHT_SENSOR_SATISFIED;
                 }
+            } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
+                if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
+                    RobotLog.i("5218 Left and right criteria satisfied");
+                    segment.state = STOP_MOTORS;
+                    reason = DoneReason.BOTH_SENSORS_SATISFIED;
+                }
             } else if (hitTarget()) {
-                segment.state = DeadReckonPath.SegmentState.STOP_MOTORS;
+                segment.state = STOP_MOTORS;
                 reason = DoneReason.ENCODER_REACHED;
             }
             break;
         case STOP_MOTORS:
-            drivetrain.stop();
-            segment.state = DeadReckonPath.SegmentState.WAIT;
-            waitState = 0;
+            if (isStrafing == true) {
+                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
+                    @Override
+                    public void run(double speed) { drivetrain.strafe(speed); }
+                });
+            } else if (isStraight == true) {
+                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
+                    @Override
+                    public void run(double speed) { drivetrain.straight(speed); }
+                });
+            } else {
+                drivetrain.stop();
+            }
+            setupWaitState(segment, false);
+            break;
         case WAIT:
-            waitState++;
-            /*
-             * About 1/2 a second give or take, just insure we are stopped before moving on.
-             */
-            if (waitState > 50) {
+            if (timer.time() >= segment.millisecond_pause) {
                 segment.state = DeadReckonPath.SegmentState.DONE;
             }
+            break;
         case DONE:
             num++;
             dr.nextSegment();
             segment.state = DeadReckonPath.SegmentState.INITIALIZE;
+            break;
         }
 
-        // robot.telemetry.addData("Segment: ", num);
-        // robot.telemetry.addData("State: ", segment.state.toString());
+        robot.telemetry.addData("Segment: ", num);
+        robot.telemetry.addData("State: ", segment.state.toString());
 
         return false;
     }

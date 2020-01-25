@@ -115,7 +115,6 @@ public class TwoAxisShoulderTask extends RobotTask {
     {
         xAxis.setPosition(X_AXIS_NEUTRAL);
         yAxis.setPosition(Y_AXIS_STOWED);
-        robot.removeTask(this);
     }
 
     private boolean delay()

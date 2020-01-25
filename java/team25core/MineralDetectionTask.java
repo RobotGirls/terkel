@@ -85,7 +85,7 @@ public class MineralDetectionTask extends RobotTask {
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
 
         if (cameraName != null) {
             parameters.vuforiaLicenseKey = VuforiaConstants.WEBCAM_VUFORIA_KEY;
@@ -145,7 +145,6 @@ public class MineralDetectionTask extends RobotTask {
     public void stop()
     {
         tfod.deactivate();
-        robot.removeTask(this);
     }
 
     public static MineralKind isMineral(Recognition object)

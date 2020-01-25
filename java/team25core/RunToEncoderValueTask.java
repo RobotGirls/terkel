@@ -120,11 +120,20 @@ public class RunToEncoderValueTask extends RobotTask {
     @Override
     public void start()
     {
+        master.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        master.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        master.setPower(power);
+        for (DcMotor m : slaves) {
+            m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            m.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            m.setPower(power);
+        }
     }
 
     @Override
     public void stop()
     {
+        RobotLog.i("Stopping RTV task");
         master.setPower(0.0);
         master.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         master.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -133,14 +142,11 @@ public class RunToEncoderValueTask extends RobotTask {
             slave.setPower(0.0);
         }
 
-        robot.removeTask(this);
     }
 
     @Override
     public boolean timeslice()
     {
-        master.setPower(power);
-
         int pos = Math.abs(master.getCurrentPosition());
 
         if (pos >= (encoderValue * 0.25) && (t_25 == null)) {

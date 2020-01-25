@@ -37,17 +37,28 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 public abstract class RobotTask {
 
+    private final static String TAG = "RobotTask";
+
     protected Robot robot;
     protected RobotEventListener listener;
+    protected boolean isSuspended;
 
     public RobotTask(Robot robot)
     {
         this.robot = robot;
         this.listener = null;
+        this.isSuspended = false;
     }
 
-    public abstract void start();
-    public abstract void stop();
+    public void start()
+    {
+        RobotLog.i(TAG, "Start task %s", this.toString());
+    }
+
+    public void stop()
+    {
+        RobotLog.i(TAG, "Stop task %s", this.toString());
+    }
 
     public String toString()
     {
@@ -66,6 +77,21 @@ public abstract class RobotTask {
         } else {
             robot.handleEvent(e);
         }
+    }
+
+    public void suspend()
+    {
+        isSuspended = true;
+    }
+
+    public void resume()
+    {
+        isSuspended = false;
+    }
+
+    public boolean isSuspended()
+    {
+        return isSuspended;
     }
 
     /*

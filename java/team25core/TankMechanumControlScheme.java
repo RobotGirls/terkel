@@ -1,5 +1,7 @@
 package team25core;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 /**
@@ -8,6 +10,24 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 
 public class TankMechanumControlScheme implements JoystickDriveControlScheme {
+
+    /*
+     * An Andymark 40 native spin direction is counterclockwise.
+     */
+    public enum DriveType {
+        DRIVE_GEARED,
+        DRIVE_DIRECT,
+    };
+
+    public enum MotorPosition {
+        OUTER_OPPOSED,
+        INNER_OPPOSED,
+    };
+
+    public enum MotorDirection {
+        CANONICAL,
+        NONCANONICAL,
+    };
 
     protected double fr;
     protected double fl;
@@ -18,10 +38,18 @@ public class TankMechanumControlScheme implements JoystickDriveControlScheme {
     protected double leftY;
     protected double rightY;
     protected Gamepad gamepad;
+    protected MotorDirection motorDirection;
 
     public TankMechanumControlScheme(Gamepad gamepad)
     {
         this.gamepad = gamepad;
+        this.motorDirection = MotorDirection.CANONICAL;
+    }
+
+    public TankMechanumControlScheme(Gamepad gamepad, MotorDirection motorDirection)
+    {
+        this.gamepad = gamepad;
+        this.motorDirection = motorDirection;
     }
 
     public MotorValues getMotorPowers()
@@ -34,16 +62,11 @@ public class TankMechanumControlScheme implements JoystickDriveControlScheme {
         // If joysticks are pointed left (negative joystick values), counter rotate wheels.
         // Threshold for joystick values in the x may vary.
 
-        if (leftX > 0.5 && rightX > 0.5) {          // sideways left
+        if (Math.abs(leftX) > 0.5 && Math.abs(rightX) > 0.5) {          // sideways right
             fl = -leftX;
             rl = leftX;
-            fr = -rightX;
-            rr = rightX;
-        } else if (leftX < -0.5 && rightX < -0.5) { // sideways right
-            fl = -leftX;
-            rl = leftX;
-            fr = -rightX;
-            rr = rightX;
+            fr = rightX;
+            rr = -rightX;
         } else if (gamepad.right_trigger > 0.5) {   // backward diagonal to the right
             fr = -1.0;
             rl = 1.0;
@@ -59,8 +82,8 @@ public class TankMechanumControlScheme implements JoystickDriveControlScheme {
         } else {                                    // forward or backward
             fl = leftY;
             rl = leftY;
-            fr = -rightY;
-            rr = -rightY;
+            fr = rightY;
+            rr = rightY;
         }
 
         return new MotorValues(fl, fr, rl, rr);
