@@ -80,7 +80,6 @@ public class ServoOscillateTask extends RobotTask {
 
     public void stop(float end) {
         servo.setPosition(end/256.0);
-        robot.removeTask(this);
     }
 
     @Override

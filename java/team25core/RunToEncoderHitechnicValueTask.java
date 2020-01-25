@@ -84,7 +84,6 @@ public abstract class RunToEncoderHitechnicValueTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override

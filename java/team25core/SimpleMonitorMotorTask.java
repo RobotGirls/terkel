@@ -74,7 +74,6 @@ public class SimpleMonitorMotorTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override

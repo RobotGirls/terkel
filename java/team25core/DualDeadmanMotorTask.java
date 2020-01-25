@@ -219,7 +219,6 @@ public class DualDeadmanMotorTask extends RobotTask {
     public void stop()
     {
         motor.setPower(0.0);
-        robot.removeTask(this);
     }
 
     @Override

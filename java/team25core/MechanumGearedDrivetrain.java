@@ -49,7 +49,7 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
 
     double multiplier;
 
-    public MechanumGearedDrivetrain(int encoderTicksPerInch, DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
+    public MechanumGearedDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
     {
         super();
 
@@ -58,7 +58,6 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
 
-        this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = 1.0;
 
@@ -71,7 +70,7 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
         setMasterMotor(rearRight);
     }
 
-    public MechanumGearedDrivetrain(int encoderTicksPerInch, Map<MotorPackage.MotorLocation, MotorPackage> motorMap)
+    public MechanumGearedDrivetrain(Map<MotorPackage.MotorLocation, MotorPackage> motorMap)
     {
         super();
 
@@ -80,7 +79,6 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
         this.frontLeft = motorMap.get(MotorPackage.MotorLocation.FRONT_LEFT).motor;
         this.frontRight = motorMap.get(MotorPackage.MotorLocation.FRONT_RIGHT).motor;
 
-        this.encoderTicksPerInch = encoderTicksPerInch;
         this.encoderTarget = 0;
         this.multiplier = 1.0;
 

@@ -125,7 +125,6 @@ public class IMUGyroTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     String formatAngle(AngleUnit angleUnit, double angle) {

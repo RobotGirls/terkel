@@ -208,7 +208,6 @@ public class NavigateToTargetTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
         drivetrain.stop();
     }
 

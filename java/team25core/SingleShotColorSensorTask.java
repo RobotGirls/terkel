@@ -143,7 +143,6 @@ public class SingleShotColorSensorTask extends RobotTask
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     protected void doReflectColor(int red, int green, int blue)

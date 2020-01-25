@@ -142,7 +142,6 @@ public class RunToEncoderValueTask extends RobotTask {
             slave.setPower(0.0);
         }
 
-        robot.removeTask(this);
     }
 
     @Override

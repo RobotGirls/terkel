@@ -76,7 +76,6 @@ public class SingleShotTimerTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override
@@ -88,5 +87,10 @@ public class SingleShotTimerTask extends RobotTask {
         } else {
             return false;
         }
+    }
+
+    public String toString()
+    {
+        return "SingleShotTimerTask";
     }
 }

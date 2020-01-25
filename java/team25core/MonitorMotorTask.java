@@ -179,7 +179,6 @@ public class MonitorMotorTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     protected void calculateRpm()
