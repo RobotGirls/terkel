@@ -108,7 +108,6 @@ public class TeleopDriveTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override

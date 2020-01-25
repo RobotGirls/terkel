@@ -36,12 +36,17 @@ package team25core;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class Robot extends OpMode {
 
-    ConcurrentLinkedQueue<RobotTask> tasks;
+    private final static String TAG = "BaseRobot";
+
     ConcurrentLinkedQueue<RobotEvent> events;
+    ConcurrentLinkedQueue<RobotTask> tasks;
+    Queue<RobotTask> tasksToRemove;
 
     boolean started;
 
@@ -53,8 +58,9 @@ public abstract class Robot extends OpMode {
         msStuckDetectLoop     = 500000;
         msStuckDetectStop     = 1000000;
 
-        tasks = new ConcurrentLinkedQueue<RobotTask>();
         events = new ConcurrentLinkedQueue<RobotEvent>();
+        tasks = new ConcurrentLinkedQueue<RobotTask>();
+        tasksToRemove = new LinkedList<RobotTask>();
         started = false;
     }
 
@@ -62,12 +68,15 @@ public abstract class Robot extends OpMode {
 
     public void addTask(RobotTask task)
     {
+        RobotLog.ii(TAG, "Adding task: " + task.toString());
         tasks.add(task);
         task.start();
     }
 
     public void removeTask(RobotTask task)
     {
+        RobotLog.ii(TAG, "Removing task: " + task.toString());
+        task.stop();
         tasks.remove(task);
     }
 
@@ -84,7 +93,7 @@ public abstract class Robot extends OpMode {
     public void dumpTask()
     {
         for (RobotTask t:tasks) {
-            RobotLog.i(t.toString());
+            RobotLog.ii(TAG, t.toString());
         }
     }
 
@@ -101,11 +110,25 @@ public abstract class Robot extends OpMode {
         loop();
     }
 
-    @Override
-    public void loop()
+    public static void processEvents(ConcurrentLinkedQueue<RobotEvent> events)
     {
         RobotEvent e;
 
+        /*
+         * This is a straight FIFO queue.  Pull an event off the queue, process it,
+         * move on to the next one.
+         */
+        e = events.poll();
+        while (e != null) {
+            RobotLog.ii(TAG, "Sending event: %s", e.toString());
+            e.handleEvent();
+            e = events.poll();
+        }
+    };
+
+    @Override
+    public void loop()
+    {
         /*
          * A list of tasks to give timeslices to.  A task remains in the list
          * until it tells the Robot that it is finished (true: I'm done, false: I have
@@ -118,18 +141,16 @@ public abstract class Robot extends OpMode {
 
             if (t.timeslice()) {
                 t.stop();
+                tasksToRemove.add(t);
             }
         }
 
-        /*
-         * This is a straight FIFO queue.  Pull an event off the queue, process it,
-         * move on to the next one.
-         */
-        e = events.poll();
-        while (e != null) {
-            e.handleEvent();
-            e = events.poll();
+        RobotTask removal = tasksToRemove.poll();
+        while (removal != null) {
+            removeTask(removal);
+            removal = tasksToRemove.poll();
         }
 
+        processEvents(events);
     }
 }

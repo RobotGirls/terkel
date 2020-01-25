@@ -47,6 +47,8 @@ import static team25core.DeadReckonPath.SegmentType.TURN;
 
 public class DeadReckonTask extends RobotTask {
 
+    private final static String TAG = "DeadREckonTask";
+
     public enum EventKind {
         SEGMENT_DONE,
         SENSOR_SATISFIED,
@@ -112,6 +114,8 @@ public class DeadReckonTask extends RobotTask {
     protected DoneReason reason;
     protected Drivetrain drivetrain;
     protected ElapsedTime timer;
+    protected boolean isStrafing;
+    protected boolean isStraight;
 
     SingleShotTimerTask sst;
     int waitState = 0;
@@ -161,13 +165,14 @@ public class DeadReckonTask extends RobotTask {
     @Override
     public void start()
     {
-
+        RobotLog.i(TAG, "Start");
     }
 
     @Override
     public void stop()
     {
-        robot.removeTask(this);
+        RobotLog.i(TAG, "Stop");
+        drivetrain.stop();
     }
 
     public void setTarget(DeadReckonPath.Segment segment)
@@ -267,6 +272,8 @@ public class DeadReckonTask extends RobotTask {
 
         switch (segment.state) {
         case INITIALIZE:
+            isStrafing = false;
+            isStraight = false;
             drivetrain.resetEncoders();
             segment.state = DeadReckonPath.SegmentState.ENCODER_RESET;
             break;
@@ -286,10 +293,14 @@ public class DeadReckonTask extends RobotTask {
             }
 
             if (segment.type == STRAIGHT) {
+                isStraight = true;
                 drivetrain.straight(segment.speed);
             } else if (segment.type == SIDEWAYS) {
-                RobotLog.i("*****************************************SIDEWAYS CONSUME SEGMENT");
-                drivetrain.strafe(segment.speed);
+                isStrafing = true;
+                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
+                    @Override
+                    public void run(double speed) { drivetrain.strafe(speed); }
+                });
             } else if (segment.type == LEFT_DIAGONAL) {
                 drivetrain.leftDiagonal(segment.speed);
             } else if (segment.type == RIGHT_DIAGONAL) {
@@ -326,7 +337,19 @@ public class DeadReckonTask extends RobotTask {
             }
             break;
         case STOP_MOTORS:
-            drivetrain.stop();
+            if (isStrafing == true) {
+                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
+                    @Override
+                    public void run(double speed) { drivetrain.strafe(speed); }
+                });
+            } else if (isStraight == true) {
+                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
+                    @Override
+                    public void run(double speed) { drivetrain.straight(speed); }
+                });
+            } else {
+                drivetrain.stop();
+            }
             setupWaitState(segment, false);
             break;
         case WAIT:

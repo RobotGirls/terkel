@@ -132,7 +132,6 @@ public class AlignWithWhiteLineTask extends RobotTask {
     public void stop()
     {
         drivetrain.stop();
-        robot.removeTask(this);
         RobotLog.i(LOG_TAG + "================= STOP EDGE FIND ================== ");
     }
 

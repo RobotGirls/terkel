@@ -84,7 +84,6 @@ public class TankDriveTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override

@@ -86,7 +86,6 @@ public class PeriodicTimerTask extends RobotTask {
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override

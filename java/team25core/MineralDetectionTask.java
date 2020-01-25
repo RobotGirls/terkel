@@ -145,7 +145,6 @@ public class MineralDetectionTask extends RobotTask {
     public void stop()
     {
         tfod.deactivate();
-        robot.removeTask(this);
     }
 
     public static MineralKind isMineral(Recognition object)

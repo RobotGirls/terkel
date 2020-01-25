@@ -90,7 +90,6 @@ public class TwoWheelDriveTask extends RobotTask
     @Override
     public void stop()
     {
-        robot.removeTask(this);
     }
 
     @Override

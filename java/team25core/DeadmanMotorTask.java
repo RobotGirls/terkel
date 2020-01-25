@@ -186,7 +186,6 @@ public class DeadmanMotorTask extends RobotTask {
     public void stop()
     {
         motor.setPower(0.0);
-        robot.removeTask(this);
     }
 
     @Override
