@@ -1,10 +1,8 @@
 package examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import team25core.MonitorMotorTask;
 import team25core.Robot;
 import team25core.RobotEvent;
 
@@ -13,9 +11,13 @@ import team25core.RobotEvent;
  */
 
 @Autonomous(name = "Monitor Motor Example")
-@Disabled
+//Disabled
 public class MonitorMotorExample extends Robot {
-    private DcMotor left;
+
+    private DcMotor frontLeft;
+    private DcMotor rearLeft;
+    private DcMotor rearRight;
+    private DcMotor frontRight;
 
     @Override
     public void handleEvent(RobotEvent e) {
@@ -24,14 +26,23 @@ public class MonitorMotorExample extends Robot {
 
     @Override
     public void init() {
-        left = hardwareMap.get(DcMotor.class, "right");
-        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft = hardwareMap.get(DcMotor.class, "frontleft");
+        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
+        rearRight = hardwareMap.get(DcMotor.class, "backRight");
+        rearLeft = hardwareMap.get(DcMotor.class, "backleft");
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
     public void start() {
-        left.setPower(.5);
-        this.addTask(new MonitorMotorTask(this, left, MonitorMotorTask.MotorKind.ANDYMARK_40, (char)((char)MonitorMotorTask.LOG_POSITION | MonitorMotorTask.DISPLAY_POSITION)));
+        frontLeft.setPower(.3);
+        frontRight.setPower(.3);
+        rearLeft.setPower(.3);
+        rearRight.setPower(.3);
     }
 
 }

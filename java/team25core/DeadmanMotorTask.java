@@ -74,7 +74,7 @@ public class DeadmanMotorTask extends RobotTask {
     final int MINMAX_POSITION_NOT_SET = 0xdeadbeef;
     int minPosition = MINMAX_POSITION_NOT_SET ;
     int maxPosition = MINMAX_POSITION_NOT_SET ;
-`
+
     ///Creates a DeadmanMotorTask without HoldMotorPositionTask
     public DeadmanMotorTask(Robot robot, DcMotor motor, double power, GamepadTask.GamepadNumber gamepad, DeadmanButton button)
     {
@@ -199,7 +199,7 @@ public class DeadmanMotorTask extends RobotTask {
     @Override
     public void start()
     {
-        motor.setPower(0.0);
+        motor.setPower(1.0); //changed from 0.0
 
         robot.addTask(new GamepadTask(robot, gamepad) {
             @Override
