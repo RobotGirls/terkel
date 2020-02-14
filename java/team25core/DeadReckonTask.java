@@ -316,11 +316,11 @@ public class DeadReckonTask extends RobotTask {
                 segment.state = STOP_MOTORS;
                 reason = DoneReason.SENSOR_SATISFIED;
             } else if (sensorsInstalled == SensorsInstalled.SENSORS_ONE) {
-                if (leftCriteria.satisfied()) {
+                if ((leftCriteria != null) && leftCriteria.satisfied()) {
                     RobotLog.i("5218 Left criteria satisfied");
                     segment.state = STOP_MOTORS;
                     reason = DoneReason.LEFT_SENSOR_SATISFIED;
-                } else if (rightCriteria.satisfied()) {
+                } else if ((rightCriteria != null) && rightCriteria.satisfied()) {
                     RobotLog.i("5218 Right criteria satisfied");
                     segment.state = STOP_MOTORS;
                     reason = DoneReason.RIGHT_SENSOR_SATISFIED;
