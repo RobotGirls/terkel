@@ -37,6 +37,7 @@ public class RobotTaskChain extends RobotTask {
         }
 
         currentTask = tasks.poll();
+        currentTask.start();
     }
 
     public void stop()
@@ -58,6 +59,8 @@ public class RobotTaskChain extends RobotTask {
                 stop();
                 robot.removeTask(this);
                 return true;
+            } else {
+                currentTask.start();
             }
         }
 
