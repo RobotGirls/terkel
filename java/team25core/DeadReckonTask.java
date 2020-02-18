@@ -249,7 +249,7 @@ public class DeadReckonTask extends RobotTask {
             dr.stop();
             drivetrain.stop();
             return true;
-        } else if (segment.state == DeadReckonPath.SegmentState.DONE) {
+        } else if ((segment.state == DeadReckonPath.SegmentState.DONE) && (dr.numSegments() > 1)) {
             if (reason == DoneReason.ENCODER_REACHED) {
                 RobotLog.e("251 Dead reckon segment %d done", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SEGMENT_DONE, num));
