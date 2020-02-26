@@ -164,16 +164,9 @@ public class MechanumGearedDrivetrain extends DrivetrainBaseImpl implements Driv
         double adjSpeed;
 
         adjSpeed = setAdjustedPower(motorMap.get(MotorPackage.MotorLocation.FRONT_RIGHT), -speed);
-        RobotLog.i("%s, %f", MotorPackage.MotorLocation.FRONT_RIGHT.toString(), adjSpeed);
-
         adjSpeed = setAdjustedPower(motorMap.get(MotorPackage.MotorLocation.BACK_RIGHT), speed);
-        RobotLog.i("%s, %f", MotorPackage.MotorLocation.BACK_RIGHT.toString(), adjSpeed);
-
         adjSpeed = setAdjustedPower(motorMap.get(MotorPackage.MotorLocation.FRONT_LEFT), speed);
-        RobotLog.i("%s, %f", MotorPackage.MotorLocation.FRONT_LEFT.toString(), adjSpeed);
-
         adjSpeed = setAdjustedPower(motorMap.get(MotorPackage.MotorLocation.BACK_LEFT), -speed);
-        RobotLog.i("%s, %f", MotorPackage.MotorLocation.BACK_LEFT.toString(), adjSpeed);
     }
 
     @Override

@@ -116,6 +116,7 @@ public class DeadReckonTask extends RobotTask {
     protected ElapsedTime timer;
     protected boolean isStrafing;
     protected boolean isStraight;
+    protected boolean smoothStart;
 
     SingleShotTimerTask sst;
     int waitState = 0;
@@ -132,6 +133,7 @@ public class DeadReckonTask extends RobotTask {
         this.leftCriteria = null;
         this.rightCriteria = null;
         this.drivetrain = drivetrain;
+        this.smoothStart = false;
     }
 
     public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria criteria)
@@ -146,6 +148,7 @@ public class DeadReckonTask extends RobotTask {
         this.leftCriteria = criteria;
         this.rightCriteria = null;
         this.drivetrain = drivetrain;
+        this.smoothStart = false;
     }
 
     public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria)
@@ -160,6 +163,7 @@ public class DeadReckonTask extends RobotTask {
         this.leftCriteria = leftCriteria;
         this.rightCriteria = rightCriteria;
         this.drivetrain = drivetrain;
+        this.smoothStart = false;
     }
 
     @Override
@@ -173,6 +177,11 @@ public class DeadReckonTask extends RobotTask {
     {
         RobotLog.i(TAG, "Stop");
         drivetrain.stop();
+    }
+
+    public void useSmoothStart(boolean on)
+    {
+        smoothStart = on;
     }
 
     public void setTarget(DeadReckonPath.Segment segment)
@@ -294,13 +303,24 @@ public class DeadReckonTask extends RobotTask {
 
             if (segment.type == STRAIGHT) {
                 isStraight = true;
-                drivetrain.straight(segment.speed);
+                if (smoothStart == true) {
+                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
+                        @Override
+                        public void run(double speed) { drivetrain.straight(speed); }
+                    });
+                } else {
+                    drivetrain.straight(segment.speed);
+                }
             } else if (segment.type == SIDEWAYS) {
                 isStrafing = true;
-                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
-                    @Override
-                    public void run(double speed) { drivetrain.strafe(speed); }
-                });
+                if (smoothStart == true) {
+                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
+                        @Override
+                        public void run(double speed) { drivetrain.strafe(speed); }
+                    });
+                } else {
+                    drivetrain.strafe(segment.speed);
+                }
             } else if (segment.type == LEFT_DIAGONAL) {
                 drivetrain.leftDiagonal(segment.speed);
             } else if (segment.type == RIGHT_DIAGONAL) {
@@ -315,16 +335,6 @@ public class DeadReckonTask extends RobotTask {
                 RobotLog.i("5218 Solo sensor criteria satisfied");
                 segment.state = STOP_MOTORS;
                 reason = DoneReason.SENSOR_SATISFIED;
-            } else if (sensorsInstalled == SensorsInstalled.SENSORS_ONE) {
-                if ((leftCriteria != null) && leftCriteria.satisfied()) {
-                    RobotLog.i("5218 Left criteria satisfied");
-                    segment.state = STOP_MOTORS;
-                    reason = DoneReason.LEFT_SENSOR_SATISFIED;
-                } else if ((rightCriteria != null) && rightCriteria.satisfied()) {
-                    RobotLog.i("5218 Right criteria satisfied");
-                    segment.state = STOP_MOTORS;
-                    reason = DoneReason.RIGHT_SENSOR_SATISFIED;
-                }
             } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
                 if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
                     RobotLog.i("5218 Left and right criteria satisfied");
@@ -337,16 +347,18 @@ public class DeadReckonTask extends RobotTask {
             }
             break;
         case STOP_MOTORS:
-            if (isStrafing == true) {
-                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
-                    @Override
-                    public void run(double speed) { drivetrain.strafe(speed); }
-                });
-            } else if (isStraight == true) {
-                robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
-                    @Override
-                    public void run(double speed) { drivetrain.straight(speed); }
-                });
+            if (smoothStart == true) {
+                if (isStrafing == true) {
+                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
+                        @Override
+                        public void run(double speed) { drivetrain.strafe(speed); }
+                    });
+                } else if (isStraight == true) {
+                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
+                        @Override
+                        public void run(double speed) { drivetrain.straight(speed); }
+                    });
+                }
             } else {
                 drivetrain.stop();
             }
