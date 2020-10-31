@@ -33,7 +33,9 @@
 
 package team25core;
 
+
 import java.lang.Object;
+
 
 public class Counter extends Object implements Comparable<Counter> {
 
@@ -61,6 +63,7 @@ public class Counter extends Object implements Comparable<Counter> {
 
     @Override
     public int compareTo(Counter another)
+
     {
         if (this.value == another.value) {
             return 0;
