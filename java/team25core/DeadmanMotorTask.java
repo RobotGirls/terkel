@@ -34,7 +34,6 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class DeadmanMotorTask extends RobotTask {
 
@@ -72,6 +71,13 @@ public class DeadmanMotorTask extends RobotTask {
     HoldPositionTask holdPositionTask;
     boolean useHoldMotorPositionTask=false;
 
+
+    final int MINMAX_POSITION_NOT_SET = 0xdeadbeef;
+    int minPosition = MINMAX_POSITION_NOT_SET ;
+    int maxPosition = MINMAX_POSITION_NOT_SET ;
+
+
+
     ///Creates a DeadmanMotorTask without HoldMotorPositionTask
     public DeadmanMotorTask(Robot robot, DcMotor motor, double power, GamepadTask.GamepadNumber gamepad, DeadmanButton button)
     {
@@ -79,6 +85,7 @@ public class DeadmanMotorTask extends RobotTask {
 
         holdPositionTask=null;
         useHoldMotorPositionTask = false;
+
         this.motor = motor;
         this.gamepad = gamepad;
         this.button = button;
@@ -127,9 +134,18 @@ public class DeadmanMotorTask extends RobotTask {
         }
         return ret;
     }
+    public void setMinMotorPosition(int minPos) {
+        this.minPosition = minPos;
+    }
+    public void setMaxMotorPosition(int maxPos) {
+        this.maxPosition = maxPos;
+    }
 
     protected void toggleMotor(GamepadTask.EventKind kind)
     {
+        int currPosition;
+        boolean positionWithinLimits = true;   //when the position is in limit
+
         switch (kind) {
         case BUTTON_A_DOWN:
         case BUTTON_B_DOWN:
@@ -139,11 +155,34 @@ public class DeadmanMotorTask extends RobotTask {
         case RIGHT_BUMPER_DOWN:
         case LEFT_TRIGGER_DOWN:
         case RIGHT_TRIGGER_DOWN:
+
+            if (minPosition != MINMAX_POSITION_NOT_SET) {
+                currPosition = motor.getCurrentPosition();  //if the position is at a certain number which is the min height then it will stop
+                if (currPosition < minPosition) {
+                    positionWithinLimits = false;
+                }
+            } else if (maxPosition != MINMAX_POSITION_NOT_SET) {
+                currPosition = motor.getCurrentPosition();
+                if (currPosition > maxPosition) {           //if the postion is at the max it stop
+                    positionWithinLimits = false;
+                }
+            } else {
+                positionWithinLimits = true;
+            }
+            if (positionWithinLimits) {  //if the position is within the limits then we give power to the motor
+                motor.setPower(power);
+                robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_DOWN));
+            } else {
+                motor.setPower(0.0);
+                robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_UP));
+
+            }
             motor.setPower(power);
             robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_DOWN));
-            if (useHoldMotorPositionTask) {
+
+            /*if (useHoldMotorPositionTask) {
                 robot.removeTask(holdPositionTask);
-            }
+            }*/
             break;
 
         case BUTTON_A_UP:
