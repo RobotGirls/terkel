@@ -69,6 +69,18 @@ public class AMSColorSensorImproved extends I2cDeviceSynchDevice<I2cDeviceSynchS
     {
         return null;
     }
+
+    @Override
+    public float getGain()
+    {
+        return 0;
+    }
+
+    @Override
+    public void setGain(float newGain)
+    {
+
+    }
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
