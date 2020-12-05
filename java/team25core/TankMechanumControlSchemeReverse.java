@@ -43,30 +43,30 @@ public class TankMechanumControlSchemeReverse implements JoystickDriveControlSch
 
         leftWheelForward   = -1;
         leftWheelBackward  = 1;
-        rightWheelForward  = -1;
-        rightWheelBackward = 1;
+        rightWheelForward  = 1;
+        rightWheelBackward = -1;
 
         // If joysticks are pointed left (negative joystick values), counter rotate wheels.
         // Threshold for joystick values in the x may vary.
 
-        if (leftX > 0.5 && rightX > 0.5) {          // both X-sticks sideways left
+        if (leftX > 0.5 && rightX > 0.5) {          // both joy-sticks sideways left
             //fl = -leftX;
             //rl = leftX;
             //fr = -rightX;
             //rr = rightX;
-            fl = leftWheelBackward;
-            rl = leftWheelForward;
-            fr = rightWheelForward;
-            rr = rightWheelBackward;
-        } else if (leftX < -0.5 && rightX < -0.5) { // both Y-sticks sideways right
+            fl = leftWheelBackward; //front left wheel goes backward
+            rl = leftWheelForward; //rear left wheel goes forward
+            fr = rightWheelForward; //front right wheel goes forward
+            rr = rightWheelBackward; //rear right wheel goes backward
+        } else if (leftX < -0.5 && rightX < -0.5) { // both joy-sticks sideways right
             //fl = -leftX;
             //rl = leftX;
             //fr = -rightX;
             //rr = rightX;
-            fl = leftWheelForward;
-            rl = leftWheelBackward;
-            fr = rightWheelBackward;
-            rr = rightWheelForward;
+            fl = leftWheelForward; //front left goes forward
+            rl = leftWheelBackward; //rear left goes backward
+            fr = rightWheelBackward; //front right goes backward
+            rr = rightWheelForward; //rear right goes forward
         } else if (gamepad.right_trigger > 0.5) {   // backward diagonal to the right
             //fr = -1.0;
             //rl = 1.0;
@@ -88,8 +88,8 @@ public class TankMechanumControlSchemeReverse implements JoystickDriveControlSch
             fl = leftWheelForward;
             rr = rightWheelForward;
         } else {                                    // forward or backward
-            fl = leftY;
-            rl = leftY;
+            fl = -leftY;
+            rl = -leftY;
             //fr = -rightY;
             //rr = -rightY;
             fr = rightY;
