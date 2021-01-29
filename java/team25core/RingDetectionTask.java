@@ -15,7 +15,6 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.firstinspires.ftc.robotcore.external.tfod.TfodSkyStone.TFOD_MODEL_ASSET;
 
 public class RingDetectionTask extends RobotTask {
 
@@ -204,36 +203,8 @@ public class RingDetectionTask extends RobotTask {
         if (!singlerings.isEmpty()) {
             robot.queueEvent(new RingDetectionEvent(this, EventKind.OBJECTS_DETECTED, singlerings));
         }
-
     }
-
-    protected void processLargestSkyStone(List<Recognition> objects)
-    {
-        if (objects.isEmpty()) {
-            return;
-        }
-
-        Recognition largest = null;
-        List<Recognition> singleton;
-
-
-        for (Recognition object : objects) {
-            if (isRing(object) == RingKind.SINGLE_KIND) {
-                if (largest == null) {
-                    largest = object;
-                } else if ((largest.getHeight() * largest.getWidth()) < (object.getWidth() * object.getHeight())) {
-                    largest = object;
-                }
-            }
-        }
-
-        if (largest != null) {
-            singleton = new ArrayList<>();
-            singleton.add(largest);
-            robot.queueEvent(new RingDetectionEvent(this, EventKind.OBJECTS_DETECTED, singleton));
-        }
-    }
-
+    
     //timeslice calls to get information from recognition
     protected void processDetectedObjects(List<Recognition> objects)
     {
@@ -251,15 +222,11 @@ public class RingDetectionTask extends RobotTask {
             case QUAD_RING_DETECTED:
                 processQuadRing(objects);
                 break;
-            case LARGEST_SKY_STONE_DETECTED:
-                processLargestSkyStone(objects);
-                break;
         }
     }
 
     @Override
     public boolean timeslice()
-
     {
      //timeslice set to 0 do when it gets called
         if (rateLimitMs != 0) {
@@ -273,7 +240,6 @@ public class RingDetectionTask extends RobotTask {
         if (rateLimitMs != 0) {
             timer.reset();
         }
-
         return false;
     }
 }
