@@ -204,7 +204,7 @@ public class RingDetectionTask extends RobotTask {
             robot.queueEvent(new RingDetectionEvent(this, EventKind.OBJECTS_DETECTED, singlerings));
         }
     }
-    
+
     //timeslice calls to get information from recognition
     protected void processDetectedObjects(List<Recognition> objects)
     {

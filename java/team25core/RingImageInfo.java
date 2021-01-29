@@ -5,7 +5,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import team25core.RingDetectionTask;
 import team25core.Robot;
 
-class RingImageInfo {
+public class RingImageInfo {
     private double confidence;
     private double left;
     private String ringType;
@@ -45,15 +45,15 @@ class RingImageInfo {
     //this is the default constructor
     public RingImageInfo() {}
 
-    protected double getConfidence(){
+    public double getConfidence(){
         return confidence;
     }
 
-    protected String getRingType(){
+    public String getRingType(){
         return ringType;
     }
 
-    protected void getImageInfo(RingDetectionTask.RingDetectionEvent event) {
+    public void getImageInfo(RingDetectionTask.RingDetectionEvent event) {
         //confidence is the likelihood that the object we detect is a ring in percentage
         //get(0) = gets the first item in the list of recognition objects pointed to by rings.
         // rings = a variable in the ring detection event
