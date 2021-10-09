@@ -68,7 +68,18 @@ public class GamepadTask extends RobotTask {
         DPAD_UP_DOWN,
         DPAD_UP_UP,
         DPAD_DOWN_DOWN,
-        DPAD_DOWN_UP;
+        DPAD_DOWN_UP,
+        LEFT_STICK_DOWN,
+        LEFT_STICK_UP,
+        LEFT_STICK_RIGHT,
+        LEFT_STICK_LEFT,
+        RIGHT_STICK_DOWN,
+        RIGHT_STICK_UP,
+        RIGHT_STICK_RIGHT,
+        RIGHT_STICK_LEFT,
+        LEFT_STICK_NEUTRAL,
+        RIGHT_STICK_NEUTRAL;
+
     };
 
     public class GamepadEvent extends RobotEvent {
@@ -101,6 +112,17 @@ public class GamepadTask extends RobotTask {
         public boolean dpad_right_pressed;
         public boolean dpad_up_pressed;
         public boolean dpad_down_pressed;
+        public boolean left_stick_down;
+        public boolean left_stick_up;
+        public boolean left_stick_right;
+        public boolean left_stick_left;
+        public boolean right_stick_down;
+        public boolean right_stick_up;
+        public boolean right_stick_left;
+        public boolean right_stick_right;
+        public boolean right_stick_neutral;
+        public boolean left_stick_neutral;
+
 
     }
 
@@ -132,6 +154,16 @@ public class GamepadTask extends RobotTask {
         this.buttonState.dpad_left_pressed    = false;
         this.buttonState.dpad_right_pressed    = false;
 
+        this.buttonState.left_stick_down = false;
+        this.buttonState.left_stick_up = false;
+        this.buttonState.left_stick_left = false;
+        this.buttonState.left_stick_right = false;
+        this.buttonState.right_stick_down = false;
+        this.buttonState.right_stick_up = false;
+        this.buttonState.right_stick_left = false;
+        this.buttonState.right_stick_right = false;
+        this.buttonState.left_stick_neutral = false;
+        this.buttonState.right_stick_neutral = false;
 
         this.gamepadNum = gamepadNum;
     }
@@ -265,9 +297,74 @@ public class GamepadTask extends RobotTask {
             buttonState.dpad_down_pressed = false;
         }
 
-        /*
-         * This task lives forever.
-         */
-        return false;
-    }
-}
+        //left side -----------------------------------------------------------------
+        if ((gamepad.left_stick_x > 0.5 ) && (buttonState.left_stick_right == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_RIGHT));
+            buttonState.left_stick_right = true;
+        } else if (((gamepad.left_stick_x < 0.5)) && (buttonState.left_stick_right == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_NEUTRAL));
+            buttonState.left_stick_right = false;
+        }
+
+        if ((gamepad.left_stick_x < -0.5 ) && (buttonState.left_stick_left == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_LEFT));
+            buttonState.left_stick_left = true;
+        } else if (((gamepad.left_stick_x > -0.5)) && (buttonState.left_stick_left == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_NEUTRAL));
+            buttonState.left_stick_left = false;
+        }
+
+        if ((gamepad.left_stick_y < -0.5 ) && (buttonState.left_stick_up == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_UP));
+            buttonState.left_stick_up = true;
+        } else if (((gamepad.left_stick_y > -0.5)) && (buttonState.left_stick_up == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_NEUTRAL));
+            buttonState.left_stick_up = false;
+        }
+
+        if ((gamepad.left_stick_y > 0.5 ) && (buttonState.left_stick_down == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_DOWN));
+            buttonState.left_stick_down = true;
+        } if (((gamepad.left_stick_y < 0.5)) && (buttonState.left_stick_down == true)) {
+                robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_NEUTRAL));
+                buttonState.left_stick_down = false;
+        }
+
+        //right side -----------------------------------------------------------------
+        if ((gamepad.right_stick_x > 0.5 ) && (buttonState.right_stick_right == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_RIGHT));
+            buttonState.right_stick_right = true;
+        } else if (((gamepad.right_stick_x < 0.5)) && (buttonState.right_stick_right == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
+            buttonState.right_stick_right = false;
+        }
+
+        if ((gamepad.right_stick_x < -0.5 ) && (buttonState.right_stick_left == false)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_LEFT));
+            buttonState.right_stick_left = true;
+        } else if (((gamepad.right_stick_x > -0.5)) && (buttonState.right_stick_left == true)) {
+            robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
+            buttonState.right_stick_left = false;
+        }
+
+        if ((gamepad.right_stick_y < -0.5) && (buttonState.right_stick_up == false)) {
+                robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_UP));
+                buttonState.right_stick_up = true;
+        } else if (((gamepad.right_stick_y > -0.5)) && (buttonState.right_stick_up == true)) {
+                robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
+                buttonState.right_stick_up = false;
+        }
+
+        if ((gamepad.right_stick_y > 0.5) && (buttonState.right_stick_down == false)) {
+                    robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_DOWN));
+                    buttonState.right_stick_down = true;
+        } else if (((gamepad.right_stick_y < 0.5)) && (buttonState.right_stick_down == true)) {
+                    robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
+                    buttonState.right_stick_down = false;
+        }
+                    /*
+                     * This task lives forever.
+                     */
+                    return false;
+                }
+            }
