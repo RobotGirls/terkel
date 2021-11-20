@@ -326,8 +326,8 @@ public class GamepadTask extends RobotTask {
             robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_DOWN));
             buttonState.left_stick_down = true;
         } if (((gamepad.left_stick_y < 0.5)) && (buttonState.left_stick_down == true)) {
-                robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_NEUTRAL));
-                buttonState.left_stick_down = false;
+            robot.queueEvent(new GamepadEvent(this, EventKind.LEFT_STICK_NEUTRAL));
+            buttonState.left_stick_down = false;
         }
 
         //right side -----------------------------------------------------------------
@@ -348,23 +348,23 @@ public class GamepadTask extends RobotTask {
         }
 
         if ((gamepad.right_stick_y < -0.5) && (buttonState.right_stick_up == false)) {
-                robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_UP));
-                buttonState.right_stick_up = true;
+            robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_UP));
+            buttonState.right_stick_up = true;
         } else if (((gamepad.right_stick_y > -0.5)) && (buttonState.right_stick_up == true)) {
-                robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
-                buttonState.right_stick_up = false;
+            robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
+            buttonState.right_stick_up = false;
         }
 
         if ((gamepad.right_stick_y > 0.5) && (buttonState.right_stick_down == false)) {
-                    robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_DOWN));
-                    buttonState.right_stick_down = true;
+            robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_DOWN));
+            buttonState.right_stick_down = true;
         } else if (((gamepad.right_stick_y < 0.5)) && (buttonState.right_stick_down == true)) {
-                    robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
-                    buttonState.right_stick_down = false;
+            robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
+            buttonState.right_stick_down = false;
         }
-                    /*
-                     * This task lives forever.
-                     */
-                    return false;
-                }
-            }
+            /*
+             * This task lives forever.
+             */
+            return false;
+    }
+}
