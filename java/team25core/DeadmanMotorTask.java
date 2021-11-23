@@ -46,6 +46,14 @@ public class DeadmanMotorTask extends RobotTask {
         RIGHT_BUMPER,
         LEFT_TRIGGER,
         RIGHT_TRIGGER,
+        LEFT_STICK_UP,
+        LEFT_STICK_DOWN,
+        LEFT_STICK_RIGHT,
+        LEFT_STICK_LEFT,
+        RIGHT_STICK_UP,
+        RIGHT_STICK_DOWN,
+        RIGHT_STICK_RIGHT,
+        RIGHT_STICK_LEFT,
     };
 
     public enum EventKind {
@@ -131,7 +139,24 @@ public class DeadmanMotorTask extends RobotTask {
             ret = true;
         } else if (((kind == GamepadTask.EventKind.RIGHT_TRIGGER_DOWN) || (kind == GamepadTask.EventKind.RIGHT_TRIGGER_UP)) && (button == DeadmanButton.RIGHT_TRIGGER)) {
             ret = true;
+        } else if (((kind == GamepadTask.EventKind.LEFT_STICK_DOWN) || (kind == GamepadTask.EventKind.LEFT_STICK_NEUTRAL)) && (button == DeadmanButton.LEFT_STICK_DOWN)) {
+            ret = true;
+        } else if (((kind == GamepadTask.EventKind.LEFT_STICK_UP) || (kind == GamepadTask.EventKind.LEFT_STICK_NEUTRAL)) && (button == DeadmanButton.LEFT_STICK_UP)) {
+            ret = true;
+        } else if (((kind == GamepadTask.EventKind.LEFT_STICK_LEFT) || (kind == GamepadTask.EventKind.LEFT_STICK_NEUTRAL)) && (button == DeadmanButton.LEFT_STICK_LEFT)) {
+            ret = true;
+        } else if (((kind == GamepadTask.EventKind.LEFT_STICK_RIGHT) || (kind == GamepadTask.EventKind.LEFT_STICK_NEUTRAL)) && (button == DeadmanButton.LEFT_STICK_RIGHT)) {
+            ret = true;
+        } else if (((kind == GamepadTask.EventKind.RIGHT_STICK_DOWN) || (kind == GamepadTask.EventKind.RIGHT_STICK_NEUTRAL)) && (button == DeadmanButton.RIGHT_STICK_DOWN)) {
+            ret = true;
+        } else if (((kind == GamepadTask.EventKind.RIGHT_STICK_UP) || (kind == GamepadTask.EventKind.RIGHT_STICK_NEUTRAL)) && (button == DeadmanButton.RIGHT_STICK_UP)) {
+            ret = true;
+        } else if (((kind == GamepadTask.EventKind.RIGHT_STICK_LEFT) || (kind == GamepadTask.EventKind.RIGHT_STICK_NEUTRAL)) && (button == DeadmanButton.RIGHT_STICK_LEFT)) {
+            ret = true;
+        } else if (((kind == GamepadTask.EventKind.RIGHT_STICK_RIGHT) || (kind == GamepadTask.EventKind.RIGHT_STICK_NEUTRAL)) && (button == DeadmanButton.RIGHT_STICK_RIGHT)) {
+            ret = true;
         }
+
         return ret;
     }
     public void setMinMotorPosition(int minPos) {
@@ -155,15 +180,22 @@ public class DeadmanMotorTask extends RobotTask {
         case RIGHT_BUMPER_DOWN:
         case LEFT_TRIGGER_DOWN:
         case RIGHT_TRIGGER_DOWN:
-
+        case LEFT_STICK_DOWN:
+        case LEFT_STICK_UP:
+        case LEFT_STICK_RIGHT:
+        case LEFT_STICK_LEFT:
+        case RIGHT_STICK_DOWN:
+        case RIGHT_STICK_UP:
+        case RIGHT_STICK_RIGHT:
+        case RIGHT_STICK_LEFT:
             if (minPosition != MINMAX_POSITION_NOT_SET) {
-                currPosition = motor.getCurrentPosition();  //if the position is at a certain number which is the min height then it will stop
-                if (currPosition < minPosition) {
-                    positionWithinLimits = false;
+            currPosition = motor.getCurrentPosition();  //if the position is at a certain number which is the min height then it will stop
+            if (currPosition < minPosition) {
+                positionWithinLimits = false;
                 }
             } else if (maxPosition != MINMAX_POSITION_NOT_SET) {
                 currPosition = motor.getCurrentPosition();
-                if (currPosition > maxPosition) {           //if the postion is at the max it stop
+                if (currPosition > maxPosition) {           //if the position is at the max it stop
                     positionWithinLimits = false;
                 }
             } else {
@@ -193,6 +225,8 @@ public class DeadmanMotorTask extends RobotTask {
         case RIGHT_BUMPER_UP:
         case LEFT_TRIGGER_UP:
         case RIGHT_TRIGGER_UP:
+        case LEFT_STICK_NEUTRAL:
+        case RIGHT_STICK_NEUTRAL:
             motor.setPower(0.0);
             robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_UP));
             if (useHoldMotorPositionTask) {
