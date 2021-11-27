@@ -192,7 +192,7 @@ public class DeadmanMotorTask extends RobotTask {
                 currPosition = motor.getCurrentPosition();  //if the position is at a certain number which is the min height then it will stop
                 if (currPosition < minPosition) {
                     positionWithinLimits = false;
-                    }
+                }
             } else if (maxPosition != MINMAX_POSITION_NOT_SET) {
                 currPosition = motor.getCurrentPosition();
                 if (currPosition > maxPosition) {           //if the position is at the max it stop
