@@ -189,10 +189,10 @@ public class DeadmanMotorTask extends RobotTask {
         case RIGHT_STICK_RIGHT:
         case RIGHT_STICK_LEFT:
             if (minPosition != MINMAX_POSITION_NOT_SET) {
-            currPosition = motor.getCurrentPosition();  //if the position is at a certain number which is the min height then it will stop
-            if (currPosition < minPosition) {
-                positionWithinLimits = false;
-                }
+                currPosition = motor.getCurrentPosition();  //if the position is at a certain number which is the min height then it will stop
+                if (currPosition < minPosition) {
+                    positionWithinLimits = false;
+                    }
             } else if (maxPosition != MINMAX_POSITION_NOT_SET) {
                 currPosition = motor.getCurrentPosition();
                 if (currPosition > maxPosition) {           //if the position is at the max it stop
@@ -201,14 +201,15 @@ public class DeadmanMotorTask extends RobotTask {
             } else {
                 positionWithinLimits = true;
             }
+
             if (positionWithinLimits) {  //if the position is within the limits then we give power to the motor
                 motor.setPower(power);
                 robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_DOWN));
             } else {
                 motor.setPower(0.0);
                 robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_UP));
-
             }
+
             motor.setPower(power);
             robot.queueEvent(new DeadmanMotorEvent(this, EventKind.DEADMAN_BUTTON_DOWN));
 
