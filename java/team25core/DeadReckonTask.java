@@ -135,6 +135,20 @@ public class DeadReckonTask extends RobotTask {
         this.drivetrain = drivetrain;
         this.smoothStart = false;
     }
+    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, boolean smoothStart)
+    {
+        super(robot);
+
+        this.sensorsInstalled = SensorsInstalled.SENSORS_NONE;
+        this.num = 0;
+        this.dr = dr;
+        this.waiting = false;
+        this.waitState = 0;
+        this.leftCriteria = null;
+        this.rightCriteria = null;
+        this.drivetrain = drivetrain;
+        this.smoothStart = smoothStart;
+    }
 
     public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria criteria)
     {
