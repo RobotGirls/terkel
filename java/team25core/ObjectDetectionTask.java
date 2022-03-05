@@ -122,6 +122,7 @@ public class ObjectDetectionTask extends RobotTask {
         tfodParameters.minResultConfidence = 0.8f; //the example in the Ultimate Goal Tensor flow example defaults to a MinimumConfidence of 0.8f
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
+        tfodParameters.useObjectTracker = false;
 
         //concept tensor flow object detection had minimum confidence
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
