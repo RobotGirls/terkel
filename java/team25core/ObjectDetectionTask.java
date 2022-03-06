@@ -54,7 +54,7 @@ public class ObjectDetectionTask extends RobotTask {
     private TFObjectDetector tfod;
 
     public static final String LABEL_OBJECT1 = "Element";
-    private static final String TFOD_MODEL_ASSET = "QTFreightFrenzy.tflite";
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzyReg.tflite";
     private int rateLimitMs;
     private DetectionKind detectionKind;
     private String cameraName;
