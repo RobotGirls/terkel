@@ -12,11 +12,6 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import team25core.Robot;
 
-
-
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,16 +98,16 @@ public class AprilTagDetectionTask extends RobotTask {
         }
     }
 
-    public AprilTagDetectionTask(Robot robot, String cameraName){
+    public AprilTagDetectionTask(Robot robot, String cameraName)
+    {
         super(robot);
 
         rateLimitMs = 0;
         detectionKind = DetectionKind.UNKNOWN_DETECTED;
         this.cameraName = cameraName;
         this.pollingMode = PollingMode.OFF;
-
-
     }
+
     public void initAprilTags(HardwareMap hardwareMap){
 
         telemetry.addLine("in initAprilTags");
@@ -127,16 +122,12 @@ public class AprilTagDetectionTask extends RobotTask {
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
-            public void onOpened()
-            {
+            public void onOpened() {
                 camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
-            public void onError(int errorCode)
-            {
-
-            }
+            public void onError(int errorCode) { }
         });
 
         // Returns the string which is used to separate Telemetry.Items
@@ -145,10 +136,10 @@ public class AprilTagDetectionTask extends RobotTask {
         //     the string which is use to separate Telemetry.Items contained within a line.
 
         //telemetry.setMsTransmissionInterval(50);
-
     }
 
-    public void init(Telemetry telemetry, HardwareMap hardwareMap) {
+    public void init(Telemetry telemetry, HardwareMap hardwareMap)
+    {
         this.telemetry = telemetry;
         telemetry.addLine("in AprilTagDetectionTask init");
         initAprilTags(hardwareMap);
@@ -157,7 +148,6 @@ public class AprilTagDetectionTask extends RobotTask {
     @Override
     public void start()
     {
-
         if (rateLimitMs != 0) {
             timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         }
@@ -177,57 +167,44 @@ public class AprilTagDetectionTask extends RobotTask {
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
     }
 
-    public void processAprilTags(){
+    public void processAprilTags()
+    {
         // Get an array of all the april tags detected
         ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
-        if (currentDetections.size() == 0)
-        { // if no april tags were detected
+        if (currentDetections.size() == 0) { // if no april tags were detected
             telemetry.addLine("Don't see tag of interest :(");
 
-            if(tagOfInterest == null)
-            {
+            if (tagOfInterest == null) {
                 telemetry.addLine("(The tag has never been seen)");
-            }
-            else
-            {
+            } else {
                 telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                 tagToTelemetry(tagOfInterest);
             }
-
-        }
-        else
-        {  // if april tags are detected
+        } else {  // if april tags are detected
             // Get the first tag in the array of april tags
             tagOfInterest = currentDetections.get(0);
             tagFound = true;
 
-            if (firstTimeTagIsFound){
+            if (firstTimeTagIsFound) {
                 robot.queueEvent(new TagDetectionEvent(this, EventKind.OBJECTS_DETECTED, tagOfInterest));
             }
 
-            if(tagFound)
-            {
+            if (tagFound) {
                 telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
                 // tagToTelemtry prints out the detected april tag ID and
                 // the X, Y, and Z translation and the yaw, pitch, and roll
                 tagToTelemetry(tagOfInterest);
-            }
-            else
-            { // if tag is not  found
+            } else { // if tag is not  found
                 telemetry.addLine("Don't see tag of interest :(");
 
-                if (tagOfInterest == null)
-                {
+                if (tagOfInterest == null) {
                     telemetry.addLine("(The tag has never been seen)");
-                }
-                else
-                {
+                } else {
                     telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                     tagToTelemetry(tagOfInterest);
                 }
             }
-
         }
         telemetry.update();
     }
@@ -244,25 +221,12 @@ public class AprilTagDetectionTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
-        //timeslice set to 0 do when it gets called
-        if (rateLimitMs != 0) {
-            if (timer.time() < rateLimitMs) {
-                return false;
-            }
-        }
         //shows location of object
-        processAprilTags();
-
-        if (rateLimitMs != 0) {
-            timer.reset();
-        }
-
-        if ((pollingMode == PollingMode.ON) && (pollTimer.time() > POLL_RATE)) {
-            pollTimer.reset();
+        if ((pollingMode == PollingMode.ON) && (pollTimer.time() < POLL_RATE)) {
             return false;
         }
-
+        processAprilTags();
+        pollTimer.reset();
         return false;
     }
-
 }

@@ -4,15 +4,16 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.RobotLog;
 import com.vuforia.Image;
-import com.vuforia.PIXEL_FORMAT;
-import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
 import java.util.concurrent.BlockingQueue;
+
+import team25core.vision.vuforia.VuforiaBase;
+import team25core.vision.vuforia.VuforiaImageHelper;
+import team25core.vision.vuforia.VuforiaLocalizerCustom;
 
 public class ColorThiefTask extends RobotTask {
 
