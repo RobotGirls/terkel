@@ -1,4 +1,4 @@
-package team25core;
+package team25core.vision.apriltags;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,6 +10,9 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import team25core.Robot;
+
+
 
 
 
@@ -17,10 +20,18 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AprilTagDetectionTask extends RobotTask{
+import team25core.RobotEvent;
+import team25core.RobotTask;
+
+public class AprilTagDetectionTask extends RobotTask {
 
     public enum EventKind {
         OBJECTS_DETECTED,
+    }
+
+    public enum PollingMode {
+        ON,
+        OFF,
     }
 
     private String cameraName;
@@ -28,6 +39,12 @@ public class AprilTagDetectionTask extends RobotTask{
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
     static final double FEET_PER_METER = 3.28084;
+
+    //polling mode
+    protected ElapsedTime pollTimer;
+    protected PollingMode pollingMode;
+    protected final static int POLL_RATE = 2;
+    int apriltagID;
 
     // Lens intrinsics
     // UNITS ARE PIXELS
@@ -77,6 +94,7 @@ public class AprilTagDetectionTask extends RobotTask{
             super(task);
             this.kind = kind;
             this.tagObject = tag;
+
         }
 
         public String toString()
@@ -91,6 +109,9 @@ public class AprilTagDetectionTask extends RobotTask{
         rateLimitMs = 0;
         detectionKind = DetectionKind.UNKNOWN_DETECTED;
         this.cameraName = cameraName;
+        this.pollingMode = PollingMode.OFF;
+
+
     }
     public void initAprilTags(HardwareMap hardwareMap){
 
@@ -146,6 +167,7 @@ public class AprilTagDetectionTask extends RobotTask{
     // the X, Y, and Z translation and the yaw, pitch, and roll
     void tagToTelemetry(AprilTagDetection detection)
     {
+        apriltagID = detection.id;
         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
         telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
         telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
@@ -210,6 +232,15 @@ public class AprilTagDetectionTask extends RobotTask{
         telemetry.update();
     }
 
+    public void setPollingMode(PollingMode pollingMode)
+    {
+        this.pollingMode = pollingMode;
+
+        if (pollingMode == PollingMode.ON) {
+            pollTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        }
+    }
+
     @Override
     public boolean timeslice()
     {
@@ -225,6 +256,12 @@ public class AprilTagDetectionTask extends RobotTask{
         if (rateLimitMs != 0) {
             timer.reset();
         }
+
+        if ((pollingMode == PollingMode.ON) && (pollTimer.time() > POLL_RATE)) {
+            pollTimer.reset();
+            return false;
+        }
+
         return false;
     }
 

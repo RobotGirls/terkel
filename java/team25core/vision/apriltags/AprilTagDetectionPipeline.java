@@ -19,7 +19,7 @@
  * SOFTWARE.
  */
 
-package aprilTags;
+package team25core.vision.apriltags;
 
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
