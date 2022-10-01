@@ -66,11 +66,11 @@ public class ObjectDetectionTask extends RobotTask {
         LARGEST_SKY_STONE_DETECTED, //this may go away
         UNKNOWN_DETECTED,
     }
-     public enum ObjectKind {
-            OBJECT2_KIND,
-            OBJECT1_KIND,
-            UNKNOWN_KIND,
-     };
+    public enum ObjectKind {
+        OBJECT2_KIND,
+        OBJECT1_KIND,
+        UNKNOWN_KIND,
+    };
 
 
     //for phone camera constructor
@@ -134,7 +134,7 @@ public class ObjectDetectionTask extends RobotTask {
         initVuforia(hardwareMap);
 
         // if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initTfod(hardwareMap);
+        initTfod(hardwareMap);
 //        } else {
 //            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
 //        }
@@ -234,7 +234,7 @@ public class ObjectDetectionTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
-     //timeslice set to 0 do when it gets called
+        //timeslice set to 0 do when it gets called
         if (rateLimitMs != 0) {
             if (timer.time() < rateLimitMs) {
                 return false;

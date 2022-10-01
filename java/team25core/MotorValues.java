@@ -10,7 +10,7 @@ public class MotorValues {
     public double rl;
     public double rr;
 
-    MotorValues(double frontLeft, double frontRight, double rearLeft, double rearRight)
+    public MotorValues(double frontLeft, double frontRight, double rearLeft, double rearRight)
     {
         this.fl = frontLeft;
         this.fr = frontRight;
