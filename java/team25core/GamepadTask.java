@@ -362,9 +362,9 @@ public class GamepadTask extends RobotTask {
             robot.queueEvent(new GamepadEvent(this, EventKind.RIGHT_STICK_NEUTRAL));
             buttonState.right_stick_down = false;
         }
-            /*
-             * This task lives forever.
-             */
-            return false;
+        /*
+         * This task lives forever.
+         */
+        return false;
     }
 }
