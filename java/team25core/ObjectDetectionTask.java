@@ -18,7 +18,7 @@ import java.util.List;
 import team25core.vision.vuforia.VuforiaConstants;
 
 
-public class RingDetectionTask extends RobotTask {
+public class ObjectDetectionTask extends RobotTask {
 
     public enum EventKind {
         OBJECTS_DETECTED,
@@ -26,18 +26,18 @@ public class RingDetectionTask extends RobotTask {
 
     protected ElapsedTime timer;
 
-    public class RingDetectionEvent extends RobotEvent {
+    public class ObjectDetectionEvent extends RobotEvent {
 
         public EventKind kind;
-        public List<Recognition> rings;
+        public List<Recognition> objects;
 
-        //this is constructor for ring detection event
-        public RingDetectionEvent(RobotTask task, EventKind kind, List<Recognition> m)
+        //this is constructor for object detection event
+        public ObjectDetectionEvent(RobotTask task, EventKind kind, List<Recognition> m)
         {
             super(task);
             this.kind = kind;
-            this.rings = new ArrayList<>(m.size());
-            this.rings.addAll(m);
+            this.objects = new ArrayList<>(m.size());
+            this.objects.addAll(m);
         }
 
         public String toString()
@@ -50,29 +50,28 @@ public class RingDetectionTask extends RobotTask {
     private Telemetry telemetry;
     private TFObjectDetector tfod;
 
-    public static final String LABEL_QUAD_RINGS = "Quad";
-    private static final String LABEL_SINGLE_RING = "Single";
-    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
+    public static final String LABEL_OBJECT1 = "Element";
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzyReg.tflite";
     private int rateLimitMs;
     private DetectionKind detectionKind;
     private String cameraName;
 
     public enum DetectionKind {
         EVERYTHING, //this may go away
-        QUAD_RING_DETECTED,
-        SINGLE_RING_DETECTED,
+        OBJECT1_DETECTED,
+        OBJECT2_DETECTED,
         LARGEST_SKY_STONE_DETECTED, //this may go away
         UNKNOWN_DETECTED,
     }
-     public enum RingKind {
-            SINGLE_KIND,
-            QUAD_KIND,
-            UNKNOWN_KIND,
-     };
+    public enum ObjectKind {
+        OBJECT2_KIND,
+        OBJECT1_KIND,
+        UNKNOWN_KIND,
+    };
 
 
     //for phone camera constructor
-    public RingDetectionTask(Robot robot)
+    public ObjectDetectionTask(Robot robot)
     {
         super(robot);
 
@@ -80,7 +79,7 @@ public class RingDetectionTask extends RobotTask {
         detectionKind = DetectionKind.EVERYTHING;
     }
     //for webcamera construtor
-    public RingDetectionTask(Robot robot, String cameraName)
+    public ObjectDetectionTask(Robot robot, String cameraName)
     {
         super(robot);
         rateLimitMs = 0;
@@ -117,10 +116,14 @@ public class RingDetectionTask extends RobotTask {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        //tfodParameters.minimumConfidence = 0.6; //the example in the Ultimate Goal Tensor flow example defaults to a MinimumConfidence of 0.8f
+        tfodParameters.minResultConfidence = 0.8f; //the example in the Ultimate Goal Tensor flow example defaults to a MinimumConfidence of 0.8f
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfodParameters.useObjectTracker = false;
+
         //concept tensor flow object detection had minimum confidence
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_QUAD_RINGS, LABEL_SINGLE_RING);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_OBJECT1);
     }
 
     public void init(Telemetry telemetry, HardwareMap hardwareMap)
@@ -128,7 +131,7 @@ public class RingDetectionTask extends RobotTask {
         initVuforia(hardwareMap);
 
         // if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initTfod(hardwareMap);
+        initTfod(hardwareMap);
 //        } else {
 //            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
 //        }
@@ -161,51 +164,49 @@ public class RingDetectionTask extends RobotTask {
         robot.removeTask(this);
     }
 
-    public static RingKind isRing(Recognition object)
+    public static ObjectKind isObject(Recognition object)
     {
-        if (object.getLabel().equals(LABEL_QUAD_RINGS)) {
-            return RingKind.QUAD_KIND;
-        } else if (object.getLabel().equals(LABEL_SINGLE_RING)) {
-            return RingKind.SINGLE_KIND;
+        if (object.getLabel().equals(LABEL_OBJECT1)) {
+            return ObjectKind.OBJECT1_KIND;
         } else {
-            return RingKind.UNKNOWN_KIND;
+            return ObjectKind.UNKNOWN_KIND;
         }
     }
     //if recognize anything will add to que
     protected void processEverything(List<Recognition> objects)
     {
         if (objects.size() > 0) {
-            robot.queueEvent(new RingDetectionEvent(this, EventKind.OBJECTS_DETECTED, objects));
+            robot.queueEvent(new ObjectDetectionEvent(this, EventKind.OBJECTS_DETECTED, objects));
         }
     }
-    //only adds rings which will make event and add to que
-    protected void processQuadRing(List<Recognition> objects)
+    //only adds objects which will make event and add to que
+    protected void processObject1(List<Recognition> objects)
     {
-        List<Recognition> rings = new ArrayList<>();
+        List<Recognition> objectList = new ArrayList<>();
         for (Recognition object : objects) {
-            if (isRing(object) == RingKind.QUAD_KIND) {
-                rings.add(object);
+            if (isObject(object) == ObjectKind.OBJECT1_KIND){
+                objectList.add(object);
             }
         }
 
-        if (!rings.isEmpty()) {
-            robot.queueEvent(new RingDetectionEvent(this, EventKind.OBJECTS_DETECTED, rings));
+        if (!objectList.isEmpty()) {
+            robot.queueEvent(new ObjectDetectionEvent(this, EventKind.OBJECTS_DETECTED, objectList));
         }
     }
 
-    protected void processSingleRing(List<Recognition> objects)
-    {
-        List<Recognition> singlerings = new ArrayList<>();
-        for (Recognition object : objects) {
-            if (isRing(object) == RingKind.SINGLE_KIND) {
-                singlerings.add(object);
-            }
-        }
-
-        if (!singlerings.isEmpty()) {
-            robot.queueEvent(new RingDetectionEvent(this, EventKind.OBJECTS_DETECTED, singlerings));
-        }
-    }
+//    protected void processObject2(List<Recognition> objects)
+//    {
+//        List<Recognition> objectList = new ArrayList<>();
+//        for (Recognition object : objects) {
+//            if (isObject(object) == ObjectKind.OBJECT2_KIND) {
+//                objectList.add(object);
+//            }
+//        }
+//
+//        if (!objectList.isEmpty()) {
+//            robot.queueEvent(new ObjectDetectionEvent(this, EventKind.OBJECTS_DETECTED, objectList));
+//        }
+//    }
 
     //timeslice calls to get information from recognition
     protected void processDetectedObjects(List<Recognition> objects)
@@ -218,11 +219,11 @@ public class RingDetectionTask extends RobotTask {
             case EVERYTHING:
                 processEverything(objects);
                 break;
-            case SINGLE_RING_DETECTED:
-                processSingleRing(objects);
-                break;
-            case QUAD_RING_DETECTED:
-                processQuadRing(objects);
+//            case OBJECT2_DETECTED:
+//                processObject2(objects);
+//                break;
+            case OBJECT1_DETECTED:
+                processObject1(objects);
                 break;
         }
     }
@@ -230,13 +231,13 @@ public class RingDetectionTask extends RobotTask {
     @Override
     public boolean timeslice()
     {
-     //timeslice set to 0 do when it gets called
+        //timeslice set to 0 do when it gets called
         if (rateLimitMs != 0) {
             if (timer.time() < rateLimitMs) {
                 return false;
             }
         }
-        //shows location of stone
+        //shows location of object
         processDetectedObjects(tfod.getUpdatedRecognitions());
 
         if (rateLimitMs != 0) {

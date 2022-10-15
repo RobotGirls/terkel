@@ -1,13 +1,14 @@
 package team25core;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+import team25core.vision.vuforia.VuforiaBase;
+import team25core.vision.vuforia.VuforiaLocalizerCustom;
 
 public class VuMarkIdentificationTask extends RobotTask
 {

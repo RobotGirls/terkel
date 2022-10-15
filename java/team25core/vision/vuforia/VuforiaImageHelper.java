@@ -1,4 +1,4 @@
-package team25core;
+package team25core.vision.vuforia;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import team25core.Counter;
+import team25core.RGBColor;
 
 public class VuforiaImageHelper {
 

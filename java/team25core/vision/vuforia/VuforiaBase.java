@@ -1,10 +1,12 @@
-package team25core;
+package team25core.vision.vuforia;
 
 import com.qualcomm.robotcore.util.RobotLog;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+
+import team25core.Robot;
 
 public class VuforiaBase
 {

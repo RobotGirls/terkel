@@ -1,4 +1,4 @@
-package team25core;
+package team25core.vision.vuforia;
 
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -15,6 +15,8 @@ import org.firstinspires.ftc.robotcore.internal.vuforia.VuforiaLocalizerImpl;
 import java.nio.IntBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
+
+import team25core.TouchEnabledGLSurfaceView;
 
 public class VuforiaLocalizerCustom extends VuforiaLocalizerImpl {
 
