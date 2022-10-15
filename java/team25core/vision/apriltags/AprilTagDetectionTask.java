@@ -157,7 +157,7 @@ public class AprilTagDetectionTask extends RobotTask {
     // the X, Y, and Z translation and the yaw, pitch, and roll
     void tagToTelemetry(AprilTagDetection detection)
     {
-        apriltagID = detection.id;
+
         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
         telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
         telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
@@ -165,6 +165,11 @@ public class AprilTagDetectionTask extends RobotTask {
         telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
         telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
+    }
+
+    int getAprilTagID(AprilTagDetection detection)
+    {
+        return detection.id;
     }
 
     public void processAprilTags()
