@@ -39,8 +39,8 @@ import android.graphics.Color;
 import android.view.View;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -87,7 +87,6 @@ public class SingleShotColorSensorTask extends RobotTask
     protected View relativeLayout;
     protected boolean reflectColor;
     protected ColorSensor colorSensor;
-    protected DeviceInterfaceModule cdim;
     protected boolean bEnabled;
     protected int channelNumber;
     protected int count;
@@ -95,8 +94,9 @@ public class SingleShotColorSensorTask extends RobotTask
     protected int msDelay = 0;
     protected ElapsedTime delayTimer;
     protected TargetColor targetColor;
+    protected DigitalChannelController cdim;
 
-    public SingleShotColorSensorTask(Robot robot, ColorSensor colorSensor, DeviceInterfaceModule cdim, boolean bEnabled, int channelNumber)
+    public SingleShotColorSensorTask(Robot robot, ColorSensor colorSensor, DigitalChannelController cdim, boolean bEnabled, int channelNumber)
     {
         super(robot);
         this.colorSensor = colorSensor;
