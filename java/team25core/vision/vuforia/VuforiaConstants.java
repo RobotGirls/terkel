@@ -1,4 +1,4 @@
-package team25core;
+package team25core.vision.vuforia;
 
 public class VuforiaConstants {
 

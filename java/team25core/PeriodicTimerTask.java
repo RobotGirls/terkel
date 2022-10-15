@@ -43,7 +43,7 @@ public class PeriodicTimerTask extends RobotTask {
 
     public class PeriodicTimerEvent extends RobotEvent {
 
-        EventKind kind;
+        public EventKind kind;
 
         public PeriodicTimerEvent(RobotTask task, EventKind kind)
         {

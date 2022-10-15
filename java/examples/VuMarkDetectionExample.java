@@ -5,17 +5,13 @@ package examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.RobotLog;
-import com.vuforia.CameraDevice;
-
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
 import team25core.ColorThiefTask;
 import team25core.GamepadTask;
 import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.VuMarkIdentificationTask;
-import team25core.VuforiaBase;
-import team25core.VuforiaLocalizerCustom;
+import team25core.vision.vuforia.VuforiaBase;
 
 @Autonomous(name = "VuMark Detection", group = "Test")
 public class VuMarkDetectionExample extends Robot {

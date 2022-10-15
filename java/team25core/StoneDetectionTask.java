@@ -17,6 +17,8 @@ import java.util.List;
 
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodSkyStone.TFOD_MODEL_ASSET;
 
+import team25core.vision.vuforia.VuforiaConstants;
+
 public class StoneDetectionTask extends RobotTask {
 
     public enum EventKind {

@@ -15,6 +15,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.ArrayList;
 import java.util.List;
 
+import team25core.vision.vuforia.VuforiaConstants;
+
 
 public class RingDetectionTask extends RobotTask {
 

@@ -15,6 +15,8 @@ import java.util.List;
 
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.TFOD_MODEL_ASSET;
 
+import team25core.vision.vuforia.VuforiaConstants;
+
 public class MineralDetectionTask extends RobotTask {
 
     public enum EventKind {

@@ -39,7 +39,7 @@ import java.util.ArrayList;
 
 //Example from https://github.com/OpenFTC/EOCV-AprilTag-Plugin 
 
-class AprilTagDetectionPipeline extends OpenCvPipeline
+public class AprilTagDetectionPipeline extends OpenCvPipeline
 {
     private long nativeApriltagPtr;
     private Mat grey = new Mat();

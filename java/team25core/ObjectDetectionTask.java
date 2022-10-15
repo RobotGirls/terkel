@@ -15,10 +15,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.ArrayList;
 import java.util.List;
 
-import team25core.Robot;
-import team25core.RobotEvent;
-import team25core.RobotTask;
-import team25core.VuforiaConstants;
+import team25core.vision.vuforia.VuforiaConstants;
 
 
 public class ObjectDetectionTask extends RobotTask {
