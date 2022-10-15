@@ -35,7 +35,6 @@ package team25core;
 
 import android.content.Context;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDcMotorController;
 import com.qualcomm.robotcore.eventloop.EventLoopManager;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
