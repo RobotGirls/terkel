@@ -1,7 +1,7 @@
 name: Build
 on: push
 jobs:
-  25-build:
+  build-25:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout terkel
@@ -35,7 +35,7 @@ jobs:
       - name: build
         run: ./ws/FtcRobotController/gradlew --project-dir ./ws/FtcRobotController assemble
         
-  5218-build:
+  build-5218:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout terkel
