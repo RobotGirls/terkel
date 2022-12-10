@@ -35,17 +35,17 @@
 package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
 
 public class LimitSwitchTask extends RobotTask {
-    protected DeviceInterfaceModule module;
+    protected DigitalChannelController module;
     protected DcMotor motor;
     protected int port;
 
     public String status;
 
     // Constructor.
-    public LimitSwitchTask(Robot robot, DeviceInterfaceModule module, int limitPort)
+    public LimitSwitchTask(Robot robot, DigitalChannelController module, int limitPort)
     {
         super(robot);
 
@@ -88,24 +88,18 @@ public class LimitSwitchTask extends RobotTask {
 
     public boolean limitSwitchClosed()
     {
-        int inputByte = module.getDigitalInputStateByte();
-        int targetByte = (0x01) << port;
-
-        if ((targetByte & inputByte) == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        /*
+         * TODO: Implement with new hardware.
+         */
+        return false;
     }
 
     @Override
     public void start()
     {
-        byte initial = module.getDigitalIOControlByte();
-        byte shift   = (byte)(initial << port);
-        byte inverse = (byte)~shift;
-        byte result  = (byte)(initial & inverse);
-        module.setDigitalIOControlByte(result);
+        /*
+         * TODO: Implement with new hardware.
+         */
     }
 
     @Override
@@ -115,7 +109,9 @@ public class LimitSwitchTask extends RobotTask {
 
     @Override
     public boolean timeslice() {
-        // If-else statements.
+        /*
+         * TODO: Implement with new hardware.
+         */
         if ((!limitState.switch_closed) && limitSwitchClosed()) {
             robot.queueEvent(new LimitSwitchEvent(this, EventKind.CLOSED));
             limitState.switch_closed = true;
