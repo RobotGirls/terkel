@@ -1,6 +1,6 @@
 package team25core.tests;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -33,7 +33,7 @@ import java.util.Map;
  * in port 1 it will still run when you run this opmode.
  *
  */
-@Config
+//@Config
 @Disabled
 @Autonomous(group="Tests", name="EncoderEvaluation")
 public class EncoderEvaluation extends LinearOpMode {
