@@ -162,7 +162,7 @@ public class IMUGyroDriveTask extends RobotTask {
         double secondAngle = -imu.getAngularOrientation().secondAngle;
         double thirdAngle = -imu.getAngularOrientation().thirdAngle;
 
-        //float thirdAngle = AngleUnit.DEGREES.fromUnit(currentHeading.angleUnit, currentHeading.thirdAngle);
+        // float thirdAngle = AngleUnit.DEGREES.fromUnit(currentHeading.angleUnit, currentHeading.thirdAngle);
 
         this.secondAngleTlm.setValue(secondAngle);
         this.thirdAngleTlm.setValue(thirdAngle);
@@ -174,7 +174,7 @@ public class IMUGyroDriveTask extends RobotTask {
 //            headingTlm.setValue(fHeading);
 //        }
 
-        //this.headingTlm.setValue(fHeading);
+        // this.headingTlm.setValue(fHeading);
         this.headingTlm.setValue(myHeadingTlm);
 
         // IMUGyroEvent errorUpdate = new IMUGyroEvent(this, EventKind.ERROR_UPDATE, fHeading);
