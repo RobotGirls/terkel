@@ -1,6 +1,6 @@
 package team25core.tests;
 
-//import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -38,7 +38,7 @@ import java.util.Map;
  * observe which motor runs.  If it's not the leftFront motor
  * you know you have your configuration mapped incorrectly.
  */
-//@Config
+@Config
 @Autonomous(group="Tests", name="MotorEvaluation")
 public class MotorEvaluation extends LinearOpMode {
 
