@@ -14,7 +14,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: RobotGirls/terkel
-          ref: master
           path: ws/terkel
 
       - name: Checkout RC
