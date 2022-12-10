@@ -1,3 +1,5 @@
+[![Build](https://github.com/RobotGirls/terkel/actions/workflows/build.yaml/badge.svg)](https://github.com/RobotGirls/terkel/actions/workflows/build.yaml)
+
 # terkel
 
 A task/event framework for the FTC SDK.

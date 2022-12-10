@@ -34,10 +34,10 @@
 package examples;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDeviceInterfaceModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import team25core.DeadReckonPath;
@@ -59,7 +59,7 @@ public class DeadReckonExample5 extends Robot {
     private DcMotor backLeft;
     private DcMotor backRight;
 
-    private ModernRoboticsUsbDeviceInterfaceModule interfaceModule;
+    private DigitalChannelController interfaceModule;
     private final static int LIMIT_SWITCH_PORT = 0;
 
     private TwoWheelDirectDrivetrain drivetrain;
@@ -88,7 +88,7 @@ public class DeadReckonExample5 extends Robot {
         // backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         // backRight = hardwareMap.get(DcMotor.class, "backRight");
 
-        interfaceModule = hardwareMap.get(ModernRoboticsUsbDeviceInterfaceModule.class, "cdim");
+        interfaceModule = hardwareMap.get(DigitalChannelController.class, "cdim");
 
         drivetrain = new TwoWheelDirectDrivetrain(frontRight, frontLeft);
     }
