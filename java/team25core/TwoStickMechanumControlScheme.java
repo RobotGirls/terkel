@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
  */
 
 
-public class TwoStickControlScheme implements JoystickDriveControlScheme {
+public class TwoStickMechanumControlScheme implements JoystickDriveControlScheme {
 
     /*
      * An Andymark 40 native spin direction is counterclockwise.
@@ -38,13 +38,13 @@ public class TwoStickControlScheme implements JoystickDriveControlScheme {
     protected Gamepad gamepad;
     protected MotorDirection motorDirection;
 
-    public TwoStickControlScheme(Gamepad gamepad)
+    public TwoStickMechanumControlScheme(Gamepad gamepad)
     {
         this.gamepad = gamepad;
         this.motorDirection = MotorDirection.CANONICAL;
     }
 
-    public TwoStickControlScheme(Gamepad gamepad, MotorDirection motorDirection)
+    public TwoStickMechanumControlScheme(Gamepad gamepad, MotorDirection motorDirection)
     {
         this.gamepad = gamepad;
         this.motorDirection = motorDirection;
