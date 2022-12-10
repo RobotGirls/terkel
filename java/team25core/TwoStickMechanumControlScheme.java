@@ -57,12 +57,16 @@ public class TwoStickControlScheme implements JoystickDriveControlScheme {
         leftY = gamepad.left_stick_y;
         rightY = gamepad.right_stick_y;
 
-        // TODO: describe control scheme
+        //  The left joystick controls the left and right turns
+        //  The right joystick controls forward with the y axis and strafing with the x axis
+        //  I then assigned positive and negative for each control and ordered it from forward,
+        //  turn, and strafe
+        //  lastly I assigned the controls to each wheel
 
         fl = -rightY + rightX + leftX;
-        fr = -rightY + rightX - leftX;
+        fr = -rightY - rightX - leftX;
         rl = -rightY + rightX - leftX;
-        rr = -rightY + rightX + leftX;
+        rr = -rightY - rightX + leftX;
 
         return new MotorValues(fl, fr, rl, rr);
     }
