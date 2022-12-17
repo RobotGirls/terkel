@@ -231,7 +231,7 @@ public class AprilTagDetectionTask extends RobotTask {
             return false;
         }
         processAprilTags();
-        pollTimer.reset();
+//        pollTimer.reset();
         return false;
     }
 }
