@@ -110,7 +110,8 @@ public class AprilTagDetectionTask extends RobotTask {
 
     public void initAprilTags(HardwareMap hardwareMap){
 
-        telemetry.addLine("in initAprilTags");
+        // FIXME Commented this out to test IMU
+       // telemetry.addLine("in initAprilTags");
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId",
                 "id", hardwareMap.appContext.getPackageName());
@@ -141,7 +142,8 @@ public class AprilTagDetectionTask extends RobotTask {
     public void init(Telemetry telemetry, HardwareMap hardwareMap)
     {
         this.telemetry = telemetry;
-        telemetry.addLine("in AprilTagDetectionTask init");
+        // FIXME Commented this out to test IMU
+       // telemetry.addLine("in AprilTagDetectionTask init");
         initAprilTags(hardwareMap);
     }
 
@@ -177,14 +179,15 @@ public class AprilTagDetectionTask extends RobotTask {
         // Get an array of all the april tags detected
         ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
+        // FIXME Temporarily commenting out the telemetry for the tags (to test IMU)
         if (currentDetections.size() == 0) { // if no april tags were detected
-            telemetry.addLine("Don't see tag of interest :(");
+//            telemetry.addLine("Don't see tag of interest :(");
 
             if (tagOfInterest == null) {
-                telemetry.addLine("(The tag has never been seen)");
+//                telemetry.addLine("(The tag has never been seen)");
             } else {
                 telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                tagToTelemetry(tagOfInterest);
+             //   tagToTelemetry(tagOfInterest);
             }
         } else {  // if april tags are detected
             // Get the first tag in the array of april tags
@@ -199,7 +202,7 @@ public class AprilTagDetectionTask extends RobotTask {
                 telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
                 // tagToTelemtry prints out the detected april tag ID and
                 // the X, Y, and Z translation and the yaw, pitch, and roll
-                tagToTelemetry(tagOfInterest);
+              //  tagToTelemetry(tagOfInterest);
             } else { // if tag is not  found
                 telemetry.addLine("Don't see tag of interest :(");
 
@@ -207,7 +210,7 @@ public class AprilTagDetectionTask extends RobotTask {
                     telemetry.addLine("(The tag has never been seen)");
                 } else {
                     telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                    tagToTelemetry(tagOfInterest);
+                  //  tagToTelemetry(tagOfInterest);
                 }
             }
         }

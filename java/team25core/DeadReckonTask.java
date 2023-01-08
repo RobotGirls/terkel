@@ -390,8 +390,8 @@ public class DeadReckonTask extends RobotTask {
             break;
         }
 
-        robot.telemetry.addData("Segment: ", num);
-        robot.telemetry.addData("State: ", segment.state.toString());
+//        robot.telemetry.addData("Segment: ", num);
+//        robot.telemetry.addData("State: ", segment.state.toString());
 
         return false;
     }

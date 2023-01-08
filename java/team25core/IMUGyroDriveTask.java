@@ -34,10 +34,13 @@
 
 package team25core;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -92,6 +95,21 @@ public class IMUGyroDriveTask extends RobotTask {
 
     String myHeadingTlm;
 
+    private Orientation angles;
+    private Acceleration gravity;
+
+    Telemetry.Item imuStatusTlm;
+    Telemetry.Item imuCalibTlm;
+    Telemetry.Item imuHeadingTlm;
+    Telemetry.Item imuYawRateTlm;
+    Telemetry.Item imuRollTlm;
+    Telemetry.Item imuPitchTlm;
+    Telemetry.Item imuGravTlm;
+
+    private int i = 0;
+    private int j = 0;
+    Telemetry.Item whereAmIGyro;
+
     public IMUGyroDriveTask(Robot robot, BNO055IMU imu, int targetHeading, boolean showHeading, Telemetry.Item heading)
     {
         super(robot);
@@ -99,6 +117,11 @@ public class IMUGyroDriveTask extends RobotTask {
         this.showHeading = showHeading;
         this.imu = imu;
         this.headingTlm = heading;
+
+        // added this to get rid of error regarding telemetry
+        this.headingTlm = robot.telemetry.addData("Current/target heading is: ", "none");
+        this.secondAngleTlm = robot.telemetry.addData("Second angle is: ", "none");
+        this.thirdAngleTlm = robot.telemetry.addData("Third angle is: ", "none");
 
     }
     public IMUGyroDriveTask(Robot robot, BNO055IMU imu, int targetHeading, boolean showHeading)
@@ -121,18 +144,31 @@ public class IMUGyroDriveTask extends RobotTask {
 
     public void initializeImu()
     {
+        // Set up the parameters with which we will use our IMU. Note that integration
+        // algorithm here just reports accelerations to the logcat log; it doesn't actually
+        // provide positional information.
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        // cindy commented out the following
+        // parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.mode = BNO055IMU.SensorMode.IMU;
         parameters.loggingEnabled      = true;
+        // cindy added
+        parameters.useExternalCrystal   = true;
         parameters.loggingTag          = "IMU";
+
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "imu".
         imu.initialize(parameters);
+
+        angles  = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        gravity = imu.getGravity();
+
+       // telemetry.setMsTransmissionInterval(100);
     }
 
     @Override
@@ -153,6 +189,40 @@ public class IMUGyroDriveTask extends RobotTask {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 
+    public void displayTelemetry() {
+        //telemetry.setAutoClear(false);
+        //imuStatusTlm.setValue(imu.getSystemStatus().toString());
+       // imuCalibTlm.setValue(imu.getCalibrationStatus().toString());
+
+        i = i++;
+        whereAmIGyro.setValue("displayTelemetry" + i);
+        double heading = -imu.getAngularOrientation().firstAngle;
+        this.imuHeadingTlm.setValue(heading);
+        double roll = -imu.getAngularOrientation().secondAngle;
+        this.imuRollTlm.setValue(roll);
+        double pitch = -imu.getAngularOrientation().thirdAngle;
+        this.imuPitchTlm.setValue(pitch);
+        double yawRate = -imu.getAngularVelocity().yRotationRate;
+        this.imuYawRateTlm.setValue( yawRate );
+        //imuGravTlm.setValue(gravity.toString());
+
+
+    }
+
+    public void initTelemetry(Telemetry telemetry) {
+        telemetry.setAutoClear(false);
+        imuStatusTlm = telemetry.addData("Status", imu.getSystemStatus().toString());
+        imuCalibTlm = telemetry.addData("Calib", imu.getCalibrationStatus().toString());
+        imuHeadingTlm = telemetry.addData("Heading", formatAngle(angles.angleUnit, angles.firstAngle));
+        imuYawRateTlm = telemetry.addData("YawRate", formatAngle(angles.angleUnit, angles.firstAngle));
+
+        imuRollTlm = telemetry.addData("Roll", formatAngle(angles.angleUnit, angles.secondAngle));
+        imuPitchTlm = telemetry.addData("Pitch", formatAngle(angles.angleUnit, angles.thirdAngle));
+        imuGravTlm = telemetry.addData("Grav", gravity.toString());
+        whereAmIGyro = telemetry.addData("whereAmIGyro", "initTelemetry" );
+        telemetry.setMsTransmissionInterval(100);
+    }
+
     @Override
     public boolean timeslice()
     {
@@ -166,7 +236,10 @@ public class IMUGyroDriveTask extends RobotTask {
 
         this.secondAngleTlm.setValue(secondAngle);
         this.thirdAngleTlm.setValue(thirdAngle);
-
+        j = j + 1;
+        String foo = "displayTelemetry" + j;
+        whereAmIGyro.setValue(foo);
+        displayTelemetry();
 
         myHeadingTlm = currentHeading.toString();
 //        if (showHeading) {
@@ -180,25 +253,26 @@ public class IMUGyroDriveTask extends RobotTask {
         // IMUGyroEvent errorUpdate = new IMUGyroEvent(this, EventKind.ERROR_UPDATE, fHeading);
         // robot.queueEvent(errorUpdate);
 
-        if (fHeading <= Math.abs(slop)) {
-            IMUGyroEvent hitTarget = new IMUGyroEvent(this, EventKind.HIT_TARGET);
-            robot.queueEvent(hitTarget);
-            ret = true;
-        } else {
-            // Counter Clockwise rotation.
-            if ((lastRead > 0) && (fHeading < 0)) {
-                IMUGyroEvent pastTarget = new IMUGyroEvent(this, EventKind.PAST_TARGET);
-                robot.queueEvent(pastTarget);
-                ret = false;
-            } else if ((lastRead < 0) && (fHeading > 0)) {
-                // Clockwise rotation.
-                IMUGyroEvent pastTarget = new IMUGyroEvent(this, EventKind.PAST_TARGET);
-                robot.queueEvent(pastTarget);
-                ret = false;
-            }
-        }
+//        if (fHeading <= Math.abs(slop)) {
+//            IMUGyroEvent hitTarget = new IMUGyroEvent(this, EventKind.HIT_TARGET);
+//            robot.queueEvent(hitTarget);
+//            ret = true;
+//        } else {
+//            // Counter Clockwise rotation.
+//            if ((lastRead > 0) && (fHeading < 0)) {
+//                IMUGyroEvent pastTarget = new IMUGyroEvent(this, EventKind.PAST_TARGET);
+//                robot.queueEvent(pastTarget);
+//                ret = false;
+//            } else if ((lastRead < 0) && (fHeading > 0)) {
+//                // Clockwise rotation.
+//                IMUGyroEvent pastTarget = new IMUGyroEvent(this, EventKind.PAST_TARGET);
+//                robot.queueEvent(pastTarget);
+//                ret = false;
+//            }
+//        }
 
         lastRead = fHeading;
-        return ret;
+        //return ret;
+        return false;
     }
 }
