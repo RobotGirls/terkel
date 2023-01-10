@@ -106,9 +106,16 @@ public class IMUGyroDriveTask extends RobotTask {
     Telemetry.Item imuPitchTlm;
     Telemetry.Item imuGravTlm;
 
+    private double heading;
+    private double yawRate;
+    private double roll;
+    private double pitch;
+
     private int i = 0;
     private int j = 0;
     Telemetry.Item whereAmIGyro;
+
+    private FourWheelDirectIMUDrivetrain drivetrain;
 
     public IMUGyroDriveTask(Robot robot, BNO055IMU imu, int targetHeading, boolean showHeading, Telemetry.Item heading)
     {
@@ -134,6 +141,12 @@ public class IMUGyroDriveTask extends RobotTask {
         this.headingTlm = robot.telemetry.addData("Current/target heading is: ", "none");
         this.secondAngleTlm = robot.telemetry.addData("Second angle is: ", "none");
         this.thirdAngleTlm = robot.telemetry.addData("Third angle is: ", "none");
+
+    }
+
+    public void setDrivetrain(FourWheelDirectIMUDrivetrain usedDrivetrain) {
+
+        drivetrain = usedDrivetrain;
 
     }
 
@@ -189,6 +202,14 @@ public class IMUGyroDriveTask extends RobotTask {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 
+
+    public void getIMUValues() {
+        heading = -imu.getAngularOrientation().firstAngle;
+        roll = -imu.getAngularOrientation().secondAngle;
+        pitch = -imu.getAngularOrientation().thirdAngle;
+        yawRate = -imu.getAngularVelocity().yRotationRate;
+        drivetrain.setCurrentYaw(heading);
+    }
     public void displayTelemetry() {
         //telemetry.setAutoClear(false);
         //imuStatusTlm.setValue(imu.getSystemStatus().toString());
@@ -196,13 +217,13 @@ public class IMUGyroDriveTask extends RobotTask {
 
         i = i++;
         whereAmIGyro.setValue("displayTelemetry" + i);
-        double heading = -imu.getAngularOrientation().firstAngle;
+
         this.imuHeadingTlm.setValue(heading);
-        double roll = -imu.getAngularOrientation().secondAngle;
+
         this.imuRollTlm.setValue(roll);
-        double pitch = -imu.getAngularOrientation().thirdAngle;
+
         this.imuPitchTlm.setValue(pitch);
-        double yawRate = -imu.getAngularVelocity().yRotationRate;
+
         this.imuYawRateTlm.setValue( yawRate );
         //imuGravTlm.setValue(gravity.toString());
 
@@ -239,6 +260,7 @@ public class IMUGyroDriveTask extends RobotTask {
         j = j + 1;
         String foo = "displayTelemetry" + j;
         whereAmIGyro.setValue(foo);
+        getIMUValues();
         displayTelemetry();
 
         myHeadingTlm = currentHeading.toString();
