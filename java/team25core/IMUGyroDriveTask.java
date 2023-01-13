@@ -257,9 +257,9 @@ public class IMUGyroDriveTask extends RobotTask {
 
         this.secondAngleTlm.setValue(secondAngle);
         this.thirdAngleTlm.setValue(thirdAngle);
-        j = j + 1;
-        String foo = "displayTelemetry" + j;
-        whereAmIGyro.setValue(foo);
+        this.j = this.j + 1;
+        String foo = "displayTelemetry" + this.j;
+        this.whereAmIGyro.setValue(foo);
         getIMUValues();
         displayTelemetry();
 
