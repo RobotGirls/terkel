@@ -68,6 +68,7 @@ public class RGBColorSensorTask extends RobotTask
 
     // returns the values for blue, red, and green from the color sensor
     protected int[] colorArray = new int[3];
+
     public int[] getColors() {
         colorArray[0] = colorSensor.blue();
         colorArray[1] = colorSensor.red();
