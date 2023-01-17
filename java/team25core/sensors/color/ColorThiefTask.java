@@ -1,4 +1,4 @@
-package team25core;
+package team25core.sensors.color;
 
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -14,6 +14,10 @@ import java.util.concurrent.BlockingQueue;
 import team25core.vision.vuforia.VuforiaBase;
 import team25core.vision.vuforia.VuforiaImageHelper;
 import team25core.vision.vuforia.VuforiaLocalizerCustom;
+
+import team25core.Robot;
+import team25core.RobotEvent;
+import team25core.RobotTask;
 
 public class ColorThiefTask extends RobotTask {
 
