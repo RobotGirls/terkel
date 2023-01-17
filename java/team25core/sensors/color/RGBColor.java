@@ -1,6 +1,11 @@
-package team25core;
+package team25core.sensors.color;
 
 import android.graphics.Color;
+
+import team25core.Robot;
+import team25core.RobotEvent;
+import team25core.RobotTask;
+
 
 import com.qualcomm.robotcore.util.RobotLog;
 

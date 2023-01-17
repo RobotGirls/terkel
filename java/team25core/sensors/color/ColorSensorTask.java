@@ -32,7 +32,7 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package team25core;
+package team25core.sensors.color;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -45,7 +45,11 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.R;
 
-import static team25core.SingleShotColorSensorTask.OperatingMode.UNDEFINED;
+import static team25core.sensors.color.SingleShotColorSensorTask.OperatingMode.UNDEFINED;
+
+import team25core.Robot;
+import team25core.RobotEvent;
+import team25core.RobotTask;
 
 public class ColorSensorTask extends RobotTask
 {
