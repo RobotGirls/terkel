@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.RobotLog;
 
-public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements Drivetrain {
+public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements DrivetrainWithIMU {
 
     DcMotor rearLeft;
     DcMotor rearRight;
@@ -47,12 +47,20 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
     double multiplier;
     boolean doStrafeReverse = false;
 
-    private static final double PROPORTIONAL_CONSTANT = 0.98;
+    private static final double PROPORTIONAL_CONSTANT = 0.8;
     // this the value for the desired yaw or heading
     // if you want to go straight this value is zero
     private double targetYaw;
 
     private double currentYaw;
+
+    private double currentYawRate;
+
+    private static final boolean LEFT_FRONT_ON = true;
+    private static final boolean LEFT_BACK_ON = true;
+    private static final boolean RIGHT_FRONT_ON = true;
+    private static final boolean RIGHT_BACK_ON = true;
+
 
     public FourWheelDirectIMUDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
     {
@@ -149,19 +157,31 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
         yawError = targetYaw - currentYaw;
         yawCorrection = yawError * PROPORTIONAL_CONSTANT;
 
-        frontRight.setPower(-speed - yawCorrection);
-        rearRight.setPower(speed - yawCorrection);
-        frontLeft.setPower(speed + yawCorrection);
-        rearLeft.setPower(-speed + yawCorrection);
+       if (RIGHT_FRONT_ON) {
+           frontRight.setPower(-speed - yawCorrection);
+       }
+        if (RIGHT_BACK_ON) {
+            rearRight.setPower(speed - yawCorrection);
+        }
+        if (LEFT_FRONT_ON) {
+            frontLeft.setPower(speed + yawCorrection);
+        }
+        if (LEFT_BACK_ON) {
+            rearLeft.setPower(-speed + yawCorrection);
+        }
     }
 
     // this method is used to set a value for the target yaw used for the
     // yaw correction
+
+    // don't need the @Override because there is no setTarget in the parent
+    // class which is DrivetrainWithIMU
     public void setTarget(double desiredTargetYaw)
     {
        targetYaw = desiredTargetYaw;
     }
 
+    @Override
     public void setCurrentYaw(double currentYawFromIMU)
     {
        currentYaw = currentYawFromIMU;
@@ -170,6 +190,12 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
     public void setStrafeReverse(boolean strafeReverse)
     {
         doStrafeReverse = strafeReverse;
+    }
+
+    @Override
+    public void setCurrentYawRate(double currentYawRateFromIMU)
+    {
+        currentYawRate = currentYawRateFromIMU;
     }
 
     @Override
