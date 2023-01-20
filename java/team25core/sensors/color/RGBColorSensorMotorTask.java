@@ -47,12 +47,13 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
     }
 
     public void gotoBlue() {
+        // function to go to blue position
         if (RGBMotor.getCurrentPosition() < targetBlueEncoderValue && reverseMotor == false) {
-            //set motor up
+            //set motor up if current encoder position is less than blue encoder position
             RGBMotor.setPower(MotorSpeed);
         }
         else if (RGBMotor.getCurrentPosition() > targetBlueEncoderValue && reverseMotor == false) {
-            //set motor down
+            //set motor down if current encoder position is greater than blue encoder position
             RGBMotor.setPower(-MotorSpeed);
         }
         else if (RGBMotor.getCurrentPosition() < targetBlueEncoderValue && reverseMotor == true) {
@@ -64,7 +65,7 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
             RGBMotor.setPower(+MotorSpeed);
         }
         else {
-            // set motor off
+            // set motor off if motor is at blue position
             RGBMotor.setPower(0);
         }
         colorSensorTask = new RGBColorSensorTask(this.robot, colorSensor) {
@@ -76,8 +77,76 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
             }
         };
         this.robot.addTask(colorSensorTask);
-        RGBMotor.setPower(0);
-        this.robot.removeTask(colorSensorTask);
+        //  RGBMotor.setPower(0);
+        //  this.robot.removeTask(colorSensorTask);
+    }
+
+    public void gotoGreen() {
+        if (RGBMotor.getCurrentPosition() < targetGreenEncoderValue && reverseMotor == false) {
+            //set motor up
+            RGBMotor.setPower(MotorSpeed);
+        }
+        else if (RGBMotor.getCurrentPosition() > targetGreenEncoderValue && reverseMotor == false) {
+            //set motor down
+            RGBMotor.setPower(-MotorSpeed);
+        }
+        else if (RGBMotor.getCurrentPosition() < targetGreenEncoderValue && reverseMotor == true) {
+            //set motor down
+            RGBMotor.setPower(-MotorSpeed);
+        }
+        else if (RGBMotor.getCurrentPosition() > targetGreenEncoderValue && reverseMotor == true) {
+            //set motor up
+            RGBMotor.setPower(+MotorSpeed);
+        }
+        else {
+            // set motor off
+            RGBMotor.setPower(0);
+        }
+        colorSensorTask = new RGBColorSensorTask(this.robot, colorSensor) {
+            public void handleEvent(RobotEvent e) {
+                RGBColorSensorTask.ColorSensorEvent event = (RGBColorSensorTask.ColorSensorEvent) e;
+                while(event.kind != event.kind.GREEN_DETECTED) {
+                }
+                RGBMotor.setPower(0);
+            }
+        };
+        this.robot.addTask(colorSensorTask);
+        //  RGBMotor.setPower(0);
+        //  this.robot.removeTask(colorSensorTask);
+    }
+
+    public void gotoRed() {
+        if (RGBMotor.getCurrentPosition() < targetRedEncoderValue && reverseMotor == false) {
+            //set motor up
+            RGBMotor.setPower(MotorSpeed);
+        }
+        else if (RGBMotor.getCurrentPosition() > targetRedEncoderValue && reverseMotor == false) {
+            //set motor down
+            RGBMotor.setPower(-MotorSpeed);
+        }
+        else if (RGBMotor.getCurrentPosition() < targetRedEncoderValue && reverseMotor == true) {
+            //set motor down
+            RGBMotor.setPower(-MotorSpeed);
+        }
+        else if (RGBMotor.getCurrentPosition() > targetRedEncoderValue && reverseMotor == true) {
+            //set motor up
+            RGBMotor.setPower(+MotorSpeed);
+        }
+        else {
+            // set motor off
+            RGBMotor.setPower(0);
+        }
+        colorSensorTask = new RGBColorSensorTask(this.robot, colorSensor) {
+            public void handleEvent(RobotEvent e) {
+                RGBColorSensorTask.ColorSensorEvent event = (RGBColorSensorTask.ColorSensorEvent) e;
+                while(event.kind != event.kind.RED_DETECTED) {
+                }
+                RGBMotor.setPower(0);
+            }
+        };
+        this.robot.addTask(colorSensorTask);
+        //  RGBMotor.setPower(0);
+        //  this.robot.removeTask(colorSensorTask);
     }
 
     @Override
