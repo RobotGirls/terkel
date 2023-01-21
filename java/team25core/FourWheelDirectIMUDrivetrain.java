@@ -33,10 +33,12 @@
 
 package team25core;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.RobotLog;
 
+@Config
 public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements DrivetrainWithIMU {
 
     DcMotor rearLeft;
@@ -47,7 +49,17 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
     double multiplier;
     boolean doStrafeReverse = false;
 
-    private static final double PROPORTIONAL_CONSTANT = 0.8;
+
+    // FIXME proportional_constant is 0.8 on Mayfield's carpeting
+    //  try 0.9 or 0.7 to see what is better
+    // took out final and made it public so that we can see the constant in the FTC dashboard
+    public static double PROPORTIONAL_CONSTANT = 0.88; // try a little larger but lower than 0.90
+    // FIXME Temporarily set the derivative constant to 0
+    //  (I put 0.0001 initially) but first make sure
+    //  proportional constant so that it makes sure it is strafing
+    //  straight
+    public static double DERIVATIVE_CONSTANT = 0;
+
     // this the value for the desired yaw or heading
     // if you want to go straight this value is zero
     private double targetYaw;
@@ -155,7 +167,10 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
         double yawCorrection;
 
         yawError = targetYaw - currentYaw;
-        yawCorrection = yawError * PROPORTIONAL_CONSTANT;
+        // FIXME We need to constrain this value so it does not flip over
+        // if it gets too big or too small.
+        yawCorrection = yawError * PROPORTIONAL_CONSTANT
+                + currentYawRate * DERIVATIVE_CONSTANT;
 
        if (RIGHT_FRONT_ON) {
            frontRight.setPower(-speed - yawCorrection);
