@@ -61,10 +61,10 @@ public class TankMechanumControlSchemeFrenzy implements JoystickDriveControlSche
         // Threshold for joystick values in the x may vary.
 
         if (Math.abs(leftX) > 0.5 && Math.abs(rightX) > 0.5) {          // sideways right
-            fl = -leftX;
-            rl = leftX;
-            fr = rightX;
-            rr = -rightX;
+            fl = leftX;
+            rl = -leftX;
+            fr = -rightX;
+            rr = rightX;
 //        } else if ((leftY < 0.5) && (rightY > 0.5)){   //turn right
 //            fl = - leftY;
 //            rl = - leftY;
@@ -88,10 +88,10 @@ public class TankMechanumControlSchemeFrenzy implements JoystickDriveControlSche
             rr = 1.0;
             fl = -1.0;
         } else {                                    // forward or backward
-            fl = leftY;
-            rl = leftY;
-            fr = rightY;
-            rr = rightY;
+            fl = -leftY;
+            rl = -leftY;
+            fr = -rightY;
+            rr = -rightY;
         }
 
         return new MotorValues(fl, fr, rl, rr);

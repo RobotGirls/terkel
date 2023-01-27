@@ -46,7 +46,7 @@ import static team25core.DeadReckonPath.SegmentType.PAUSE;
 import static team25core.DeadReckonPath.SegmentType.TURN;
 
 public class DeadReckonTask extends RobotTask {
-
+    //WORKING DETECTION CLASS
     private final static String TAG = "DeadREckonTask";
 
     public enum EventKind {
@@ -201,15 +201,15 @@ public class DeadReckonTask extends RobotTask {
     public void setTarget(DeadReckonPath.Segment segment)
     {
         switch (segment.type) {
-        case STRAIGHT:
-        case RIGHT_DIAGONAL:
-        case LEFT_DIAGONAL:
-        case SIDEWAYS:
-            drivetrain.setTargetInches(segment.distance);
-            break;
-        case TURN:
-            drivetrain.setTargetRotation(segment.distance);
-            break;
+            case STRAIGHT:
+            case RIGHT_DIAGONAL:
+            case LEFT_DIAGONAL:
+            case SIDEWAYS:
+                drivetrain.setTargetInches(segment.distance);
+                break;
+            case TURN:
+                drivetrain.setTargetRotation(segment.distance);
+                break;
         }
     }
 
@@ -232,7 +232,7 @@ public class DeadReckonTask extends RobotTask {
             robot.queueEvent(new DeadReckonEvent(this, EventKind.PAUSING, num));
         }
         segment.state = WAIT;
-        timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        //timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     }
 
     @Override
@@ -294,100 +294,100 @@ public class DeadReckonTask extends RobotTask {
         }
 
         switch (segment.state) {
-        case INITIALIZE:
-            isStrafing = false;
-            isStraight = false;
-            drivetrain.resetEncoders();
-            segment.state = DeadReckonPath.SegmentState.ENCODER_RESET;
-            break;
-        case ENCODER_RESET:
-            drivetrain.resetEncoders();
-            segment.state = DeadReckonPath.SegmentState.SET_TARGET;
-            break;
-        case SET_TARGET:
-            drivetrain.encodersOn();
-            setTarget(segment);
-            segment.state = DeadReckonPath.SegmentState.CONSUME_SEGMENT;
-            break;
-        case CONSUME_SEGMENT:
-            if (segment.type == PAUSE) {
-                setupWaitState(segment, true);
+            case INITIALIZE:
+                isStrafing = false;
+                isStraight = false;
+                drivetrain.resetEncoders();
+                segment.state = DeadReckonPath.SegmentState.ENCODER_RESET;
                 break;
-            }
+            case ENCODER_RESET:
+                drivetrain.resetEncoders();
+                segment.state = DeadReckonPath.SegmentState.SET_TARGET;
+                break;
+            case SET_TARGET:
+                drivetrain.encodersOn();
+                setTarget(segment);
+                segment.state = DeadReckonPath.SegmentState.CONSUME_SEGMENT;
+                break;
+            case CONSUME_SEGMENT:
+                if (segment.type == PAUSE) {
+                    setupWaitState(segment, true);
+                    break;
+                }
 
-            if (segment.type == STRAIGHT) {
-                isStraight = true;
-                if (smoothStart == true) {
-                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
-                        @Override
-                        public void run(double speed) { drivetrain.straight(speed); }
-                    });
+                if (segment.type == STRAIGHT) {
+                    isStraight = true;
+                    if (smoothStart == true) {
+                        robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
+                            @Override
+                            public void run(double speed) { drivetrain.straight(speed); }
+                        });
+                    } else {
+                        drivetrain.straight(segment.speed);
+                    }
+                } else if (segment.type == SIDEWAYS) {
+                    isStrafing = true;
+                    if (smoothStart == true) {
+                        robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
+                            @Override
+                            public void run(double speed) { drivetrain.strafe(speed); }
+                        });
+                    } else {
+                        drivetrain.strafe(segment.speed);
+                    }
+                } else if (segment.type == LEFT_DIAGONAL) {
+                    drivetrain.leftDiagonal(segment.speed);
+                } else if (segment.type == RIGHT_DIAGONAL) {
+                    drivetrain.rightDiagonal(segment.speed);
                 } else {
-                    drivetrain.straight(segment.speed);
+                    drivetrain.turn(segment.speed);
                 }
-            } else if (segment.type == SIDEWAYS) {
-                isStrafing = true;
-                if (smoothStart == true) {
-                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
-                        @Override
-                        public void run(double speed) { drivetrain.strafe(speed); }
-                    });
-                } else {
-                    drivetrain.strafe(segment.speed);
-                }
-            } else if (segment.type == LEFT_DIAGONAL) {
-                drivetrain.leftDiagonal(segment.speed);
-            } else if (segment.type == RIGHT_DIAGONAL) {
-                drivetrain.rightDiagonal(segment.speed);
-            } else {
-                drivetrain.turn(segment.speed);
-            }
-            segment.state = DeadReckonPath.SegmentState.ENCODER_TARGET;
-            break;
-        case ENCODER_TARGET:
-            if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
-                RobotLog.i("5218 Solo sensor criteria satisfied");
-                segment.state = STOP_MOTORS;
-                reason = DoneReason.SENSOR_SATISFIED;
-            } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
-                if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
-                    RobotLog.i("5218 Left and right criteria satisfied");
+                segment.state = DeadReckonPath.SegmentState.ENCODER_TARGET;
+                break;
+            case ENCODER_TARGET:
+                if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
+                    RobotLog.i("5218 Solo sensor criteria satisfied");
                     segment.state = STOP_MOTORS;
-                    reason = DoneReason.BOTH_SENSORS_SATISFIED;
+                    reason = DoneReason.SENSOR_SATISFIED;
+                } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
+                    if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
+                        RobotLog.i("5218 Left and right criteria satisfied");
+                        segment.state = STOP_MOTORS;
+                        reason = DoneReason.BOTH_SENSORS_SATISFIED;
+                    }
+                } else if (hitTarget()) {
+                    segment.state = STOP_MOTORS;
+                    reason = DoneReason.ENCODER_REACHED;
                 }
-            } else if (hitTarget()) {
-                segment.state = STOP_MOTORS;
-                reason = DoneReason.ENCODER_REACHED;
-            }
-            break;
-        case STOP_MOTORS:
-            if (smoothStart == true) {
-                if (isStrafing == true) {
-                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
-                        @Override
-                        public void run(double speed) { drivetrain.strafe(speed); }
-                    });
-                } else if (isStraight == true) {
-                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
-                        @Override
-                        public void run(double speed) { drivetrain.straight(speed); }
-                    });
+                break;
+            case STOP_MOTORS:
+                if (smoothStart == true) {
+                    if (isStrafing == true) {
+                        robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
+                            @Override
+                            public void run(double speed) { drivetrain.strafe(speed); }
+                        });
+                    } else if (isStraight == true) {
+                        robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
+                            @Override
+                            public void run(double speed) { drivetrain.straight(speed); }
+                        });
+                    }
+                } else {
+                    drivetrain.stop();
                 }
-            } else {
-                drivetrain.stop();
-            }
-            setupWaitState(segment, false);
-            break;
-        case WAIT:
-            if (timer.time() >= segment.millisecond_pause) {
+                setupWaitState(segment, false);
+                break;
+            case WAIT:
+                //if (timer.time() >= segment.millisecond_pause) {
                 segment.state = DeadReckonPath.SegmentState.DONE;
-            }
-            break;
-        case DONE:
-            num++;
-            dr.nextSegment();
-            segment.state = DeadReckonPath.SegmentState.INITIALIZE;
-            break;
+                //}
+                break;
+            case DONE:
+                num++;
+                dr.nextSegment();
+                segment.state = DeadReckonPath.SegmentState.INITIALIZE;
+                break;
         }
 
         robot.telemetry.addData("Segment: ", num);

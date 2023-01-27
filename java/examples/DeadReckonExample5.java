@@ -33,7 +33,6 @@
 
 package examples;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -42,10 +41,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import team25core.DeadReckonPath;
 import team25core.DeadReckonTask;
-import team25core.FourWheelDirectDrivetrain;
 import team25core.LimitSwitchTask;
-import team25core.MonitorGyroTask;
-import team25core.MonitorMotorTask;
 import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.TwoWheelDirectDrivetrain;
