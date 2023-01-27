@@ -53,7 +53,8 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
     // FIXME proportional_constant is 0.8 on Mayfield's carpeting
     //  try 0.9 or 0.7 to see what is better
     // took out final and made it public so that we can see the constant in the FTC dashboard
-    public static double PROPORTIONAL_CONSTANT = 0.88; // try a little larger but lower than 0.90
+    // started at 0.88 (1/20)
+    public static double PROPORTIONAL_CONSTANT = 0.5; // try a little larger but lower than 0.90
     // FIXME Temporarily set the derivative constant to 0
     //  (I put 0.0001 initially) but first make sure
     //  proportional constant so that it makes sure it is strafing
