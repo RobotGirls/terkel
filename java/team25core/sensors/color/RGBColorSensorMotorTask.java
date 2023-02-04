@@ -26,20 +26,33 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
     protected boolean redDetected = false;
     protected boolean greenDetected = false;
 
+    protected int hardStopTopValue = 0;
+
     protected RGBColorSensorTask colorSensorTask;
 
     private DcMotor RGBMotor;
     protected Robot robot;
 
-//    public enum EventKind {
-//        RED_DETECTED,
-//        BLUE_DETECTED,
-//        GREEN_DETECTED,
-//        NO_COLOR_DETECTED,
-//        GOT_TO_RED,
-//        GOT_TO_BLUE,
-//        GOT_TO_GREEN,
-//    }
+    public enum EventKind {
+        RED_DETECTED,
+        BLUE_DETECTED,
+        GREEN_DETECTED,
+        NO_COLOR_DETECTED,
+        GOT_TO_RED,
+        GOT_TO_BLUE,
+        GOT_TO_GREEN,
+    }
+
+    public class ColorSensorMotorEvent extends RobotEvent
+    {
+        public RGBColorSensorMotorTask.EventKind kind;
+
+        public ColorSensorMotorEvent(RobotTask task, RGBColorSensorMotorTask.EventKind kind)
+        {
+            super(task);
+            this.kind = kind;
+        }
+    }
 
     public RGBColorSensorMotorTask(Robot robot, ColorSensor colorSensor, DcMotor RGBMotor) {
         super(robot, colorSensor);
@@ -60,6 +73,10 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
         this.targetBlueEncoderValue = targetBlueEncoderValue;
         this.targetRedEncoderValue = targetRedEncoderValue;
         this.targetGreenEncoderValue = targetGreenEncoderValue;
+    }
+
+    public void setHardStopTopValue (int hardStopTopValue) {
+        this.hardStopTopValue = hardStopTopValue;
     }
 
     public void gotoBlue() {
@@ -151,34 +168,34 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
 
     @Override
     public boolean timeslice() {
-        ColorSensorEvent event;
+        ColorSensorMotorEvent event;
         // colorSensor.*** means it returns the value of a color as an integer
         // compares the values of red blue and green. The color with the highest value than the other
         // two colors and is less than it's color's threshold, then that color is returned
 
         if (colorSensor.red() > colorSensor.green() && colorSensor.red() > colorSensor.blue() && colorSensor.red() < redthreshold) {
-            event = new ColorSensorEvent(this, EventKind.RED_DETECTED);
+            event = new ColorSensorMotorEvent(this, EventKind.RED_DETECTED);
             robot.queueEvent(event);
             // setting redDetected boolean as true and others as false
             redDetected = true;
             blueDetected = false;
             greenDetected = false;
         } else if (colorSensor.blue() > colorSensor.green() && colorSensor.blue() > colorSensor.red() && colorSensor.blue() < bluethreshold){
-            event = new ColorSensorEvent(this, EventKind.BLUE_DETECTED);
+            event = new ColorSensorMotorEvent(this, EventKind.BLUE_DETECTED);
             robot.queueEvent(event);
             // setting blueDetected boolean as true and others as false
             redDetected = false;
             blueDetected = true;
             greenDetected = false;
         } else if (colorSensor.green() > colorSensor.red() && colorSensor.green() > colorSensor.blue() && colorSensor.green() < greenthreshold){
-            event = new ColorSensorEvent(this, EventKind.GREEN_DETECTED);
+            event = new ColorSensorMotorEvent(this, EventKind.GREEN_DETECTED);
             robot.queueEvent(event);
             // setting greenDetected boolean as true and others as false
             redDetected = false;
             blueDetected = false;
             greenDetected = true;
         } else {
-            event = new ColorSensorEvent(this, EventKind.NO_COLOR_DETECTED);
+            event = new ColorSensorMotorEvent(this, EventKind.NO_COLOR_DETECTED);
             robot.queueEvent(event);
             // setting all color detected booleans as false if no color is detected
             redDetected = false;
@@ -192,6 +209,8 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
             if (blueDetected == true) {
                 RGBMotor.setPower(0);
                 blueBool = false;
+                event = new ColorSensorMotorEvent(this, EventKind.GOT_TO_BLUE);
+                robot.queueEvent(event);
             }
         }
         if (greenBool == true) {
@@ -199,6 +218,8 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
             if (greenDetected == true) {
                 RGBMotor.setPower(0);
                 greenBool = false;
+                event = new ColorSensorMotorEvent(this, EventKind.GOT_TO_GREEN);
+                robot.queueEvent(event);
             }
         }
         if (redBool == true) {
@@ -206,7 +227,12 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
             if (redDetected == true) {
                 RGBMotor.setPower(0);
                 redBool = false;
+                event = new ColorSensorMotorEvent(this, EventKind.GOT_TO_RED);
+                robot.queueEvent(event);
             }
+        }
+        if (RGBMotor.getCurrentPosition() >= hardStopTopValue) {
+            RGBMotor.setPower(0);
         }
         return false;
     }
