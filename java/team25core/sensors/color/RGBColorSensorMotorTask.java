@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.RobotEventListener;
@@ -26,6 +28,14 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
     protected boolean redDetected = false;
     protected boolean greenDetected = false;
 
+    private Telemetry.Item blueBoolTlm;
+    private Telemetry.Item redBoolTlm;
+    private Telemetry.Item greenBoolTlm;
+
+    private Telemetry.Item blueColorSensorTlm;
+    private Telemetry.Item redColorSensorTlm;
+    private Telemetry.Item greenColorSensorTlm;
+
     protected int hardStopTopValue = 0;
 
     protected RGBColorSensorTask colorSensorTask;
@@ -41,6 +51,12 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
         GOT_TO_RED,
         GOT_TO_BLUE,
         GOT_TO_GREEN,
+    }
+
+    public enum TargetColor{
+        TARGET_BLUE,
+        TARGET_RED,
+        TARGET_GREEN,
     }
 
     public class ColorSensorMotorEvent extends RobotEvent
@@ -59,6 +75,19 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
         this.colorSensor = colorSensor;
         this.RGBMotor = RGBMotor;
         this.robot = robot;
+    }
+
+    public RGBColorSensorMotorTask(Robot robot, ColorSensor colorSensor, DcMotor RGBMotor, Telemetry telemetry) {
+        super(robot, colorSensor);
+        this.colorSensor = colorSensor;
+        this.RGBMotor = RGBMotor;
+        this.robot = robot;
+        blueBoolTlm = telemetry.addData("blueBool", blueBool);
+        greenBoolTlm = telemetry.addData("greenBool", greenBool);
+        redBoolTlm = telemetry.addData("redBool", redBool);
+        blueColorSensorTlm = telemetry.addData("blue color sensor value", 0);
+        redColorSensorTlm = telemetry.addData("red color sensor value", 0);
+        greenColorSensorTlm = telemetry.addData("green color sensor value", 0);
     }
 
     public void setMotorSpeed(double MotorSpeed) {
@@ -102,6 +131,8 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
             RGBMotor.setPower(0);
         }
         blueBool = true; // flag for timeslice
+        greenBool = false;
+        redBool = false;
         //  RGBMotor.setPower(0);
         //  this.robot.removeTask(colorSensorTask);
     }
@@ -128,6 +159,8 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
             RGBMotor.setPower(0);
         }
         greenBool = true; // flag for timeslice
+        blueBool = false;
+        redBool = false;
         //  RGBMotor.setPower(0);
         //  this.robot.removeTask(colorSensorTask);
     }
@@ -154,6 +187,8 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
             RGBMotor.setPower(0);
         }
         redBool = true; // flag for timeslice
+        blueBool = false;
+        greenBool = false;
         //  RGBMotor.setPower(0);
         //  this.robot.removeTask(colorSensorTask);
     }
@@ -231,6 +266,12 @@ public class RGBColorSensorMotorTask extends RGBColorSensorTask {
                 robot.queueEvent(event);
             }
         }
+        blueBoolTlm.setValue(blueBool);
+        greenBoolTlm.setValue(greenBool);
+        redBoolTlm.setValue(redBool);
+        blueColorSensorTlm.setValue(colorSensor.blue());
+        redColorSensorTlm.setValue(colorSensor.red());
+        greenColorSensorTlm.setValue(colorSensor.green());
         if (RGBMotor.getCurrentPosition() >= hardStopTopValue) {
             RGBMotor.setPower(0);
         }
