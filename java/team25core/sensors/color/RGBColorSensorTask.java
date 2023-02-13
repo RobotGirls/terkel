@@ -32,10 +32,14 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package team25core;
+package team25core.sensors.color;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import team25core.Robot;
+import team25core.RobotEvent;
+import team25core.RobotTask;
 
 public class RGBColorSensorTask extends RobotTask
 {
