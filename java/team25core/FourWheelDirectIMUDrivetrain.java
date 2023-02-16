@@ -192,7 +192,7 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
 
     // don't need the @Override because there is no setTarget in the parent
     // class which is DrivetrainWithIMU
-    public void setTarget(double desiredTargetYaw)
+    public void setTargetYaw(double desiredTargetYaw)
     {
        targetYaw = desiredTargetYaw;
     }

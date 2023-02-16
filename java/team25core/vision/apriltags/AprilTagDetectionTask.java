@@ -197,22 +197,22 @@ public class AprilTagDetectionTask extends RobotTask {
             if (firstTimeTagIsFound) {
                 robot.queueEvent(new TagDetectionEvent(this, EventKind.OBJECTS_DETECTED, tagOfInterest));
             }
-
-            if (tagFound) {
-                telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
-                // tagToTelemtry prints out the detected april tag ID and
-                // the X, Y, and Z translation and the yaw, pitch, and roll
-              //  tagToTelemetry(tagOfInterest);
-            } else { // if tag is not  found
-                telemetry.addLine("Don't see tag of interest :(");
-
-                if (tagOfInterest == null) {
-                    telemetry.addLine("(The tag has never been seen)");
-                } else {
-                    telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                  //  tagToTelemetry(tagOfInterest);
-                }
-            }
+            // FIXME Commenting out AprilTag tlm to test color sensor Lines 201 - 215
+//            if (tagFound) {
+//                telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
+//                // tagToTelemtry prints out the detected april tag ID and
+//                // the X, Y, and Z translation and the yaw, pitch, and roll
+//              //  tagToTelemetry(tagOfInterest);
+//            } else { // if tag is not  found
+//                telemetry.addLine("Don't see tag of interest :(");
+//
+//                if (tagOfInterest == null) {
+//                    telemetry.addLine("(The tag has never been seen)");
+//                } else {
+//                    telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+//                  //  tagToTelemetry(tagOfInterest);
+//                }
+//            }
         }
         telemetry.update();
     }

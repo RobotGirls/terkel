@@ -59,7 +59,7 @@ public interface DrivetrainWithIMU extends DrivetrainBase {
     // because DeadReckonTaskWithIMU references DrivetrainWithIMU
     void setCurrentYaw(double currentYawFromIMU);
     void setCurrentYawRate(double currentYawRateFromIMU);
-
+    void setTargetYaw(double targetYaw);
     /**
      * Move forward or back on a diagonal at 315 (forward) / 135 (backward) degrees
      *

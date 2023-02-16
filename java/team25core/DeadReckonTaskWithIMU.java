@@ -230,9 +230,10 @@ public class DeadReckonTaskWithIMU extends RobotTask {
         this.headingTlm = heading;
 
         // added this to get rid of error regarding telemetry
-        this.headingTlm = robot.telemetry.addData("Current/target heading is: ", "none");
-        this.secondAngleTlm = robot.telemetry.addData("Second angle is: ", "none");
-        this.thirdAngleTlm = robot.telemetry.addData("Third angle is: ", "none");
+        // FIXME Commenting this out to test color sensor
+//        this.headingTlm = robot.telemetry.addData("Current/target heading is: ", "none");
+//        this.secondAngleTlm = robot.telemetry.addData("Second angle is: ", "none");
+//        this.thirdAngleTlm = robot.telemetry.addData("Third angle is: ", "none");
 
 
         // Set up the parameters with which we will use our IMU. Note that integration
@@ -377,14 +378,17 @@ public class DeadReckonTaskWithIMU extends RobotTask {
         Orientation currentHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double secondAngle = -imu.getAngularOrientation().secondAngle;
         double thirdAngle = -imu.getAngularOrientation().thirdAngle;
-        this.secondAngleTlm.setValue(secondAngle);
-        this.thirdAngleTlm.setValue(thirdAngle);
+        // FIXME add TLm.setValue
+//        this.secondAngleTlm.setValue(secondAngle);
+//        this.thirdAngleTlm.setValue(thirdAngle);
 
         getIMUValues();
-        displayTelemetry();
+        // FIXME add displaytlm
+//        displayTelemetry();
 
         myHeadingTlm = currentHeading.toString();
-        this.headingTlm.setValue(myHeadingTlm);
+        // FIXME add headingTLm.setValue
+//        this.headingTlm.setValue(myHeadingTlm);
 
         /*
          * Get current segment
