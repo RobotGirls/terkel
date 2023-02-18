@@ -37,7 +37,9 @@ package team25core.sensors.color;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+
 import team25core.FourWheelDirectIMUDrivetrain;
+
 import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.RobotTask;
@@ -76,13 +78,6 @@ public class RGBColorSensorTask extends RobotTask
     // returns the values for blue, red, and green from the color sensor
     protected int[] colorArray = new int[3];
 
-    public int[] getColors() {
-        colorArray[0] = colorSensor.blue();
-        colorArray[1] = colorSensor.red();
-        colorArray[2] = colorSensor.green();
-        return colorArray;
-    }
-
     public RGBColorSensorTask(Robot robot, ColorSensor colorSensor)
     {
         super(robot);
@@ -114,6 +109,13 @@ public class RGBColorSensorTask extends RobotTask
     {
     }
 
+    public int[] getColors() {
+        colorArray[0] = colorSensor.blue();
+        colorArray[1] = colorSensor.red();
+        colorArray[2] = colorSensor.green();
+        return colorArray;
+    }
+
     @Override
     public boolean timeslice()
     {
@@ -141,7 +143,6 @@ public class RGBColorSensorTask extends RobotTask
             event = new ColorSensorEvent(this, EventKind.NO_COLOR_DETECTED);
             robot.queueEvent(event);
         }
-
         return false;
     }
 }

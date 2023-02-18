@@ -6,7 +6,7 @@ package examples;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import team25core.ColorThiefTask;
+import team25core.sensors.color.ColorThiefTask;
 import team25core.GamepadTask;
 import team25core.Robot;
 import team25core.RobotEvent;

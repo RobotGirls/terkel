@@ -7,7 +7,7 @@ import com.vuforia.CameraDevice;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import team25core.ColorThiefTask;
+import team25core.sensors.color.ColorThiefTask;
 import team25core.GamepadTask;
 import team25core.Robot;
 import team25core.RobotEvent;
