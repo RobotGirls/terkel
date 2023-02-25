@@ -38,6 +38,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 @Config
 public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements DrivetrainWithIMU {
 
@@ -49,6 +51,7 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
     double multiplier;
     boolean doStrafeReverse = false;
 
+    Telemetry.Item targetHeadingTlm;
 
     // FIXME proportional_constant is 0.8 on Mayfield's carpeting
     //  try 0.9 or 0.7 to see what is better
@@ -69,10 +72,8 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
 
     private double currentYawRate;
 
-    private static final boolean LEFT_FRONT_ON = true;
-    private static final boolean LEFT_BACK_ON = true;
-    private static final boolean RIGHT_FRONT_ON = true;
-    private static final boolean RIGHT_BACK_ON = true;
+
+
 
 
     public FourWheelDirectIMUDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft)
@@ -86,6 +87,28 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
 
         this.encoderTarget = 0;
         this.multiplier = 1.0;
+
+        setCanonicalMotorDirection();
+
+        /**
+         * Set a default master.  This is the wheel/motor that will be used to track distance
+         * travelled when following a dead reckon path.
+         */
+        setMasterMotor(rearRight);
+    }
+    public FourWheelDirectIMUDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft, Telemetry.Item targetYawTlm)
+    {
+        super();
+
+        this.rearLeft = rearLeft;
+        this.rearRight = rearRight;
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+
+        this.encoderTarget = 0;
+        this.multiplier = 1.0;
+
+        this.targetHeadingTlm = targetYawTlm;
 
         setCanonicalMotorDirection();
 
@@ -173,19 +196,31 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
         yawCorrection = yawError * PROPORTIONAL_CONSTANT
                 + currentYawRate * DERIVATIVE_CONSTANT;
 
-       if (RIGHT_FRONT_ON) {
-           frontRight.setPower(-speed - yawCorrection);
-       }
-        if (RIGHT_BACK_ON) {
-            rearRight.setPower(speed - yawCorrection);
-        }
-        if (LEFT_FRONT_ON) {
-            frontLeft.setPower(speed + yawCorrection);
-        }
-        if (LEFT_BACK_ON) {
-            rearLeft.setPower(-speed + yawCorrection);
-        }
+        frontRight.setPower(-speed - yawCorrection);
+        rearRight.setPower(speed - yawCorrection);
+        frontLeft.setPower(speed + yawCorrection);
+        rearLeft.setPower(-speed + yawCorrection);
     }
+    @Override
+    public void turnWithIMU(double speed)
+    {
+        double yawError;
+        double yawCorrection;
+
+        yawError = targetYaw - currentYaw;
+        // FIXME We need to constrain this value so it does not flip over
+        // if it gets too big or too small.
+        yawCorrection = yawError * PROPORTIONAL_CONSTANT
+                + currentYawRate * DERIVATIVE_CONSTANT;
+
+
+        // Turn around center
+        frontRight.setPower(-speed - yawCorrection);
+        rearRight.setPower(-speed - yawCorrection);
+        frontLeft.setPower(speed + yawCorrection);
+        rearLeft.setPower(speed + yawCorrection);
+    }
+
 
     // this method is used to set a value for the target yaw used for the
     // yaw correction
@@ -195,6 +230,7 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
     public void setTargetYaw(double desiredTargetYaw)
     {
        targetYaw = desiredTargetYaw;
+       targetHeadingTlm.setValue(targetYaw);
     }
 
     @Override

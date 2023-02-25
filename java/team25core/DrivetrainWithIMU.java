@@ -78,6 +78,7 @@ public interface DrivetrainWithIMU extends DrivetrainBase {
      * Postitive is to the right, negative is to the left
      */
     void turn(double speed);
+    void turnWithIMU(double speed);
 
     /**
      * Allows a turn around a pivot point that is not the dead center of the drivetrain.
