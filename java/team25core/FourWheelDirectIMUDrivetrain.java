@@ -52,6 +52,8 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
     boolean doStrafeReverse = false;
 
     Telemetry.Item targetHeadingTlm;
+    Telemetry.Item currentYawTlm;
+    Telemetry.Item yawErrorTlm;
 
     // FIXME proportional_constant is 0.8 on Mayfield's carpeting
     //  try 0.9 or 0.7 to see what is better
@@ -96,7 +98,10 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
          */
         setMasterMotor(rearRight);
     }
-    public FourWheelDirectIMUDrivetrain(DcMotor frontRight, DcMotor rearRight, DcMotor frontLeft, DcMotor rearLeft, Telemetry.Item targetYawTlm)
+    public FourWheelDirectIMUDrivetrain(DcMotor frontRight, DcMotor rearRight,
+                                        DcMotor frontLeft, DcMotor rearLeft,
+                                        Telemetry.Item targetYawTlm, Telemetry.Item yawErrorTlm,
+                                        Telemetry.Item currentYawTlm)
     {
         super();
 
@@ -109,6 +114,9 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
         this.multiplier = 1.0;
 
         this.targetHeadingTlm = targetYawTlm;
+        this.yawErrorTlm = yawErrorTlm;
+        this.currentYawTlm = currentYawTlm;
+
 
         setCanonicalMotorDirection();
 
@@ -212,6 +220,9 @@ public class FourWheelDirectIMUDrivetrain extends DrivetrainBaseImpl implements 
         // if it gets too big or too small.
         yawCorrection = yawError * PROPORTIONAL_CONSTANT
                 + currentYawRate * DERIVATIVE_CONSTANT;
+
+        currentYawTlm.setValue(currentYaw);
+        yawErrorTlm.setValue(yawError);
 
 
         // Turn around center

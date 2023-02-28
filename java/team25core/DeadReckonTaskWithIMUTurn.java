@@ -107,6 +107,10 @@ public class DeadReckonTaskWithIMUTurn extends RobotTask {
 
     Telemetry.Item segmentTypeTlm;
     Telemetry.Item whereAmI;
+    Telemetry.Item codeLocation;
+    Telemetry.Item deltaHeadingTlm;
+    Telemetry.Item hitTargetHeadingTlm;
+    Telemetry.Item hitHeadingTlm;
 
     private double heading;
     private double yawRate;
@@ -298,7 +302,9 @@ public class DeadReckonTaskWithIMUTurn extends RobotTask {
     public void initTelemetry(Telemetry.Item myImuCalibTlm, Telemetry.Item myImuGravTlm, Telemetry.Item myImuRollTlm,
                               Telemetry.Item myImuPitchTlm, Telemetry.Item myImuHeadingTlm,
                               Telemetry.Item myImuStatusTlm, Telemetry.Item myImuYawRateTlm,
-                              Telemetry.Item myWhereAmI, Telemetry.Item mySegmentTypeTlm) {
+                              Telemetry.Item myWhereAmI, Telemetry.Item mySegmentTypeTlm,
+                              Telemetry.Item myCodeLocation, Telemetry.Item myDeltaHeadingTlm,
+                              Telemetry.Item myHitTargetHeadingTlm, Telemetry.Item myHitHeadingTlm) {
         this.imuCalibTlm = myImuCalibTlm;
         this.imuGravTlm = myImuGravTlm;
         this.imuRollTlm = myImuRollTlm;
@@ -308,6 +314,10 @@ public class DeadReckonTaskWithIMUTurn extends RobotTask {
         this.imuYawRateTlm = myImuYawRateTlm;
         this.whereAmI = myWhereAmI;
         this.segmentTypeTlm = mySegmentTypeTlm;
+        this.codeLocation = myCodeLocation;
+        this.deltaHeadingTlm = myDeltaHeadingTlm;
+        this.hitTargetHeadingTlm = myHitTargetHeadingTlm;
+        this.hitHeadingTlm = myHitHeadingTlm;
 
 
         imuStatusTlm.setValue( imu.getSystemStatus().toString());
@@ -347,6 +357,7 @@ public class DeadReckonTaskWithIMUTurn extends RobotTask {
             case TURN_WITH_IMU:
                 whereAmI.setValue("setTarget in TURN_WITH_IMU");
                 drivetrain.setTargetYaw(segment.distance);
+                targetHeading = segment.distance;
                 break;
             case STRAIGHT:
             case RIGHT_DIAGONAL:
@@ -376,10 +387,15 @@ public class DeadReckonTaskWithIMUTurn extends RobotTask {
 
     public boolean imuTargetHit()
     {
+        double deltaHeading;
         whereAmI.setValue("in imuTargetHit");
         // if the heading is less than the acceptable yaw target margin
         // then return true to indicate we are close enough to the target yaw
-        if (Math.abs(targetHeading - heading) > YAW_MARGIN) {
+        deltaHeading = targetHeading - Math.abs(heading);
+        deltaHeadingTlm.setValue(deltaHeading);
+        hitTargetHeadingTlm.setValue(targetHeading);
+        hitHeadingTlm.setValue(heading);
+        if (Math.abs(deltaHeading) > YAW_MARGIN) {
             whereAmI.setValue("in imuTargetHit false");
             return false;
         } else {
@@ -592,11 +608,15 @@ public class DeadReckonTaskWithIMUTurn extends RobotTask {
                         segment.state = STOP_MOTORS;
                         reason = DoneReason.BOTH_SENSORS_SATISFIED;
                     }
-                } else if (isUsingImuTurns && imuTargetHit()) {
+//                } else if (isUsingImuTurns && imuTargetHit()) {
+                } else if ((segment.type == TURN_WITH_IMU) && imuTargetHit()) {
+                    codeLocation.setValue("ts, SegmentState.ENCODER_TARGET imuTargetHit");
                     whereAmI.setValue("ts, SegmentState.ENCODER_TARGET imuTargetHit");
                     segment.state = STOP_MOTORS;
                     reason = DoneReason.ENCODER_REACHED;
-                } else if (hitTarget()) {
+//                } else if (!isUsingImuTurns && hitTarget()) {
+                } else if ((segment.type != TURN_WITH_IMU) && hitTarget()) {
+                    codeLocation.setValue("ts, SegmentState.ENCODER_TARGET hitTarget");
                     whereAmI.setValue("ts, SegmentState.ENCODER_TARGET hitTarget");
                     segment.state = STOP_MOTORS;
                     reason = DoneReason.ENCODER_REACHED;
