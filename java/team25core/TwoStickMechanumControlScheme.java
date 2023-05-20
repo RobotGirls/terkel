@@ -63,10 +63,10 @@ public class TwoStickMechanumControlScheme implements JoystickDriveControlScheme
         //  turn, and strafe
         //  lastly I assigned the controls to each wheel
 
-        fl = -rightY + rightX + leftX;
-        fr = -rightY - rightX - leftX;
-        rl = -rightY + rightX - leftX;
-        rr = -rightY - rightX + leftX;
+        fl = -rightY + leftX + rightX;
+        fr = -rightY - leftX - rightX;
+        rl = -rightY + leftX - rightX;
+        rr = -rightY - leftX + rightX;
 
         return new MotorValues(fl, fr, rl, rr);
     }

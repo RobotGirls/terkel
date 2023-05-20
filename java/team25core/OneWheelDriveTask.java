@@ -127,17 +127,6 @@ public class OneWheelDriveTask extends RobotTask
             }
         }
 
-        if (slow) {
-            robot.telemetry.addData("Slow: ", "true");
-        } else {
-            robot.telemetry.addData("Slow: ", "false");
-        }
-
-        robot.telemetry.addData("L: ", left);
-        robot.telemetry.addData("R: ", right);
-
-        //robot.telemetry.addData("Lift Encoder: ", motor.getCurrentPosition());
-
         return false;
     }
 }
