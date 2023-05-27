@@ -34,7 +34,6 @@ public class CindysMecanumFourWheelDrivetrain extends DrivetrainBaseImpl {
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    @Override
     public void resetEncoders() {
         // Sets the motor encoder position to zero
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -44,7 +43,7 @@ public class CindysMecanumFourWheelDrivetrain extends DrivetrainBaseImpl {
 
     }
 
-    @Override
+
     public void encodersOn() {
         // motor will try to run at targeted velocity
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
