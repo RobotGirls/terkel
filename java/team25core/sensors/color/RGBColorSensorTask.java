@@ -37,12 +37,17 @@ package team25core.sensors.color;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+
+import team25core.FourWheelDirectIMUDrivetrain;
+
 import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.RobotTask;
 
 public class RGBColorSensorTask extends RobotTask
 {
+
+    FourWheelDirectIMUDrivetrain drivetrain;
 
     public enum EventKind {
         RED_DETECTED,
@@ -85,7 +90,13 @@ public class RGBColorSensorTask extends RobotTask
         this.redthreshold = redthreshold;
         this.greenthreshold = greenthreshold;
     }
-    
+
+    // FIXME created a setDrivetrain
+    public void setDrivetrain(FourWheelDirectIMUDrivetrain myDrivetrain) {
+        this.drivetrain = myDrivetrain;
+    }
+
+
     @Override
     public void start()
     {
@@ -115,9 +126,15 @@ public class RGBColorSensorTask extends RobotTask
 
         if (colorSensor.red() > colorSensor.green() && colorSensor.red() > colorSensor.blue() && colorSensor.red() < redthreshold) {
             event = new ColorSensorEvent(this, EventKind.RED_DETECTED);
+            if (drivetrain == null) {
+                drivetrain.stop();
+            }
             robot.queueEvent(event);
         } else if (colorSensor.blue() > colorSensor.green() && colorSensor.blue() > colorSensor.red() && colorSensor.blue() < bluethreshold){
             event = new ColorSensorEvent(this, EventKind.BLUE_DETECTED);
+            if (drivetrain == null) {
+                drivetrain.stop();
+            }
             robot.queueEvent(event);
         } else if (colorSensor.green() > colorSensor.red() && colorSensor.green() > colorSensor.blue() && colorSensor.green() < greenthreshold){
             event = new ColorSensorEvent(this, EventKind.GREEN_DETECTED);

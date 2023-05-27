@@ -33,19 +33,29 @@
 
 package team25core;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.RobotLog;
-
 import static team25core.DeadReckonPath.SegmentState.STOP_MOTORS;
 import static team25core.DeadReckonPath.SegmentState.WAIT;
 import static team25core.DeadReckonPath.SegmentType.LEFT_DIAGONAL;
+import static team25core.DeadReckonPath.SegmentType.PAUSE;
 import static team25core.DeadReckonPath.SegmentType.RIGHT_DIAGONAL;
 import static team25core.DeadReckonPath.SegmentType.SIDEWAYS;
 import static team25core.DeadReckonPath.SegmentType.STRAIGHT;
-import static team25core.DeadReckonPath.SegmentType.PAUSE;
-import static team25core.DeadReckonPath.SegmentType.TURN;
 
-public class DeadReckonTask extends RobotTask {
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
+import java.util.Locale;
+
+public class DeadReckonTaskWithIMU extends RobotTask {
 
     private final static String TAG = "DeadREckonTask";
 
@@ -66,6 +76,37 @@ public class DeadReckonTask extends RobotTask {
         RIGHT_SENSOR_SATISFIED,
         LEFT_SENSOR_SATISFIED,
     };
+
+    // For IMU
+    private BNO055IMU imu;
+    private Telemetry.Item headingTlm;
+
+    Telemetry myTelemetry;
+
+    private Telemetry.Item secondAngleTlm;
+    private Telemetry.Item thirdAngleTlm;
+
+    String myHeadingTlm;
+
+    protected double targetHeading = 0.0;
+    protected boolean showHeading = true;
+
+
+    private Orientation angles;
+    private Acceleration gravity;
+
+    Telemetry.Item imuStatusTlm;
+    Telemetry.Item imuCalibTlm;
+    Telemetry.Item imuHeadingTlm;
+    Telemetry.Item imuYawRateTlm;
+    Telemetry.Item imuRollTlm;
+    Telemetry.Item imuPitchTlm;
+    Telemetry.Item imuGravTlm;
+
+    private double heading;
+    private double yawRate;
+    private double roll;
+    private double pitch;
 
     public class DeadReckonEvent extends RobotEvent {
 
@@ -112,7 +153,7 @@ public class DeadReckonTask extends RobotTask {
     protected SensorCriteria leftCriteria;
     protected SensorCriteria rightCriteria;
     protected DoneReason reason;
-    protected Drivetrain drivetrain;
+    protected DrivetrainWithIMU drivetrain;
     protected ElapsedTime timer;
     protected boolean isStrafing;
     protected boolean isStraight;
@@ -121,7 +162,7 @@ public class DeadReckonTask extends RobotTask {
     SingleShotTimerTask sst;
     int waitState = 0;
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain)
+    public DeadReckonTaskWithIMU(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain)
     {
         super(robot);
 
@@ -135,7 +176,7 @@ public class DeadReckonTask extends RobotTask {
         this.drivetrain = drivetrain;
         this.smoothStart = false;
     }
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, boolean smoothStart)
+    public DeadReckonTaskWithIMU(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, boolean smoothStart)
     {
         super(robot);
 
@@ -150,7 +191,7 @@ public class DeadReckonTask extends RobotTask {
         this.smoothStart = smoothStart;
     }
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria criteria)
+    public DeadReckonTaskWithIMU(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, SensorCriteria criteria)
     {
         super(robot);
 
@@ -165,7 +206,7 @@ public class DeadReckonTask extends RobotTask {
         this.smoothStart = false;
     }
 
-    public DeadReckonTask(Robot robot, DeadReckonPath dr, Drivetrain drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria)
+    public DeadReckonTaskWithIMU(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria)
     {
         super(robot);
 
@@ -178,6 +219,71 @@ public class DeadReckonTask extends RobotTask {
         this.rightCriteria = rightCriteria;
         this.drivetrain = drivetrain;
         this.smoothStart = false;
+    }
+
+
+    public void initializeImu(BNO055IMU imu, double targetHeading, boolean showHeading, Telemetry.Item heading)
+    {
+        this.targetHeading = targetHeading;  // Think cardinal: negative is ccw, positive is cw.
+        this.showHeading = showHeading;
+        this.imu = imu;
+        this.headingTlm = heading;
+
+        // added this to get rid of error regarding telemetry
+        // FIXME Commenting this out to test color sensor
+//        this.headingTlm = robot.telemetry.addData("Current/target heading is: ", "none");
+//        this.secondAngleTlm = robot.telemetry.addData("Second angle is: ", "none");
+//        this.thirdAngleTlm = robot.telemetry.addData("Third angle is: ", "none");
+
+
+        // Set up the parameters with which we will use our IMU. Note that integration
+        // algorithm here just reports accelerations to the logcat log; it doesn't actually
+        // provide positional information.
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        // cindy commented out the following
+        // parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.loggingEnabled      = true;
+        // cindy added
+        parameters.useExternalCrystal   = true;
+        parameters.loggingTag          = "IMU";
+
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu.initialize(parameters);
+
+        angles  = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        gravity = imu.getGravity();
+
+        // telemetry.setMsTransmissionInterval(100);
+    }
+
+    String formatAngle(AngleUnit angleUnit, double angle) {
+        return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+
+    String formatDegrees(double degrees){
+        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
+
+
+    public void initTelemetry(Telemetry telemetry) {
+        telemetry.setAutoClear(false);
+        imuStatusTlm = telemetry.addData("Status", imu.getSystemStatus().toString());
+        imuCalibTlm = telemetry.addData("Calib", imu.getCalibrationStatus().toString());
+        imuHeadingTlm = telemetry.addData("Heading", formatAngle(angles.angleUnit, angles.firstAngle));
+        imuYawRateTlm = telemetry.addData("YawRate", formatAngle(angles.angleUnit, angles.firstAngle));
+
+        imuRollTlm = telemetry.addData("Roll", formatAngle(angles.angleUnit, angles.secondAngle));
+        imuPitchTlm = telemetry.addData("Pitch", formatAngle(angles.angleUnit, angles.thirdAngle));
+        imuGravTlm = telemetry.addData("Grav", gravity.toString());
+        // whereAmIGyro = telemetry.addData("whereAmIGyro", "initTelemetry" );
+        telemetry.setMsTransmissionInterval(100);
     }
 
     @Override
@@ -235,10 +341,54 @@ public class DeadReckonTask extends RobotTask {
         timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     }
 
+    public void getIMUValues() {
+        heading = -imu.getAngularOrientation().firstAngle;
+        roll = -imu.getAngularOrientation().secondAngle;
+        pitch = -imu.getAngularOrientation().thirdAngle;
+        yawRate = -imu.getAngularVelocity().yRotationRate;
+        drivetrain.setCurrentYaw(heading);
+        drivetrain.setCurrentYawRate(yawRate);
+    }
+
+    public void displayTelemetry() {
+        //telemetry.setAutoClear(false);
+        //imuStatusTlm.setValue(imu.getSystemStatus().toString());
+        // imuCalibTlm.setValue(imu.getCalibrationStatus().toString());
+
+     //   i = i++;
+     //   whereAmIGyro.setValue("displayTelemetry" + i);
+
+        this.imuHeadingTlm.setValue(heading);
+
+        this.imuRollTlm.setValue(roll);
+
+        this.imuPitchTlm.setValue(pitch);
+
+        this.imuYawRateTlm.setValue( yawRate );
+        //imuGravTlm.setValue(gravity.toString());
+
+
+    }
+
     @Override
     public boolean timeslice()
     {
         DeadReckonPath.Segment segment;
+
+        Orientation currentHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double secondAngle = -imu.getAngularOrientation().secondAngle;
+        double thirdAngle = -imu.getAngularOrientation().thirdAngle;
+        // FIXME add TLm.setValue
+//        this.secondAngleTlm.setValue(secondAngle);
+//        this.thirdAngleTlm.setValue(thirdAngle);
+
+        getIMUValues();
+        // FIXME add displaytlm
+//        displayTelemetry();
+
+        myHeadingTlm = currentHeading.toString();
+        // FIXME add headingTLm.setValue
+//        this.headingTlm.setValue(myHeadingTlm);
 
         /*
          * Get current segment
