@@ -3,7 +3,7 @@ package team25core;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public class KatelynsFourWheelDrivetrain extends DrivetrainBaseImpl {
+public class KatelynsFourWheelDrivetrain extends DrivetrainBaseImpl implements Drivetrain {
     private DcMotor frontLeft;
     private DcMotor frontRight;
     private DcMotor backLeft;
@@ -35,7 +35,7 @@ public class KatelynsFourWheelDrivetrain extends DrivetrainBaseImpl {
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-
+    @Override
     public void resetEncoders() {
         // Sets motor encoder position to 0
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -44,7 +44,7 @@ public class KatelynsFourWheelDrivetrain extends DrivetrainBaseImpl {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-
+    @Override
     public void encodersOn() {
         // motor will try to run at the targeted velocity
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -52,7 +52,6 @@ public class KatelynsFourWheelDrivetrain extends DrivetrainBaseImpl {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
 
     public void brakeOnZeroPower() {
         // Sets the behavior of the motor when a power level of zero is applied i.e. not moving - when we apply 0 power, the motor brakes
@@ -63,6 +62,7 @@ public class KatelynsFourWheelDrivetrain extends DrivetrainBaseImpl {
     }
 
     // this method is used to drive straight (either backwards or forwards, depending on speed, where speed is really the power applied to the motor. Valid values between -1.0 and 1.0)
+    @Override
     public void straight(double speed) {
         frontRight.setPower(speed);
         frontLeft.setPower(speed);
@@ -70,7 +70,51 @@ public class KatelynsFourWheelDrivetrain extends DrivetrainBaseImpl {
         backLeft.setPower(speed);
     }
 
+    @Override
     public void strafe(double speed) {
         double adjSpeed;
     }
+
+    public void leftDiagonal(double speed) {
+        frontRight.setPower(-speed);
+        backLeft.setPower(-speed);
+    }
+    @Override
+    public void rightDiagonal(double speed) {
+        frontLeft.setPower(-speed);
+        backRight.setPower(-speed);
+    }
+    @Override
+    public void turn(double speed) {
+
+    }
+    @Override
+    public void pivotTurn(PivotSide side, double speed) {
+
+    }
+    @Override
+    public void setPivotMultiplier(double pivotMultiplier) {
+
+    }
+    @Override
+    public void setPowerLeft(double speed) {
+
+    }
+    @Override
+    public void setPowerRight(double speed) {
+
+    }
+    @Override
+    public void stop() {
+
+    }
+    @Override
+    public void move(double axial, double lateral, double yaw) {
+
+    }
+    @Override
+    public void logEncoderCounts() {
+
+    }
+
 }
