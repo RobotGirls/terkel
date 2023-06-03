@@ -34,7 +34,7 @@ public class AudreysFourWheelDriveTrain extends DrivetrainBaseImpl {
 
     }
 
-
+    //sets motor encoder positions to 0
     public void resetEncoders(){
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -42,7 +42,7 @@ public class AudreysFourWheelDriveTrain extends DrivetrainBaseImpl {
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-
+    //
     public void encodersOn(){
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -59,13 +59,13 @@ public class AudreysFourWheelDriveTrain extends DrivetrainBaseImpl {
     }
 
     //@Override
-    public void strafe(double speed)
-    {
-        frontRight.setPower(-speed);
-        backRight.setPower(speed);
-        frontLeft.setPower(speed);
-        backLeft.setPower(-speed);
-    }
+//    public void strafe(double speed)
+//    {
+//        frontRight.setPower(-speed);
+//        backRight.setPower(speed);
+//        frontLeft.setPower(speed);
+//        backLeft.setPower(-speed);
+//    }
 
     //@Override
     /*this method allows robot to drive backwards or forward upon the speed; where the speed
@@ -75,6 +75,30 @@ public class AudreysFourWheelDriveTrain extends DrivetrainBaseImpl {
         frontRight.setPower(speed);
         frontLeft.setPower(speed);
         backRight.setPower(speed);
+        backLeft.setPower(speed);
+    }
+
+    //moves robot diagonally to the right
+    public void rightDiagonal(double speed){
+        frontRight.setPower(0);
+        frontLeft.setPower(-speed);
+        backRight.setPower(-speed);
+        backLeft.setPower(0);
+    }
+
+    //moves robot diagonally to the left
+    public void leftDiagonal(double speed){
+        frontRight.setPower(-speed);
+        frontLeft.setPower(0);
+        backRight.setPower(0);
+        backLeft.setPower(-speed);
+    }
+
+    //turns robot around
+    public void turn(double speed){
+        frontRight.setPower(-speed);
+        frontLeft.setPower(speed);
+        backRight.setPower(-speed);
         backLeft.setPower(speed);
     }
 }
