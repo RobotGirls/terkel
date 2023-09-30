@@ -33,12 +33,16 @@
 
 package team25core;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import team25core.sensors.imu.IMUTask;
+
 public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Drivetrain {
 
+    IMUTask imu;
     DcMotor rearLeft;
     DcMotor rearRight;
     DcMotor frontLeft;
@@ -66,6 +70,11 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
          * travelled when following a dead reckon path.
          */
         setMasterMotor(rearRight);
+    }
+
+    public void setIMU(IMUTask imu)
+    {
+       this.imu = imu;
     }
 
     public void setCanonicalMotorDirection()
@@ -133,10 +142,21 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
         rearRight.setPower(speed);
         rearLeft.setPower(speed);
     }
+
+    private int calculateCorrection()
+    {
+        return imu.getYaw();
+    }
+
     @Override
     public void strafe(double speed)
     {
-        frontRight.setPower(-speed);
+        correction = 0;
+        if (imu != null) {
+            correction = calculateCorrection();
+        }
+
+        frontRight.setPower(-speed + correction);
         rearRight.setPower(speed);
         frontLeft.setPower(speed);
         rearLeft.setPower(-speed);

@@ -43,6 +43,7 @@ import static team25core.DeadReckonPath.SegmentType.STRAIGHT;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -158,7 +159,6 @@ public class DeadReckonTaskWithIMU extends RobotTask {
     protected boolean isStrafing;
     protected boolean isStraight;
     protected boolean smoothStart;
-
     SingleShotTimerTask sst;
     int waitState = 0;
 
