@@ -197,7 +197,7 @@ public class AprilTagDetectionTask extends RobotTask {
             if (firstTimeTagIsFound) {
                 robot.queueEvent(new TagDetectionEvent(this, EventKind.OBJECTS_DETECTED, tagOfInterest));
             }
-
+            // FIXME Commenting out AprilTag tlm to test color sensor Lines 201 - 215
             if (tagFound) {
                 telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
                 // tagToTelemtry prints out the detected april tag ID and

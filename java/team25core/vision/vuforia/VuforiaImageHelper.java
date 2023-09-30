@@ -17,7 +17,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import team25core.Counter;
-import team25core.RGBColor;
+import team25core.sensors.color.RGBColor;
 
 public class VuforiaImageHelper {
 

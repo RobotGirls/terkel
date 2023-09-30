@@ -59,7 +59,7 @@ public interface DrivetrainWithIMU extends DrivetrainBase {
     // because DeadReckonTaskWithIMU references DrivetrainWithIMU
     void setCurrentYaw(double currentYawFromIMU);
     void setCurrentYawRate(double currentYawRateFromIMU);
-
+    void setTargetYaw(double targetYaw);
     /**
      * Move forward or back on a diagonal at 315 (forward) / 135 (backward) degrees
      *
@@ -78,6 +78,7 @@ public interface DrivetrainWithIMU extends DrivetrainBase {
      * Postitive is to the right, negative is to the left
      */
     void turn(double speed);
+    void turnWithIMU(double speed);
 
     /**
      * Allows a turn around a pivot point that is not the dead center of the drivetrain.

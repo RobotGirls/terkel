@@ -44,6 +44,7 @@ public class DeadReckonPath {
     public enum SegmentType {
         STRAIGHT,
         TURN,
+        TURN_WITH_IMU,
         SIDEWAYS,
         LEFT_DIAGONAL,
         RIGHT_DIAGONAL,

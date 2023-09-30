@@ -40,6 +40,8 @@ import static team25core.DeadReckonPath.SegmentType.PAUSE;
 import static team25core.DeadReckonPath.SegmentType.RIGHT_DIAGONAL;
 import static team25core.DeadReckonPath.SegmentType.SIDEWAYS;
 import static team25core.DeadReckonPath.SegmentType.STRAIGHT;
+import static team25core.DeadReckonPath.SegmentType.TURN;
+import static team25core.DeadReckonPath.SegmentType.TURN_WITH_IMU;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
@@ -55,7 +57,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.Locale;
 
-public class DeadReckonTaskWithIMU extends RobotTask {
+public class DeadReckonTaskWithIMUTurn extends RobotTask {
 
     private final static String TAG = "DeadREckonTask";
 
@@ -103,10 +105,19 @@ public class DeadReckonTaskWithIMU extends RobotTask {
     Telemetry.Item imuPitchTlm;
     Telemetry.Item imuGravTlm;
 
+    Telemetry.Item segmentTypeTlm;
+    Telemetry.Item whereAmI;
+    Telemetry.Item codeLocation;
+    Telemetry.Item deltaHeadingTlm;
+    Telemetry.Item hitTargetHeadingTlm;
+    Telemetry.Item hitHeadingTlm;
+
     private double heading;
     private double yawRate;
     private double roll;
     private double pitch;
+
+    private static final double YAW_MARGIN = 3;
 
     public class DeadReckonEvent extends RobotEvent {
 
@@ -158,11 +169,12 @@ public class DeadReckonTaskWithIMU extends RobotTask {
     protected boolean isStrafing;
     protected boolean isStraight;
     protected boolean smoothStart;
+    protected boolean isUsingImuTurns = false;
 
     SingleShotTimerTask sst;
     int waitState = 0;
 
-    public DeadReckonTaskWithIMU(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain)
+    public DeadReckonTaskWithIMUTurn(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain)
     {
         super(robot);
 
@@ -176,7 +188,22 @@ public class DeadReckonTaskWithIMU extends RobotTask {
         this.drivetrain = drivetrain;
         this.smoothStart = false;
     }
-    public DeadReckonTaskWithIMU(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, boolean smoothStart)
+    public DeadReckonTaskWithIMUTurn(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, boolean smoothStart, boolean usingImuTurns)
+    {
+        super(robot);
+
+        this.sensorsInstalled = SensorsInstalled.SENSORS_NONE;
+        this.num = 0;
+        this.dr = dr;
+        this.waiting = false;
+        this.waitState = 0;
+        this.leftCriteria = null;
+        this.rightCriteria = null;
+        this.drivetrain = drivetrain;
+        this.isUsingImuTurns = usingImuTurns;
+        this.smoothStart = smoothStart;
+    }
+    public DeadReckonTaskWithIMUTurn(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, boolean smoothStart)
     {
         super(robot);
 
@@ -191,7 +218,7 @@ public class DeadReckonTaskWithIMU extends RobotTask {
         this.smoothStart = smoothStart;
     }
 
-    public DeadReckonTaskWithIMU(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, SensorCriteria criteria)
+    public DeadReckonTaskWithIMUTurn(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, SensorCriteria criteria)
     {
         super(robot);
 
@@ -206,7 +233,7 @@ public class DeadReckonTaskWithIMU extends RobotTask {
         this.smoothStart = false;
     }
 
-    public DeadReckonTaskWithIMU(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria)
+    public DeadReckonTaskWithIMUTurn(Robot robot, DeadReckonPath dr, DrivetrainWithIMU drivetrain, SensorCriteria leftCriteria, SensorCriteria rightCriteria)
     {
         super(robot);
 
@@ -272,18 +299,36 @@ public class DeadReckonTaskWithIMU extends RobotTask {
     }
 
 
-    public void initTelemetry(Telemetry telemetry) {
-        telemetry.setAutoClear(false);
-        imuStatusTlm = telemetry.addData("Status", imu.getSystemStatus().toString());
-        imuCalibTlm = telemetry.addData("Calib", imu.getCalibrationStatus().toString());
-        imuHeadingTlm = telemetry.addData("Heading", formatAngle(angles.angleUnit, angles.firstAngle));
-        imuYawRateTlm = telemetry.addData("YawRate", formatAngle(angles.angleUnit, angles.firstAngle));
+    public void initTelemetry(Telemetry.Item myImuCalibTlm, Telemetry.Item myImuGravTlm, Telemetry.Item myImuRollTlm,
+                              Telemetry.Item myImuPitchTlm, Telemetry.Item myImuHeadingTlm,
+                              Telemetry.Item myImuStatusTlm, Telemetry.Item myImuYawRateTlm,
+                              Telemetry.Item myWhereAmI, Telemetry.Item mySegmentTypeTlm,
+                              Telemetry.Item myCodeLocation, Telemetry.Item myDeltaHeadingTlm,
+                              Telemetry.Item myHitTargetHeadingTlm, Telemetry.Item myHitHeadingTlm) {
+        this.imuCalibTlm = myImuCalibTlm;
+        this.imuGravTlm = myImuGravTlm;
+        this.imuRollTlm = myImuRollTlm;
+        this.imuPitchTlm = myImuPitchTlm;
+        this.imuHeadingTlm = myImuHeadingTlm;
+        this.imuStatusTlm = myImuStatusTlm;
+        this.imuYawRateTlm = myImuYawRateTlm;
+        this.whereAmI = myWhereAmI;
+        this.segmentTypeTlm = mySegmentTypeTlm;
+        this.codeLocation = myCodeLocation;
+        this.deltaHeadingTlm = myDeltaHeadingTlm;
+        this.hitTargetHeadingTlm = myHitTargetHeadingTlm;
+        this.hitHeadingTlm = myHitHeadingTlm;
 
-        imuRollTlm = telemetry.addData("Roll", formatAngle(angles.angleUnit, angles.secondAngle));
-        imuPitchTlm = telemetry.addData("Pitch", formatAngle(angles.angleUnit, angles.thirdAngle));
-        imuGravTlm = telemetry.addData("Grav", gravity.toString());
+
+        imuStatusTlm.setValue( imu.getSystemStatus().toString());
+        imuCalibTlm.setValue( imu.getCalibrationStatus().toString());
+        imuHeadingTlm.setValue( formatAngle(angles.angleUnit, angles.firstAngle));
+        imuYawRateTlm.setValue( formatAngle(angles.angleUnit, angles.firstAngle));
+
+        imuRollTlm.setValue(formatAngle(angles.angleUnit, angles.secondAngle));
+        imuPitchTlm.setValue(formatAngle(angles.angleUnit, angles.thirdAngle));
+        imuGravTlm.setValue(gravity.toString());
         // whereAmIGyro = telemetry.addData("whereAmIGyro", "initTelemetry" );
-        telemetry.setMsTransmissionInterval(100);
     }
 
     @Override
@@ -306,17 +351,29 @@ public class DeadReckonTaskWithIMU extends RobotTask {
 
     public void setTarget(DeadReckonPath.Segment segment)
     {
+        whereAmI.setValue("setTarget Begin");
+        segmentTypeTlm.setValue(segment.type);
         switch (segment.type) {
-        case STRAIGHT:
-        case RIGHT_DIAGONAL:
-        case LEFT_DIAGONAL:
-        case SIDEWAYS:
-            drivetrain.setTargetInches(segment.distance);
-            break;
-        case TURN:
-            drivetrain.setTargetRotation(segment.distance);
-            break;
+            case TURN_WITH_IMU:
+                whereAmI.setValue("setTarget in TURN_WITH_IMU");
+                drivetrain.setTargetYaw(segment.distance);
+                targetHeading = segment.distance;
+                break;
+            case STRAIGHT:
+            case RIGHT_DIAGONAL:
+            case LEFT_DIAGONAL:
+            case SIDEWAYS:
+                whereAmI.setValue("setTarget in STRT,RT,LFT,SIDEWAYS");
+                drivetrain.setTargetInches(segment.distance);
+                break;
+            case TURN:
+                whereAmI.setValue("setTarget in TURN");
+                drivetrain.setTargetRotation(segment.distance);
+                break;
+            default:
+                whereAmI.setValue("setTarget in default");
         }
+        whereAmI.setValue("setTarget End");
     }
 
     public boolean hitTarget()
@@ -324,6 +381,25 @@ public class DeadReckonTaskWithIMU extends RobotTask {
         if (drivetrain.isBusy()) {
             return false;
         } else {
+            return true;
+        }
+    }
+
+    public boolean imuTargetHit()
+    {
+        double deltaHeading;
+        whereAmI.setValue("in imuTargetHit");
+        // if the heading is less than the acceptable yaw target margin
+        // then return true to indicate we are close enough to the target yaw
+        deltaHeading = targetHeading - Math.abs(heading);
+        deltaHeadingTlm.setValue(deltaHeading);
+        hitTargetHeadingTlm.setValue(targetHeading);
+        hitHeadingTlm.setValue(heading);
+        if (Math.abs(deltaHeading) > YAW_MARGIN) {
+            whereAmI.setValue("in imuTargetHit false");
+            return false;
+        } else {
+            whereAmI.setValue("in imuTargetHit true");
             return true;
         }
     }
@@ -384,11 +460,11 @@ public class DeadReckonTaskWithIMU extends RobotTask {
 
         getIMUValues();
         // FIXME add displaytlm
-//        displayTelemetry();
+        displayTelemetry();
 
         myHeadingTlm = currentHeading.toString();
         // FIXME add headingTLm.setValue
-//        this.headingTlm.setValue(myHeadingTlm);
+        this.headingTlm.setValue(myHeadingTlm);
 
         /*
          * Get current segment
@@ -397,21 +473,26 @@ public class DeadReckonTaskWithIMU extends RobotTask {
 
         if (segment == null) {
             if (reason == DoneReason.ENCODER_REACHED) {
+                whereAmI.setValue("ts, segment NULL, ENCODER_REACHED");
                 RobotLog.e("251 Dead reckon path done");
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.PATH_DONE, num));
             } else if (reason == DoneReason.SENSOR_SATISFIED) {
+                whereAmI.setValue("ts, segment NULL, SENSOR_SATISFIED");
                 RobotLog.e("251 Dead reckon sensor criteria satisfied");
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SENSOR_SATISFIED, num));
             } else if (reason == DoneReason.BOTH_SENSORS_SATISFIED) {
                 RobotLog.e("251 Dead reckon both sensor criteria satisfied");
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.BOTH_SENSORS_SATISFIED, num));
             } else if (reason == DoneReason.LEFT_SENSOR_SATISFIED) {
+                whereAmI.setValue("ts, segment NULL, LEFT_SENSOR_SATISFIED");
                 RobotLog.e("251 Dead reckon left sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.LEFT_SENSOR_SATISFIED, num));
             } else if (reason == DoneReason.RIGHT_SENSOR_SATISFIED) {
+                whereAmI.setValue("ts, segment NULL,RIGHT_SENSOR_SATISFIED");
                 RobotLog.e("251 Dead reckon right sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.RIGHT_SENSOR_SATISFIED, num));
             } else {
+                whereAmI.setValue("ts, segment NULL, in else");
                 RobotLog.e("Oops, unknown reason for dead reckon stop");
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.PATH_DONE, num));
             }
@@ -424,93 +505,125 @@ public class DeadReckonTaskWithIMU extends RobotTask {
             return true;
         } else if ((segment.state == DeadReckonPath.SegmentState.DONE) && (dr.numSegments() > 1)) {
             if (reason == DoneReason.ENCODER_REACHED) {
+                whereAmI.setValue("ts, SegmentState.DONE, ENCODER_REACHED");
                 RobotLog.e("251 Dead reckon segment %d done", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SEGMENT_DONE, num));
             } else if (reason == DoneReason.SENSOR_SATISFIED) {
+                whereAmI.setValue("ts, SegmentState.DONE, SENSOR_SATISFIED");
                 RobotLog.e("251 Dead reckon sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SENSOR_SATISFIED, num));
             } else if (reason == DoneReason.BOTH_SENSORS_SATISFIED) {
                 RobotLog.e("251 Dead reckon sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.SENSOR_SATISFIED, num));
             } else if (reason == DoneReason.LEFT_SENSOR_SATISFIED) {
+                whereAmI.setValue("ts, SegmentState.DONE, LEFT_SENSOR_SATISFIED");
                 RobotLog.e("251 Dead reckon left sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.LEFT_SENSOR_SATISFIED, num));
             } else if (reason == DoneReason.RIGHT_SENSOR_SATISFIED) {
+                whereAmI.setValue("ts, SegmentState.DONE, RIGHT_SENSOR_SATISFIED");
                 RobotLog.e("251 Dead reckon right sensor criteria segment %d satisfied", num);
                 robot.queueEvent(new DeadReckonEvent(this, EventKind.RIGHT_SENSOR_SATISFIED, num));
             } else {
+                whereAmI.setValue("ts, SegmentState.DONE, else");
                 RobotLog.e("251 Dead reckon segment %d done - no reason", num);
             }
         }
 
         switch (segment.state) {
-        case INITIALIZE:
-            isStrafing = false;
-            isStraight = false;
-            drivetrain.resetEncoders();
-            segment.state = DeadReckonPath.SegmentState.ENCODER_RESET;
-            break;
-        case ENCODER_RESET:
-            drivetrain.resetEncoders();
-            segment.state = DeadReckonPath.SegmentState.SET_TARGET;
-            break;
-        case SET_TARGET:
-            drivetrain.encodersOn();
-            setTarget(segment);
-            segment.state = DeadReckonPath.SegmentState.CONSUME_SEGMENT;
-            break;
-        case CONSUME_SEGMENT:
-            if (segment.type == PAUSE) {
-                setupWaitState(segment, true);
+            case INITIALIZE:
+                whereAmI.setValue("ts, SegmentState.INITIALIZE");
+                isStrafing = false;
+                isStraight = false;
+                drivetrain.resetEncoders();
+                segment.state = DeadReckonPath.SegmentState.ENCODER_RESET;
                 break;
-            }
+            case ENCODER_RESET:
+                whereAmI.setValue("ts, SegmentState.ENCODER_RESET");
+                drivetrain.resetEncoders();
+                segment.state = DeadReckonPath.SegmentState.SET_TARGET;
+                break;
+            case SET_TARGET:
+                whereAmI.setValue("ts, SegmentState.SET_TARGET");
+                drivetrain.encodersOn();
+                setTarget(segment);
+                segment.state = DeadReckonPath.SegmentState.CONSUME_SEGMENT;
+                break;
+            case CONSUME_SEGMENT:
+                whereAmI.setValue("ts, SegmentState.CONSUME_SEGMENT");
+                if (segment.type == PAUSE) {
+                    whereAmI.setValue("ts, SegmentState.CONSUME_SEGMENT PAUSE");
+                    setupWaitState(segment, true);
+                    break;
+                }
 
-            if (segment.type == STRAIGHT) {
-                isStraight = true;
-                if (smoothStart == true) {
-                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
-                        @Override
-                        public void run(double speed) { drivetrain.straight(speed); }
-                    });
+                if (segment.type == STRAIGHT) {
+                    whereAmI.setValue("ts, SegmentState.CONSUME_SEGMENT STRAIGHT");
+                    isStraight = true;
+                    if (smoothStart == true) {
+                        robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
+                            @Override
+                            public void run(double speed) {
+                                drivetrain.straight(speed);
+                            }
+                        });
+                    } else {
+                        drivetrain.straight(segment.speed);
+                    }
+                } else if (segment.type == SIDEWAYS) {
+                    whereAmI.setValue("ts, SegmentState.CONSUME_SEGMENT SIDEWAYS");
+                    isStrafing = true;
+                    if (smoothStart == true) {
+                        robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
+                            @Override
+                            public void run(double speed) {
+                                drivetrain.strafe(speed);
+                            }
+                        });
+                    } else {
+                        drivetrain.strafe(segment.speed);
+                    }
+                } else if (segment.type == LEFT_DIAGONAL) {
+                    drivetrain.leftDiagonal(segment.speed);
+                } else if (segment.type == RIGHT_DIAGONAL) {
+                    drivetrain.rightDiagonal(segment.speed);
+                } else if (segment.type == TURN_WITH_IMU) {
+                    whereAmI.setValue("ts, SegmentState.CONSUME_SEGMENT TURN_WITH_IMU");
+                    drivetrain.turnWithIMU(segment.speed);
                 } else {
-                    drivetrain.straight(segment.speed);
+                    whereAmI.setValue("ts, SegmentState.CONSUME_SEGMENT else TURN");
+                    drivetrain.turn(segment.speed);
                 }
-            } else if (segment.type == SIDEWAYS) {
-                isStrafing = true;
-                if (smoothStart == true) {
-                    robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_UP, segment.speed) {
-                        @Override
-                        public void run(double speed) { drivetrain.strafe(speed); }
-                    });
-                } else {
-                    drivetrain.strafe(segment.speed);
-                }
-            } else if (segment.type == LEFT_DIAGONAL) {
-                drivetrain.leftDiagonal(segment.speed);
-            } else if (segment.type == RIGHT_DIAGONAL) {
-                drivetrain.rightDiagonal(segment.speed);
-            } else {
-                drivetrain.turn(segment.speed);
-            }
-            segment.state = DeadReckonPath.SegmentState.ENCODER_TARGET;
-            break;
-        case ENCODER_TARGET:
-            if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
-                RobotLog.i("5218 Solo sensor criteria satisfied");
-                segment.state = STOP_MOTORS;
-                reason = DoneReason.SENSOR_SATISFIED;
-            } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
-                if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
-                    RobotLog.i("5218 Left and right criteria satisfied");
+                segment.state = DeadReckonPath.SegmentState.ENCODER_TARGET;
+                break;
+            case ENCODER_TARGET:
+                whereAmI.setValue("ts, SegmentState.ENCODER_TARGET");
+                if ((sensorsInstalled == SensorsInstalled.SENSORS_ONE) && (leftCriteria.satisfied())) {
+                    RobotLog.i("5218 Solo sensor criteria satisfied");
                     segment.state = STOP_MOTORS;
-                    reason = DoneReason.BOTH_SENSORS_SATISFIED;
+                    reason = DoneReason.SENSOR_SATISFIED;
+                    whereAmI.setValue("ts, SegmentState.ENCODER_TARGET leftCriteria.satisfied");
+                } else if (sensorsInstalled == SensorsInstalled.SENSORS_TWO) {
+                    if (leftCriteria.satisfied() && rightCriteria.satisfied()) {
+                        RobotLog.i("5218 Left and right criteria satisfied");
+                        segment.state = STOP_MOTORS;
+                        reason = DoneReason.BOTH_SENSORS_SATISFIED;
+                    }
+//                } else if (isUsingImuTurns && imuTargetHit()) {
+                } else if ((segment.type == TURN_WITH_IMU) && imuTargetHit()) {
+                    codeLocation.setValue("ts, SegmentState.ENCODER_TARGET imuTargetHit");
+                    whereAmI.setValue("ts, SegmentState.ENCODER_TARGET imuTargetHit");
+                    segment.state = STOP_MOTORS;
+                    reason = DoneReason.ENCODER_REACHED;
+//                } else if (!isUsingImuTurns && hitTarget()) {
+                } else if ((segment.type != TURN_WITH_IMU) && hitTarget()) {
+                    codeLocation.setValue("ts, SegmentState.ENCODER_TARGET hitTarget");
+                    whereAmI.setValue("ts, SegmentState.ENCODER_TARGET hitTarget");
+                    segment.state = STOP_MOTORS;
+                    reason = DoneReason.ENCODER_REACHED;
                 }
-            } else if (hitTarget()) {
-                segment.state = STOP_MOTORS;
-                reason = DoneReason.ENCODER_REACHED;
-            }
             break;
         case STOP_MOTORS:
+            whereAmI.setValue("ts, SegmentState.STOP_MOTORS");
             if (smoothStart == true) {
                 if (isStrafing == true) {
                     robot.addTask(new MotorRampTask(robot, MotorRampTask.RampDirection.RAMP_DOWN, segment.speed) {
@@ -529,11 +642,13 @@ public class DeadReckonTaskWithIMU extends RobotTask {
             setupWaitState(segment, false);
             break;
         case WAIT:
+            whereAmI.setValue("ts, SegmentState.WAIT");
             if (timer.time() >= segment.millisecond_pause) {
                 segment.state = DeadReckonPath.SegmentState.DONE;
             }
             break;
         case DONE:
+            whereAmI.setValue("ts, SegmentState.DONE");
             num++;
             dr.nextSegment();
             segment.state = DeadReckonPath.SegmentState.INITIALIZE;
