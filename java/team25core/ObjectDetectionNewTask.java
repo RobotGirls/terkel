@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
@@ -32,6 +33,22 @@ public class ObjectDetectionNewTask extends RobotTask {
     public static final String LABEL_OBJECT1 = "Prop";
     public static final String LABEL_OBJECT2 = "Pixel";
 
+    private Telemetry.Item numAprilTagsDetectedTlm;
+    private Telemetry.Item aprilTagIdTlm;
+    private Telemetry.Item aprilTagNameTlm;
+    private Telemetry.Item aprilTagPoseXTlm;
+    private Telemetry.Item aprilTagPoseYTlm;
+    private Telemetry.Item aprilTagPoseZTlm;
+    private Telemetry.Item aprilTagYawTlm;
+    private Telemetry.Item aprilTagPitchTlm;
+    private Telemetry.Item aprilTagRollTlm;
+    private Telemetry.Item aprilTagPoseRangeTlm;
+    private Telemetry.Item aprilTagPoseBearingTlm;
+    private Telemetry.Item aprilTagPoseElevationTlm;
+    private Telemetry.Item aprilTagCenterXTlm;
+    private Telemetry.Item aprilTagCenterYTlm;
+
+
     // not sure if this is needed with husky lens
     //private static final String TFOD_MODEL_ASSET = "FreightFrenzyReg.tflite";
 
@@ -41,6 +58,8 @@ public class ObjectDetectionNewTask extends RobotTask {
 
 
     private int rateLimitMs;
+
+    Telemetry myTelemetry;
 
     public enum DetectionKind {
         EVERYTHING, //this may go away
@@ -81,16 +100,34 @@ public class ObjectDetectionNewTask extends RobotTask {
         }
     }
 
+
+    public void initAprilTagTlm(Telemetry telemetry) {
+        numAprilTagsDetectedTlm = myTelemetry.addData("numAprilTagsDetected: ","none");
+        aprilTagIdTlm = myTelemetry.addData("aprilTagId: ","none");
+        aprilTagNameTlm = myTelemetry.addData("aprilTagName: ","none");
+        aprilTagPoseXTlm = myTelemetry.addData("aprilTagPoseX: ","none");
+        aprilTagPoseYTlm = myTelemetry.addData("aprilTagPoseY: ","none");
+        aprilTagPoseZTlm = myTelemetry.addData("aprilTagPoseZ: ","none");
+        aprilTagYawTlm = myTelemetry.addData("aprilTagYaw: ","none");
+        aprilTagPitchTlm = myTelemetry.addData("aprilTagPitch: ","none");
+        aprilTagRollTlm = myTelemetry.addData("aprilTagRoll: ","none");
+        aprilTagPoseRangeTlm = myTelemetry.addData("aprilTagPoseRange: ","none");
+        aprilTagPoseBearingTlm = myTelemetry.addData("aprilTagPoseBearing: ","none");
+        aprilTagPoseElevationTlm = myTelemetry.addData("aprilTagPoseElevation: ","none");
+        aprilTagCenterXTlm = myTelemetry.addData("aprilTagCenterX: ","none");
+        aprilTagCenterYTlm = myTelemetry.addData("aprilTagCenterY: ","none");
+    }
+
     //---------------------------------------------------------
     //constructor
-    public ObjectDetectionNewTask(Robot robot) {
+    public ObjectDetectionNewTask(Robot robot, Telemetry telemetry) {
         super(robot);
         rateLimitMs = 0;
         //FIXME figure out what kind of detection we want it to be
         detectionKind = ObjectDetectionNewTask.DetectionKind.EVERYTHING;
 
+        initAprilTagTlm(telemetry);
     }
-
     //for webcamera construtor
     public ObjectDetectionNewTask(Robot robot, String cameraName) {
         super(robot);
@@ -243,6 +280,38 @@ public class ObjectDetectionNewTask extends RobotTask {
                 break;
         }
     }
+
+    protected void processAprilTags() {
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        numAprilTagsDetectedTlm.setValue(currentDetections.size());
+        for (AprilTagDetection detection : currentDetections) {
+
+            if (detection.metadata != null) {
+                aprilTagIdTlm.setValue(detection.id);
+                aprilTagNameTlm.setValue(detection.metadata.name);
+                aprilTagPoseXTlm.setValue(detection.ftcPose.x);
+                aprilTagPoseYTlm.setValue(detection.ftcPose.y);
+                aprilTagPoseYTlm.setValue(detection.ftcPose.z);
+                aprilTagYawTlm.setValue(detection.ftcPose.yaw);
+                aprilTagPitchTlm.setValue(detection.ftcPose.pitch);
+                aprilTagRollTlm.setValue(detection.ftcPose.roll);
+                aprilTagPoseRangeTlm.setValue(detection.ftcPose.range);
+                aprilTagPoseBearingTlm.setValue(detection.ftcPose.bearing);
+                aprilTagPoseElevationTlm.setValue(detection.ftcPose.elevation);
+                aprilTagCenterXTlm.setValue(detection.center.x);
+                aprilTagCenterYTlm.setValue(detection.center.y);
+            } else {
+                //telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
+                //telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+            }
+        }   // end for() loop
+
+        // Add "key" information to telemetry
+       // telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
+        //telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
+       // telemetry.addLine("RBE = Range, Bearing & Elevation");
+
+    }
     @Override
     public boolean timeslice()
     {
@@ -255,7 +324,7 @@ public class ObjectDetectionNewTask extends RobotTask {
         //shows location of object
         //FIXME how to get the recognitions
         processDetectedObjects(myTfodProcessor.getRecognitions());
-
+        processAprilTags();
         if (rateLimitMs != 0) {
             timer.reset();
         }
