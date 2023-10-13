@@ -56,6 +56,10 @@ public class DistanceSensorTask extends RobotTask {
 
     private Telemetry.Item rightDistanceTlm;
     private Telemetry.Item leftDistanceTlm;
+    private Telemetry.Item rightCountTlm;
+    private Telemetry.Item leftCountTlm;
+    private Telemetry.Item notFoundCountTlm;
+
 
     // Constructor.
     public DistanceSensorTask(Robot robot, DistanceSensor myRightSensor,
@@ -77,6 +81,9 @@ public class DistanceSensorTask extends RobotTask {
 
         this.leftDistanceTlm = telemetry.addData("leftDistance", "none");
         this.rightDistanceTlm = telemetry.addData("rightDistance", "none");
+        this.rightCountTlm = telemetry.addData("rightCount", "none");
+        this.leftCountTlm = telemetry.addData("leftCount", "none");
+        this.notFoundCountTlm = telemetry.addData("notFoundCount", "none");
 
     }
 
@@ -136,6 +143,7 @@ public class DistanceSensorTask extends RobotTask {
             rightDistanceTlm.setValue(rightDistance);
             leftDistanceTlm.setValue(leftDistance);
 
+
             if (leftDistance < maxDistance && leftDistance > minDistance){
                 leftCount++;
             }
@@ -146,6 +154,9 @@ public class DistanceSensorTask extends RobotTask {
                 notFound++;
             }
         }
+        leftCountTlm.setValue(leftCount);
+        rightCountTlm.setValue(rightCount);
+        notFoundCountTlm.setValue(notFound);
         // FIXME later bound the distance so you return a distance relevant to where the prop is
         if (leftCount > rightCount && leftCount > pollingThresh){
             robot.queueEvent(new DistanceSensorEvent(this, EventKind.LEFT_DISTANCE,
@@ -168,6 +179,7 @@ public class DistanceSensorTask extends RobotTask {
         rightDistance = rightSensor.getDistance(DistanceUnit.INCH);
         rightDistanceTlm.setValue(rightDistance);
         leftDistanceTlm.setValue(leftDistance);
+
         // FIXME later bound the distance so you return a distance relevant to where the prop is
         if (leftDistance < maxDistance && leftDistance > minDistance){
             robot.queueEvent(new DistanceSensorEvent(this, EventKind.LEFT_DISTANCE,
@@ -184,8 +196,6 @@ public class DistanceSensorTask extends RobotTask {
 
     @Override
     public boolean timeslice() {
-        continuousRead();
-
         if (continuousFlag)
         {
             return continuousRead();
