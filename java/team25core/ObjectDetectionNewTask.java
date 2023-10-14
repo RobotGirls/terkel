@@ -25,7 +25,10 @@ public class ObjectDetectionNewTask extends RobotTask {
     // create the AprilTag processor builder (used for config)
     AprilTagProcessor.Builder myAprilTagProcessorBuilder;
     // create the AprilTag processor
-    AprilTagProcessor myAprilTagProcessor;
+    //AprilTagProcessor myAprilTagProcessor;
+    AprilTagProcessor aprilTag = null;
+
+
     // create the VisionPortal
     VisionPortal myVisionPortal;
     VisionPortal.Builder myVisionPortalBuilder;
@@ -61,10 +64,13 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     Telemetry myTelemetry;
 
+    boolean doStreaming = false;
+
     public enum DetectionKind {
-        EVERYTHING, //this may go away
+        EVERYTHING, //do both object detection and AprilTags
         OBJECT1_DETECTED,
         OBJECT2_DETECTED,
+        APRILTAG_DETECTED,
         UNKNOWN_DETECTED,
     }
 
@@ -73,8 +79,6 @@ public class ObjectDetectionNewTask extends RobotTask {
         OBJECT1_KIND,
         UNKNOWN_KIND,
     }
-
-    ;
 
     private ObjectDetectionNewTask.DetectionKind detectionKind;
 
@@ -120,11 +124,16 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     //---------------------------------------------------------
     //constructor
-    public ObjectDetectionNewTask(Robot robot, Telemetry telemetry) {
+    // detection kind will be used to determine whether we're doing
+    // both object detection and AprilTags (EVERYTHING)
+    // OR just object detection (OBJECT1_DETECTED or OBJECT2_DETECTED)
+    // OR just AprilTags (APRILTAGS_DETECTED)
+    public ObjectDetectionNewTask(Robot robot, Telemetry telemetry, DetectionKind myDetectionKind) {
         super(robot);
         rateLimitMs = 0;
         //FIXME figure out what kind of detection we want it to be
-        detectionKind = ObjectDetectionNewTask.DetectionKind.EVERYTHING;
+        //detectionKind = ObjectDetectionNewTask.DetectionKind.EVERYTHING;
+        detectionKind = myDetectionKind;
 
         initAprilTagTlm(telemetry);
     }
@@ -187,8 +196,12 @@ public class ObjectDetectionNewTask extends RobotTask {
 
         // Set the camera and Processors. (confirm the camera name on the phone)
         myVisionPortalBuilder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
-        myVisionPortalBuilder.addProcessor(myAprilTagProcessor);
-        myVisionPortalBuilder.addProcessor(myTfodProcessor);
+        if (doAprilTags()) {
+            myVisionPortalBuilder.addProcessor(myAprilTagProcessor);
+        }
+        if (doObjDetection()) {
+            myVisionPortalBuilder.addProcessor(myTfodProcessor);
+        }
 
         // Optional: set other custom features of the VisionPortal.
         myVisionPortalBuilder.setCameraResolution(new Size(640, 480));
@@ -201,16 +214,39 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     }
 
-    public void init(Telemetry telemetry, HardwareMap hardwareMap) {
-        TfodProcessor tp;
-        AprilTagProcessor ap;
+    // if we want to do AprilTags
+    public boolean doAprilTags() {
+        boolean runAprilTags = false;
+        if ((detectionKind == ObjectDetectionNewTask.DetectionKind.EVERYTHING) ||
+                (detectionKind == ObjectDetectionNewTask.DetectionKind.APRILTAG_DETECTED)) {
+            runAprilTags = true;
+        }
+        return runAprilTags;
+    }
 
-        // initialize TFOD Processor
-        tp = initTfod();
-        // initialize April Tag Processor
-        ap = initAprilTag();
+    public boolean doObjDetection() {
+        boolean runObjDetection = false;
+        if ((detectionKind == ObjectDetectionNewTask.DetectionKind.EVERYTHING) ||
+                (detectionKind == ObjectDetectionNewTask.DetectionKind.OBJECT1_DETECTED) ||
+                (detectionKind == ObjectDetectionNewTask.DetectionKind.OBJECT2_DETECTED)) {
+            runObjDetection = true;
+        }
+        return runObjDetection;
+    }
+
+    public void init(Telemetry telemetry, HardwareMap hardwareMap) {
+        TfodProcessor tp = null;
+        if (doAprilTags()) {
+            // initialize April Tag Processor
+            aprilTag = initAprilTag();
+        }
+        if (doObjDetection()) {
+            // initialize TFOD Processor
+            tp = initTfod();
+        }
+
         // initalize Vision Portal Processor
-        initVisionPortal(hardwareMap, ap, tp);
+        initVisionPortal(hardwareMap, aprilTag, tp);
 
     }
 
@@ -224,7 +260,6 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     @Override
     public void start() {
-
         if (rateLimitMs != 0) {
             timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         }
@@ -233,6 +268,8 @@ public class ObjectDetectionNewTask extends RobotTask {
     @Override
     public void stop() {
         robot.removeTask(this);
+        myVisionPortal.stopStreaming();
+        myVisionPortal.close();
     }
 
     public static ObjectDetectionNewTask.ObjectKind isObject(Recognition object) {
@@ -281,30 +318,34 @@ public class ObjectDetectionNewTask extends RobotTask {
         }
     }
 
+    public void printAprilTagTlm(AprilTagDetection myDetection) {
+        if (myDetection.metadata != null) {
+            aprilTagIdTlm.setValue(myDetection.id);
+            aprilTagNameTlm.setValue(myDetection.metadata.name);
+            aprilTagPoseXTlm.setValue(myDetection.ftcPose.x);
+            aprilTagPoseYTlm.setValue(myDetection.ftcPose.y);
+            aprilTagPoseYTlm.setValue(myDetection.ftcPose.z);
+            aprilTagYawTlm.setValue(myDetection.ftcPose.yaw);
+            aprilTagPitchTlm.setValue(myDetection.ftcPose.pitch);
+            aprilTagRollTlm.setValue(myDetection.ftcPose.roll);
+            aprilTagPoseRangeTlm.setValue(myDetection.ftcPose.range);
+            aprilTagPoseBearingTlm.setValue(myDetection.ftcPose.bearing);
+            aprilTagPoseElevationTlm.setValue(myDetection.ftcPose.elevation);
+            aprilTagCenterXTlm.setValue(myDetection.center.x);
+            aprilTagCenterYTlm.setValue(myDetection.center.y);
+        } else {
+            aprilTagIdTlm.setValue(myDetection.id);
+            aprilTagCenterXTlm.setValue(myDetection.center.x);
+            aprilTagCenterYTlm.setValue(myDetection.center.y);
+        }
+    }
     protected void processAprilTags() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         numAprilTagsDetectedTlm.setValue(currentDetections.size());
         for (AprilTagDetection detection : currentDetections) {
-
-            if (detection.metadata != null) {
-                aprilTagIdTlm.setValue(detection.id);
-                aprilTagNameTlm.setValue(detection.metadata.name);
-                aprilTagPoseXTlm.setValue(detection.ftcPose.x);
-                aprilTagPoseYTlm.setValue(detection.ftcPose.y);
-                aprilTagPoseYTlm.setValue(detection.ftcPose.z);
-                aprilTagYawTlm.setValue(detection.ftcPose.yaw);
-                aprilTagPitchTlm.setValue(detection.ftcPose.pitch);
-                aprilTagRollTlm.setValue(detection.ftcPose.roll);
-                aprilTagPoseRangeTlm.setValue(detection.ftcPose.range);
-                aprilTagPoseBearingTlm.setValue(detection.ftcPose.bearing);
-                aprilTagPoseElevationTlm.setValue(detection.ftcPose.elevation);
-                aprilTagCenterXTlm.setValue(detection.center.x);
-                aprilTagCenterYTlm.setValue(detection.center.y);
-            } else {
-                //telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                //telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-            }
+            printAprilTagTlm(detection);
         }   // end for() loop
+
 
         // Add "key" information to telemetry
        // telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
@@ -312,6 +353,14 @@ public class ObjectDetectionNewTask extends RobotTask {
        // telemetry.addLine("RBE = Range, Bearing & Elevation");
 
     }
+
+    public void resumeStreaming() {
+        myVisionPortal.resumeStreaming();
+    }
+    public void stopStreaming() {
+        myVisionPortal.stopStreaming();
+    }
+
     @Override
     public boolean timeslice()
     {
@@ -323,8 +372,13 @@ public class ObjectDetectionNewTask extends RobotTask {
         }
         //shows location of object
         //FIXME how to get the recognitions
-        processDetectedObjects(myTfodProcessor.getRecognitions());
-        processAprilTags();
+        if (doObjDetection()) {
+            processDetectedObjects(myTfodProcessor.getRecognitions());
+        }
+        if (doAprilTags()) {
+            processAprilTags();
+        }
+
         if (rateLimitMs != 0) {
             timer.reset();
         }
