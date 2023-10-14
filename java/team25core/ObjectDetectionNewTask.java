@@ -1,6 +1,5 @@
 package team25core;
 
-
 import android.util.Size;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -105,21 +104,11 @@ public class ObjectDetectionNewTask extends RobotTask {
     }
 
 
-    public void initAprilTagTlm(Telemetry telemetry) {
-        numAprilTagsDetectedTlm = myTelemetry.addData("numAprilTagsDetected: ","none");
-        aprilTagIdTlm = myTelemetry.addData("aprilTagId: ","none");
-        aprilTagNameTlm = myTelemetry.addData("aprilTagName: ","none");
-        aprilTagPoseXTlm = myTelemetry.addData("aprilTagPoseX: ","none");
-        aprilTagPoseYTlm = myTelemetry.addData("aprilTagPoseY: ","none");
-        aprilTagPoseZTlm = myTelemetry.addData("aprilTagPoseZ: ","none");
-        aprilTagYawTlm = myTelemetry.addData("aprilTagYaw: ","none");
-        aprilTagPitchTlm = myTelemetry.addData("aprilTagPitch: ","none");
-        aprilTagRollTlm = myTelemetry.addData("aprilTagRoll: ","none");
-        aprilTagPoseRangeTlm = myTelemetry.addData("aprilTagPoseRange: ","none");
-        aprilTagPoseBearingTlm = myTelemetry.addData("aprilTagPoseBearing: ","none");
-        aprilTagPoseElevationTlm = myTelemetry.addData("aprilTagPoseElevation: ","none");
-        aprilTagCenterXTlm = myTelemetry.addData("aprilTagCenterX: ","none");
-        aprilTagCenterYTlm = myTelemetry.addData("aprilTagCenterY: ","none");
+    public void initAprilTagTlm(Telemetry myTelemetry) {
+        // add "key" information to telemetry
+        myTelemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
+        myTelemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
+        myTelemetry.addLine("RBE = Range, Bearing & Elevation");
     }
 
     //---------------------------------------------------------
@@ -134,7 +123,7 @@ public class ObjectDetectionNewTask extends RobotTask {
         //FIXME figure out what kind of detection we want it to be
         //detectionKind = ObjectDetectionNewTask.DetectionKind.EVERYTHING;
         detectionKind = myDetectionKind;
-
+        myTelemetry = telemetry;
         initAprilTagTlm(telemetry);
     }
     //for webcamera construtor
@@ -320,28 +309,20 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     public void printAprilTagTlm(AprilTagDetection myDetection) {
         if (myDetection.metadata != null) {
-            aprilTagIdTlm.setValue(myDetection.id);
-            aprilTagNameTlm.setValue(myDetection.metadata.name);
-            aprilTagPoseXTlm.setValue(myDetection.ftcPose.x);
-            aprilTagPoseYTlm.setValue(myDetection.ftcPose.y);
-            aprilTagPoseYTlm.setValue(myDetection.ftcPose.z);
-            aprilTagYawTlm.setValue(myDetection.ftcPose.yaw);
-            aprilTagPitchTlm.setValue(myDetection.ftcPose.pitch);
-            aprilTagRollTlm.setValue(myDetection.ftcPose.roll);
-            aprilTagPoseRangeTlm.setValue(myDetection.ftcPose.range);
-            aprilTagPoseBearingTlm.setValue(myDetection.ftcPose.bearing);
-            aprilTagPoseElevationTlm.setValue(myDetection.ftcPose.elevation);
-            aprilTagCenterXTlm.setValue(myDetection.center.x);
-            aprilTagCenterYTlm.setValue(myDetection.center.y);
+            myTelemetry.addLine(String.format("\n==== (ID %d) %s", myDetection.id, myDetection.metadata.name));
+            myTelemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", myDetection.ftcPose.x, myDetection.ftcPose.y, myDetection.ftcPose.z));
+            myTelemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", myDetection.ftcPose.pitch, myDetection.ftcPose.roll, myDetection.ftcPose.yaw));
+            myTelemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", myDetection.ftcPose.range, myDetection.ftcPose.bearing, myDetection.ftcPose.elevation));
         } else {
-            aprilTagIdTlm.setValue(myDetection.id);
-            aprilTagCenterXTlm.setValue(myDetection.center.x);
-            aprilTagCenterYTlm.setValue(myDetection.center.y);
+            myTelemetry.addLine(String.format("\n==== (ID %d) Unknown", myDetection.id));
+            myTelemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", myDetection.center.x, myDetection.center.y));
         }
+
     }
     protected void processAprilTags() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        numAprilTagsDetectedTlm.setValue(currentDetections.size());
+        //numAprilTagsDetectedTlm.setValue(currentDetections.size());
+        myTelemetry.addData("# AprilTags Detected", currentDetections.size());
         for (AprilTagDetection detection : currentDetections) {
             printAprilTagTlm(detection);
         }   // end for() loop
@@ -384,6 +365,4 @@ public class ObjectDetectionNewTask extends RobotTask {
         }
         return false;
     }
-
-
 }
