@@ -52,10 +52,12 @@ public class TwoStickMechanumControlScheme implements JoystickDriveControlScheme
 
     public MotorValues getMotorPowers()
     {
-        leftX = gamepad.left_stick_x;
-        rightX = gamepad.right_stick_x;
-        leftY = gamepad.left_stick_y;
-        rightY = gamepad.right_stick_y;
+        leftX = gamepad.left_stick_x; // turning
+        rightX = gamepad.right_stick_x; // strafing
+        leftY = -gamepad.left_stick_y; // unused
+        rightY = -gamepad.right_stick_y; // forward and back
+
+        rightX *= 1.1; // recommended by gm0 for strafing correction
 
         //  The left joystick controls the left and right turns
         //  The right joystick controls forward with the y axis and strafing with the x axis
@@ -63,10 +65,12 @@ public class TwoStickMechanumControlScheme implements JoystickDriveControlScheme
         //  turn, and strafe
         //  lastly I assigned the controls to each wheel
 
-        fl = -rightY + leftX + rightX;
-        fr = -rightY - leftX - rightX;
-        rl = -rightY + leftX - rightX;
-        rr = -rightY - leftX + rightX;
+        double scaleFactor = Math.max(Math.abs(rightY) + Math.abs(rightX) + Math.abs(leftX), 1);
+
+        fl = (rightY + leftX + rightX) / scaleFactor;
+        fr = (rightY - leftX - rightX) / scaleFactor;
+        rl = (rightY + leftX - rightX) / scaleFactor;
+        rr = (rightY - leftX + rightX) / scaleFactor;
 
         return new MotorValues(fl, fr, rl, rr);
     }
