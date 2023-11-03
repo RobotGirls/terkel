@@ -171,7 +171,6 @@ public class ObjectDetectionNewTask extends RobotTask {
 
         return aprilTagProcessor;
 
-
     }
 
     public void initVisionPortal(HardwareMap hardwareMap,
@@ -319,6 +318,25 @@ public class ObjectDetectionNewTask extends RobotTask {
         }
 
     }
+
+    public AprilTagDetection getAprilTagDetections(int detectionNum) {
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        try{
+            return currentDetections.get(detectionNum);
+        }
+        catch(Exception e){
+            AprilTagDetection detection;
+            return null;
+            //TODO make graceful catch
+        }
+
+    }
+
+    public int getNumAprilTags(){
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        return currentDetections.size();
+    }
+
     protected void processAprilTags() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         //numAprilTagsDetectedTlm.setValue(currentDetections.size());
