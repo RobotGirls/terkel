@@ -398,11 +398,13 @@ public class ObjectDetectionNewTask extends RobotTask {
                 if ((desiredTagID < 0) || (detection.id == desiredTagID)) {
                     // Yes, we want to use this tag.
                     targetFound = true;
+                    myTelemetry.addData("Desired tag detected: ", "true");
                     desiredTag = detection;
                     break;  // don't look any further.
                 } else {
                     // This tag is in the library, but we do not want to track it right now.
                     myTelemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+                    myTelemetry.addData("Desired tag detected: ", "false");
                 }
             } else {
                 // This tag is NOT in the library, so we don't have enough information to track to it.
@@ -412,7 +414,6 @@ public class ObjectDetectionNewTask extends RobotTask {
 
         if (targetFound) {
             robot.queueEvent(new ObjectDetectionNewTask.TagDetectionEvent(this, EventKind.APRIL_TAG_DETECTED, desiredTag));
-
         }
 
         // Add "key" information to telemetry
