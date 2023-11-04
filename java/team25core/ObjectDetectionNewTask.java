@@ -454,13 +454,13 @@ public class ObjectDetectionNewTask extends RobotTask {
         ExposureControl exposureControl = myVisionPortal.getCameraControl(ExposureControl.class);
         if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
             exposureControl.setMode(ExposureControl.Mode.Manual);
-            sleep(50);
+            //sleep(50);
         }
         exposureControl.setExposure((long)myExposureMS, TimeUnit.MILLISECONDS);
-        sleep(20);
+        //sleep(20);
         GainControl gainControl = myVisionPortal.getCameraControl(GainControl.class);
         gainControl.setGain(myGain);
-        sleep(20);
+        //sleep(20);
     }
 
     public void resumeStreaming() {
