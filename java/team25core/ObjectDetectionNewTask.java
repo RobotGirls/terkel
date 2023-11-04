@@ -227,7 +227,6 @@ public class ObjectDetectionNewTask extends RobotTask {
 
         return aprilTagProcessor;
 
-
     }
 
     public void setAprilTagDecimation(float decimation) {
