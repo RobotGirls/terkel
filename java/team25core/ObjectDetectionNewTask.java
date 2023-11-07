@@ -97,7 +97,6 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     private final float DEFAULT_DECIMATION = 2;
 
-
     private boolean myDoManualExposure = false;
 
     private int myExposureMS;
@@ -124,6 +123,21 @@ public class ObjectDetectionNewTask extends RobotTask {
         public String toString() {
             return kind.toString();
         }
+    }
+
+    public AprilTagDetection getAprilTag(int tagID) {
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        for (AprilTagDetection detection : currentDetections) {
+            // Look to see if we have size info on this tag.
+            if (detection.metadata != null) {
+                //printAprilTagTlm(detection);
+                //  Check to see if we want to track towards this tag.
+                if ((tagID < 0) || (detection.id == tagID)) {
+                    return detection;
+                }
+            }
+        }   // end for() loop
+        return null;
     }
 
     public class TagDetectionEvent extends RobotEvent {
