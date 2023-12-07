@@ -127,9 +127,11 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     public AprilTagDetection getAprilTag(int tagID) {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        myTelemetry.addData("inside getAprilTag call in terkel ", "true");
         for (AprilTagDetection detection : currentDetections) {
             // Look to see if we have size info on this tag.
             if (detection.metadata != null) {
+                myTelemetry.addData("inside getAprilTag tag detected id:", detection.id);
                 //printAprilTagTlm(detection);
                 //  Check to see if we want to track towards this tag.
                 if ((tagID < 0) || (detection.id == tagID)) {
