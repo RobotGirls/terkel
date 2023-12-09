@@ -132,7 +132,7 @@ public class ObjectDetectionNewTask extends RobotTask {
             // Look to see if we have size info on this tag.
             if (detection.metadata != null) {
                 myTelemetry.addData("inside getAprilTag tag detected id:", detection.id);
-                //printAprilTagTlm(detection);
+                printAprilTagTlm(detection);
                 //  Check to see if we want to track towards this tag.
                 if ((tagID < 0) || (detection.id == tagID)) {
                     return detection;
