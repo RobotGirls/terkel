@@ -228,6 +228,10 @@ public class ObjectDetectionNewTask extends RobotTask {
         myAprilTagProcessorBuilder.setDrawAxes(true); // Default: false
         myAprilTagProcessorBuilder.setDrawCubeProjection(true); // Default: false
 
+        //these are values we got after camera callibration using 3DFZephyr
+        myAprilTagProcessorBuilder.setLensIntrinsics(1431.77, 1431.77,949.511, 558.915);
+
+
 
         // Create an AprilTagProcessor by calling build()
         aprilTagProcessor = myAprilTagProcessorBuilder.build();
