@@ -132,7 +132,7 @@ public class ObjectDetectionNewTask extends RobotTask {
             // Look to see if we have size info on this tag.
             if (detection.metadata != null) {
                 myTelemetry.addData("inside getAprilTag tag detected id:", detection.id);
-                //printAprilTagTlm(detection);
+                printAprilTagTlm(detection);
                 //  Check to see if we want to track towards this tag.
                 if ((tagID < 0) || (detection.id == tagID)) {
                     return detection;
@@ -227,6 +227,10 @@ public class ObjectDetectionNewTask extends RobotTask {
         myAprilTagProcessorBuilder.setDrawTagOutline(true); // Default: true
         myAprilTagProcessorBuilder.setDrawAxes(true); // Default: false
         myAprilTagProcessorBuilder.setDrawCubeProjection(true); // Default: false
+
+        //these are values we got after camera callibration using 3DFZephyr
+        myAprilTagProcessorBuilder.setLensIntrinsics(1431.77, 1431.77,949.511, 558.915);
+
 
 
         // Create an AprilTagProcessor by calling build()
