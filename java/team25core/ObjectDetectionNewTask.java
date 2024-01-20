@@ -127,11 +127,11 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     public AprilTagDetection getAprilTag(int tagID) {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        myTelemetry.addData("inside getAprilTag call in terkel ", "true");
+        //myTelemetry.addData("inside getAprilTag call in terkel ", "true");
         for (AprilTagDetection detection : currentDetections) {
             // Look to see if we have size info on this tag.
             if (detection.metadata != null) {
-                myTelemetry.addData("inside getAprilTag tag detected id:", detection.id);
+                //myTelemetry.addData("inside getAprilTag tag detected id:", detection.id);
                 printAprilTagTlm(detection);
                 //  Check to see if we want to track towards this tag.
                 if ((tagID < 0) || (detection.id == tagID)) {
@@ -166,9 +166,9 @@ public class ObjectDetectionNewTask extends RobotTask {
 
     public void initAprilTagTlm(Telemetry myTelemetry) {
         // add "key" information to telemetry
-        myTelemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        myTelemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
-        myTelemetry.addLine("RBE = Range, Bearing & Elevation");
+//        myTelemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
+//        myTelemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
+//        myTelemetry.addLine("RBE = Range, Bearing & Elevation");
     }
 
     //---------------------------------------------------------
@@ -407,31 +407,33 @@ public class ObjectDetectionNewTask extends RobotTask {
     }
 
     protected void processAprilTags() {
+        // returns a list of detections the camera identifies
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         //numAprilTagsDetectedTlm.setValue(currentDetections.size());
-        myTelemetry.addData("# AprilTags Detected", currentDetections.size());
+        //myTelemetry.addData("# AprilTags Detected", currentDetections.size());
+        targetFound = false;
         for (AprilTagDetection detection : currentDetections) {
             // Look to see if we have size info on this tag.
             if (detection.metadata != null) {
-                printAprilTagTlm(detection);
+                //printAprilTagTlm(detection);
                 //  Check to see if we want to track towards this tag.
                 if ((desiredTagID < 0) || (detection.id == desiredTagID)) {
                     // Yes, we want to use this tag.
                     targetFound = true;
-                    myTelemetry.addData("Desired tag detected: ", "true");
+                    //myTelemetry.addData("Desired tag detected: ", "true");
                     desiredTag = detection;
                     break;  // don't look any further.
                 } else {
                     // This tag is in the library, but we do not want to track it right now.
-                    myTelemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
-                    myTelemetry.addData("Desired tag detects: ", "false");
+                    //myTelemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+                    //myTelemetry.addData("Desired tag detects: ", "false");
                 }
             } else {
                 // This tag is NOT in the library, so we don't have enough information to track to it.
                 myTelemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
             }
         }   // end for() loop
-
+        // if this event doesn't get called, then the even handler in auto doesn't run
         if (targetFound) {
             robot.queueEvent(new ObjectDetectionNewTask.TagDetectionEvent(this, EventKind.APRIL_TAG_DETECTED, desiredTag));
         }
@@ -462,13 +464,13 @@ public class ObjectDetectionNewTask extends RobotTask {
 
         // Make sure camera is streaming before we try to set the exposure controls
         if (myVisionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            myTelemetry.addData("Camera", "Waiting");
-            myTelemetry.update();
+//            myTelemetry.addData("Camera", "Waiting");
+//            myTelemetry.update();
             return;
         }
 
-        myTelemetry.addData("Camera", "Ready");
-        myTelemetry.update();
+        //myTelemetry.addData("Camera", "Ready");
+        //myTelemetry.update();
 
         // Set camera controls unless we are stopping.
         ExposureControl exposureControl = myVisionPortal.getCameraControl(ExposureControl.class);
