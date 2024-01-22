@@ -57,6 +57,9 @@ public class ObjectDetectionNewTask extends RobotTask {
     private Telemetry.Item aprilTagCenterXTlm;
     private Telemetry.Item aprilTagCenterYTlm;
 
+    private int debug = 1;
+    private static int HIGH_VERBOSITY = 2;
+
 
     // not sure if this is needed with husky lens
     //private static final String TFOD_MODEL_ASSET = "FreightFrenzyReg.tflite";
@@ -394,6 +397,7 @@ public class ObjectDetectionNewTask extends RobotTask {
             myTelemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", myDetection.ftcPose.x, myDetection.ftcPose.y, myDetection.ftcPose.z));
             myTelemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", myDetection.ftcPose.pitch, myDetection.ftcPose.roll, myDetection.ftcPose.yaw));
             myTelemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", myDetection.ftcPose.range, myDetection.ftcPose.bearing, myDetection.ftcPose.elevation));
+
         } else {
             myTelemetry.addLine(String.format("\n==== (ID %d) Unknown", myDetection.id));
             myTelemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", myDetection.center.x, myDetection.center.y));
@@ -409,22 +413,30 @@ public class ObjectDetectionNewTask extends RobotTask {
     protected void processAprilTags() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         //numAprilTagsDetectedTlm.setValue(currentDetections.size());
-        myTelemetry.addData("# AprilTags Detected", currentDetections.size());
+        if (debug > HIGH_VERBOSITY) {
+            myTelemetry.addData("# AprilTags Detected", currentDetections.size());
+        }
         for (AprilTagDetection detection : currentDetections) {
             // Look to see if we have size info on this tag.
             if (detection.metadata != null) {
-                printAprilTagTlm(detection);
+                if (debug > HIGH_VERBOSITY) {
+                    printAprilTagTlm(detection);
+                }
                 //  Check to see if we want to track towards this tag.
                 if ((desiredTagID < 0) || (detection.id == desiredTagID)) {
                     // Yes, we want to use this tag.
                     targetFound = true;
-                    myTelemetry.addData("Desired tag detected: ", "true");
+                    if (debug > HIGH_VERBOSITY) {
+                        myTelemetry.addData("Desired tag detected: ", "true");
+                    }
                     desiredTag = detection;
                     break;  // don't look any further.
                 } else {
-                    // This tag is in the library, but we do not want to track it right now.
-                    myTelemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
-                    myTelemetry.addData("Desired tag detects: ", "false");
+                    if (debug > HIGH_VERBOSITY) {
+                        // This tag is in the library, but we do not want to track it right now.
+                        myTelemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+                        myTelemetry.addData("Desired tag detects: ", "false");
+                    }
                 }
             } else {
                 // This tag is NOT in the library, so we don't have enough information to track to it.
@@ -433,6 +445,7 @@ public class ObjectDetectionNewTask extends RobotTask {
         }   // end for() loop
 
         if (targetFound) {
+            printAprilTagTlm(desiredTag);
             robot.queueEvent(new ObjectDetectionNewTask.TagDetectionEvent(this, EventKind.APRIL_TAG_DETECTED, desiredTag));
         }
 
@@ -462,13 +475,17 @@ public class ObjectDetectionNewTask extends RobotTask {
 
         // Make sure camera is streaming before we try to set the exposure controls
         if (myVisionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            myTelemetry.addData("Camera", "Waiting");
-            myTelemetry.update();
+            if (debug > HIGH_VERBOSITY) {
+                myTelemetry.addData("Camera", "Waiting");
+                myTelemetry.update();
+            }
             return;
         }
 
-        myTelemetry.addData("Camera", "Ready");
-        myTelemetry.update();
+        if (debug > HIGH_VERBOSITY) {
+            myTelemetry.addData("Camera", "Ready");
+            myTelemetry.update();
+        }
 
         // Set camera controls unless we are stopping.
         ExposureControl exposureControl = myVisionPortal.getCameraControl(ExposureControl.class);
