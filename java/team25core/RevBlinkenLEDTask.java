@@ -50,7 +50,7 @@ public class RevBlinkenLEDTask extends RobotTask {
 
     Telemetry.Item patternName;
     Telemetry.Item display;
-    SampleRevBlinkinLedDriver.DisplayKind displayKind;
+    //SampleRevBlinkinLedDriver.DisplayKind displayKind;
     Deadline ledCycleDeadline;
     Deadline gamepadRateLimit;
 
