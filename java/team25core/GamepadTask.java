@@ -144,10 +144,6 @@ public class GamepadTask extends RobotTask {
         this.buttonState.right_bumper_pressed  = false;
         this.buttonState.left_trigger_pressed  = false;
         this.buttonState.right_trigger_pressed = false;
-        this.buttonState.dpad_left_pressed = false;
-        this.buttonState.dpad_right_pressed = false;
-        this.buttonState.dpad_up_pressed = false;
-        this.buttonState.dpad_down_pressed = false;
 
         this.buttonState.dpad_up_pressed    = false;
         this.buttonState.dpad_down_pressed    = false;
