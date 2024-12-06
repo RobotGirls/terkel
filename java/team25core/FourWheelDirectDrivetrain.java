@@ -136,6 +136,12 @@ public class FourWheelDirectDrivetrain extends DrivetrainBaseImpl implements Dri
     @Override
     public void strafe(double speed)
     {
+        //comp robot
+//        frontRight.setPower(speed);
+//        rearRight.setPower(-speed);
+//        frontLeft.setPower(speed);
+//        rearLeft.setPower(-speed);
+        //softwarerobot
         frontRight.setPower(-speed);
         rearRight.setPower(speed);
         frontLeft.setPower(speed);
