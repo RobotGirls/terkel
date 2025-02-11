@@ -73,7 +73,7 @@ public class TwoWheelDirectDrivetrain extends DrivetrainBaseImpl implements Driv
         this.multiplier = pivotMultiplier;
         this.alternate = true;
 
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        //frontRight.setDirection(DcMotor.Direction.REVERSE);
 
         /**
          * Set a default master.  This is the wheel/motor that will be used to track distance
