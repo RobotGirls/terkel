@@ -36,6 +36,7 @@ package team25core;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class OneWheelDriveTask extends RobotTask
 {
@@ -105,6 +106,7 @@ public class OneWheelDriveTask extends RobotTask
     {
         getJoystick();
 
+        robot.telemetry.addData("motor position: ", motor.getCurrentPosition() );
         if (useLeftJoystick) {
            if (ceilingOn) {
                if (left > ceiling) {

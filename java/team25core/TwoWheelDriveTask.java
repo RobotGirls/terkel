@@ -47,6 +47,7 @@ public class TwoWheelDriveTask extends RobotTask
     public double left;
 
     public boolean slow = false;
+    public boolean useLeftJoystick = false;
 
     public double slowMultiplier = 0.5;
 
@@ -59,9 +60,23 @@ public class TwoWheelDriveTask extends RobotTask
         this.robot = robot;
     }
 
+    public TwoWheelDriveTask(Robot robot, DcMotor rightMotor, DcMotor leftMotor, boolean useLeftJoystick)
+    {
+        super(robot);
+
+        this.motorRight = rightMotor;
+        this.motorLeft = leftMotor;
+        this.robot = robot;
+        this.useLeftJoystick = useLeftJoystick;
+
+    }
+
     private void getJoystick()
     {
-        Gamepad gamepad = robot.gamepad1;
+        // changed from gamepad1 to gamepad2
+        // this is being used for java comp vertical
+        // lift (two motor) & not the summer bots
+        Gamepad gamepad = robot.gamepad2;
 
         left = -gamepad.left_stick_y * slowMultiplier;
         right = -gamepad.right_stick_y * slowMultiplier;
@@ -92,10 +107,14 @@ public class TwoWheelDriveTask extends RobotTask
     {
     }
 
+
     @Override
     public boolean timeslice()
     {
         getJoystick();
+        robot.telemetry.addData("right motor position: ", motorRight.getCurrentPosition() );
+        robot.telemetry.addData("left motor position: ", motorLeft.getCurrentPosition() );
+
         motorLeft.setPower(left);
         motorRight.setPower(right);
 
