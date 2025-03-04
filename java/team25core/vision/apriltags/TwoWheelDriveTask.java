@@ -1,3 +1,5 @@
+package team25core.vision.apriltags;
+
 
 /*
  * Copyright (c) September 2017 FTC Teams 25/5218
@@ -32,15 +34,20 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package team25core;
+
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-public class OneWheelDriveTask extends RobotTask
+import team25core.Robot;
+import team25core.RobotTask;
+
+public class TwoWheelDriveTask extends RobotTask
 {
     protected Robot robot;
-    protected DcMotor motor;
+    protected DcMotor motor1;
+    protected DcMotor motor2;
+
 
     public double right;
     public double left;
@@ -52,11 +59,12 @@ public class OneWheelDriveTask extends RobotTask
 
     public double slowMultiplier = 0.5;
 
-    public OneWheelDriveTask(Robot robot, DcMotor motor, boolean useLeftJoystick)
+    public TwoWheelDriveTask(Robot robot, DcMotor motor1, DcMotor motor2, boolean useLeftJoystick)
     {
         super(robot);
+        this.motor2 = motor2;
 
-        this.motor = motor;
+        this.motor1 = motor1;
         this.robot = robot;
         this.useLeftJoystick = useLeftJoystick;
     }
@@ -106,24 +114,34 @@ public class OneWheelDriveTask extends RobotTask
         getJoystick();
 
         if (useLeftJoystick) {
-           if (ceilingOn) {
-               if (left > ceiling) {
-                   motor.setPower(ceiling);
-               } else {
-                   motor.setPower(left);
-               }
-           } else {
-               motor.setPower(left);
-           }
+            if (ceilingOn) {
+                if (left > ceiling) {
+                    motor1.setPower(ceiling);
+                    motor2.setPower(ceiling);
+
+                } else {
+                    motor2.setPower(left);
+                    motor1.setPower(left);
+                }
+            } else {
+                motor2.setPower(left);
+                motor1.setPower(left);
+
+            }
         } else {
             if (ceilingOn) {
                 if (right > ceiling) {
-                    motor.setPower(ceiling);
+                    motor1.setPower(ceiling);
+                    motor2.setPower(ceiling);
+
                 } else {
-                    motor.setPower(right);
+                    motor1.setPower(right);
+                    motor2.setPower(right);
                 }
             } else {
-                motor.setPower(right);
+                motor1.setPower(right);
+
+                motor2.setPower(right);
             }
         }
 

@@ -67,8 +67,8 @@ public class TwoStickMechanumControlScheme implements JoystickDriveControlScheme
 //        fr = -rightY - leftX + rightX;
 //        rl = -rightY + leftX - rightX;
 //        rr = -rightY - leftX - rightX;
-        fl = -rightY + leftX +rightX;
-        fr = -rightY - leftX - rightX;
+        fl = -rightY + leftX + rightX;
+        fr = -rightY - leftX -rightX;
         rl = -rightY + leftX -rightX;
         rr = -rightY - leftX +rightX;
 
